@@ -37,6 +37,9 @@ public class FilesController {
   
   @Value("${app.coffee-dir}")
   private String coffeeDir;
+  
+  @Value("${app.bulk_files-dir}")
+  private String bulkFilesDir;
 
   @Autowired
   private SchoolService schoolService;
@@ -142,6 +145,45 @@ public class FilesController {
     try {
       // 1) Resolve path safely
       Path filePath = Paths.get(coffeeDir).resolve(filename).normalize();
+
+      // 2) Load as Resource
+      Resource resource = new UrlResource(filePath.toUri());
+      if (!resource.exists() || !resource.isReadable()) {
+        return ResponseEntity.notFound().build();
+      }
+
+      // 3) Determine content type
+      String contentType = request.getServletContext()
+          .getMimeType(resource.getFile().getAbsolutePath());
+      if (contentType == null) {
+        contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+      }
+
+      // 4) Return as attachment
+      return ResponseEntity.ok()
+          .contentType(MediaType.parseMediaType(contentType))
+          .header(HttpHeaders.CONTENT_DISPOSITION,
+                  "attachment; filename=\"" + resource.getFilename() + "\"")
+          .body(resource);
+
+    } catch (MalformedURLException ex) {
+      ex.printStackTrace();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    } catch (IOException ex) {
+      ex.printStackTrace();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+  }
+
+  @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','STUDENT')")
+  @GetMapping("/api/bulkfile/{filename:.+}")
+  public ResponseEntity<Resource> serveBulkFiles(
+      @PathVariable String filename,
+      HttpServletRequest request
+  ) {
+    try {
+      // 1) Resolve path safely
+      Path filePath = Paths.get(bulkFilesDir).resolve(filename).normalize();
 
       // 2) Load as Resource
       Resource resource = new UrlResource(filePath.toUri());

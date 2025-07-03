@@ -170,9 +170,9 @@ public class PaymentController {
       }
       dto.setPayment_id(paymentId);
 
-      Long userId = jwtUtil.extractUserId(authHeader.substring(7));
+      Long responsibleUserId = jwtUtil.extractUserId(authHeader.substring(7));
       String json = paymentService.updatePayment(
-        userId, paymentId, dto, removeReceipt, receipt, lang
+        responsibleUserId, paymentId, dto, removeReceipt, receipt, lang
       );
       return ResponseEntity.ok(json);
 

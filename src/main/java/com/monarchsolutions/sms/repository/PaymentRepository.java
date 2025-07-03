@@ -195,7 +195,7 @@ public class PaymentRepository {
 
   
     
-  public String updatePayment(Long token_user_id, Long payment_id, UpdatePaymentDTO request, Boolean removeReceipt, String lang) throws Exception {
+  public String updatePayment(Long responsibleUserId, Long payment_id, UpdatePaymentDTO request, Boolean removeReceipt, String lang) throws Exception {
     // Convert the request DTO to a JSON string
     String paymentDataJson = objectMapper.writeValueAsString(request);
 
@@ -210,7 +210,7 @@ public class PaymentRepository {
     query.registerStoredProcedureParameter("lang", String.class, ParameterMode.IN);
     
     // Set the parameters.
-    query.setParameter("responsable_user_id", token_user_id);
+    query.setParameter("responsable_user_id", responsibleUserId);
     query.setParameter("payment_id", payment_id);
     query.setParameter("p_json", paymentDataJson);
     query.setParameter("removeReceipt", removeReceipt);

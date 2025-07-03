@@ -34,6 +34,7 @@ C:\xampp\htdocs\sms\src\main\java\com\monarchsolutions\sms\dto\common\PageResult
 C:\xampp\htdocs\sms\src\main\java\com\monarchsolutions\sms\dto\common\ScholarLevelsDTO.java
 C:\xampp\htdocs\sms\src\main\java\com\monarchsolutions\sms\dto\common\UserLoginDTO.java
 C:\xampp\htdocs\sms\src\main\java\com\monarchsolutions\sms\dto\groups\CreateGroupRequest.java
+C:\xampp\htdocs\sms\src\main\java\com\monarchsolutions\sms\dto\groups\GetClassesCatalog.java
 C:\xampp\htdocs\sms\src\main\java\com\monarchsolutions\sms\dto\groups\GroupsListResponse.java
 C:\xampp\htdocs\sms\src\main\java\com\monarchsolutions\sms\dto\groups\UpdateGroupRequest.java
 C:\xampp\htdocs\sms\src\main\java\com\monarchsolutions\sms\dto\paymentRequests\CreatePaymentRequestDTO.java
@@ -62,6 +63,7 @@ C:\xampp\htdocs\sms\src\main\java\com\monarchsolutions\sms\dto\student\GetStuden
 C:\xampp\htdocs\sms\src\main\java\com\monarchsolutions\sms\dto\student\GetStudentDetails.java
 C:\xampp\htdocs\sms\src\main\java\com\monarchsolutions\sms\dto\student\StudentListResponse.java
 C:\xampp\htdocs\sms\src\main\java\com\monarchsolutions\sms\dto\student\UpdateStudentRequest.java
+C:\xampp\htdocs\sms\src\main\java\com\monarchsolutions\sms\dto\student\ValidateStudentExist.java
 C:\xampp\htdocs\sms\src\main\java\com\monarchsolutions\sms\dto\teachers\CreateTeacherRequest.java
 C:\xampp\htdocs\sms\src\main\java\com\monarchsolutions\sms\dto\user\CreateUserRequest.java
 C:\xampp\htdocs\sms\src\main\java\com\monarchsolutions\sms\dto\user\UpdateUserRequest.java
