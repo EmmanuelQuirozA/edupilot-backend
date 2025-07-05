@@ -26,6 +26,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.monarchsolutions.sms.dto.payments.CreatePayment;
 import com.monarchsolutions.sms.dto.payments.UpdatePaymentDTO;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.monarchsolutions.sms.dto.payments.ByYearPaymentsDTO;
 import com.monarchsolutions.sms.service.PaymentService;
 import com.monarchsolutions.sms.util.JwtUtil;
@@ -53,6 +55,9 @@ public class PaymentController {
   // ← make this a String
   @Value("${app.upload-dir}")
   private String uploadDir;
+
+  @Autowired
+  private ObjectMapper objectMapper;
 
   @Autowired
   private PaymentService paymentService;
@@ -144,6 +149,66 @@ public class PaymentController {
         .contentType(MediaType.APPLICATION_JSON)
         .body(jsonResult);
   };
+
+  @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
+  @PostMapping(
+    path     = "/create/bulk",
+    consumes = MediaType.APPLICATION_JSON_VALUE,
+    produces = MediaType.APPLICATION_JSON_VALUE
+  )
+  public ResponseEntity<String> createPaymentsBulk(
+      @RequestHeader("Authorization") String authHeader,
+      @RequestParam(defaultValue="es")  String lang,
+      @RequestBody Object payload        // could be a single object or list
+  ) {
+    try {
+      // 1) Strip off "Bearer " and extract user
+      String token      = authHeader.replaceFirst("^Bearer\\s+", "");
+      Long   userId     = jwtUtil.extractUserId(token);
+
+      // 2) Convert incoming payload to List<CreatePayment>
+      List<CreatePayment> requests;
+      if (payload instanceof List) {
+        // direct cast won't work—use Jackson conversion:
+        requests = objectMapper.convertValue(
+          payload,
+          new TypeReference<List<CreatePayment>>() {}
+        );
+      } else {
+        CreatePayment single = objectMapper.convertValue(
+          payload,
+          CreatePayment.class
+        );
+        requests = List.of(single);
+      }
+
+      // (Optional) validate each request here with your Validator…
+
+      String lastResponseJson = null;
+      for (CreatePayment req : requests) {
+        // ―― normalize payment_month as before ――
+        String pm = req.getPayment_month();
+        if (pm != null && pm.matches("\\d{4}-\\d{2}")) {
+          req.setPayment_month(pm + "-01");
+        }
+        // 3) Delegate to your existing service, passing `receipt=null`
+        lastResponseJson = paymentService.createPayment(
+          userId,
+          req,
+          lang
+        );
+      }
+
+      // return the *last* SP response as JSON
+      return ResponseEntity.ok(lastResponseJson);
+
+    } catch (Exception e) {
+      // you might want to aggregate errors instead of just returning the last
+      return ResponseEntity
+        .status(HttpStatus.BAD_REQUEST)
+        .body("{\"error\":\"" + e.getMessage().replace("\"","'") + "\"}");
+    }
+  }
 
   // Endpoint to update an existing user.
   @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")

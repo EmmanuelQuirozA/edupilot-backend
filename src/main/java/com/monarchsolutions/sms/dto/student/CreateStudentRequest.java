@@ -53,7 +53,14 @@ public class CreateStudentRequest {
     @NotBlank(message = "Password is required", groups = {AdminGroup.class, SchoolAdminGroup.class})
     private String password;
     private BigDecimal tuition;
+    private BigDecimal balance;
 
+    public BigDecimal getBalance() {
+        return balance;
+    }
+    public void setBalance(BigDecimal balance) {
+        this.balance = balance;
+    }
     public Long getSchool_id() {
         return school_id;
     }
