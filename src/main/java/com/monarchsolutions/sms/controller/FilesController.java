@@ -86,26 +86,66 @@ public class FilesController {
     }
   }
 
+  // @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','STUDENT')")
+  // @GetMapping("/api/school-logo/{filename:.+}")
+  // public ResponseEntity<Resource> serveSchoolLogoFile(
+  //     @RequestHeader("Authorization") String authHeader,
+  //     @PathVariable String filename,
+  //     HttpServletRequest request
+  // ) {
+  //   try {
+
+  //     // 1) Resolve path safely
+  //     Path filePath = Paths.get(schools_logosDir).resolve(filename).normalize();
+
+  //     // 2) Load as Resource
+  //     Resource resource = new UrlResource(filePath.toUri());
+  //     if (!resource.exists() || !resource.isReadable()) {
+  //       return ResponseEntity.notFound().build();
+  //     }
+
+  //     // 3) Determine content type
+  //     String contentType = request.getServletContext()
+  //         .getMimeType(resource.getFile().getAbsolutePath());
+  //     if (contentType == null) {
+  //       contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+  //     }
+
+  //     // 4) Return as attachment
+  //     return ResponseEntity.ok()
+  //         .contentType(MediaType.parseMediaType(contentType))
+  //         .header(HttpHeaders.CONTENT_DISPOSITION,
+  //                 "attachment; filename=\"" + resource.getFilename() + "\"")
+  //         .body(resource);
+
+  //   } catch (MalformedURLException ex) {
+  //     ex.printStackTrace();
+  //     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+  //   } catch (IOException ex) {
+  //     ex.printStackTrace();
+  //     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+  //   }
+  // }
+
   @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','STUDENT')")
-  @GetMapping("/api/school-logo")
+  @GetMapping("/api/school-logo/{school_id}")
   public ResponseEntity<Resource> serveSchoolLogoFile(
       @RequestHeader("Authorization") String authHeader,
+      @PathVariable Long school_id,
       HttpServletRequest request
   ) {
     try {
       String token = authHeader.substring(7);
-      Long school_id = jwtUtil.extractSchoolId(token);
+      Long token_user_id = jwtUtil.extractUserId(token);
+      String school_image = schoolService.getSchoolImage(token_user_id, school_id);
 
-      String filename;
-      if (school_id!=null) {
-          String school_image = schoolService.getSchoolImage(school_id);
-          filename=school_image;
-      } else {
-          return null;
+      // if there's no image configured, just return 204 No Content
+      if (school_image == null || school_image.trim().isEmpty()) {
+        return ResponseEntity.noContent().build();
       }
 
       // 1) Resolve path safely
-      Path filePath = Paths.get(schools_logosDir).resolve(filename).normalize();
+      Path filePath = Paths.get(schools_logosDir).resolve(school_image).normalize();
 
       // 2) Load as Resource
       Resource resource = new UrlResource(filePath.toUri());

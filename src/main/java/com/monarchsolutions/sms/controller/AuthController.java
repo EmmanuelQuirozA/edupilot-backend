@@ -2,11 +2,10 @@ package com.monarchsolutions.sms.controller;
 
 import com.monarchsolutions.sms.dto.common.UserLoginDTO;
 import com.monarchsolutions.sms.dto.user.UserDetails;
+import com.monarchsolutions.sms.dto.user.UserDetailsCache;
 import com.monarchsolutions.sms.service.AuthService;
 import com.monarchsolutions.sms.service.UserService;
 import com.monarchsolutions.sms.util.JwtUtil;
-
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -72,7 +71,7 @@ public class AuthController {
         String token = jwtUtil.generateToken(user.getUserId(), user.getSchoolId(), user.getUsername(), user.getRoleName());
         
         Long token_user_id = jwtUtil.extractUserId(token);
-        UserDetails userDetails = userService.getUser(token_user_id, user.getUserId(), lang);
+        UserDetailsCache userDetails = userService.getUserBasic(token_user_id, user.getUserId(), lang);
 
         // Custom response DTO with token and user details
         return ResponseEntity.ok(new LoginResponse(token, userDetails));

@@ -5,6 +5,7 @@ import com.monarchsolutions.sms.dto.user.CreateUserRequest;
 import com.monarchsolutions.sms.dto.user.UpdateUserRequest;
 import com.monarchsolutions.sms.dto.user.UserBalanceDTO;
 import com.monarchsolutions.sms.dto.user.UserDetails;
+import com.monarchsolutions.sms.dto.user.UserDetailsCache;
 import com.monarchsolutions.sms.dto.user.UsersBalanceDTO;
 import com.monarchsolutions.sms.repository.UserRepository;
 import org.springframework.transaction.annotation.Transactional;
@@ -80,6 +81,12 @@ public class UserService {
     public UserDetails getUser(Long token_user_id, Long userId, String lang) throws Exception {
         // Call the repository method that converts the request to JSON and executes the stored procedure
         List<UserDetails> rows = userRepository.getUser(token_user_id, userId, lang);
+        return rows.stream().findFirst().orElse(null);
+    }
+
+    public UserDetailsCache getUserBasic(Long token_user_id, Long userId, String lang) throws Exception {
+        // Call the repository method that converts the request to JSON and executes the stored procedure
+        List<UserDetailsCache> rows = userRepository.getUserBasic(token_user_id, userId, lang);
         return rows.stream().findFirst().orElse(null);
     }
 

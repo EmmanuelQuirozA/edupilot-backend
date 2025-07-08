@@ -1,6 +1,7 @@
 package com.monarchsolutions.sms.dto.payments;
 
 import java.math.BigDecimal;
+import java.sql.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -15,7 +16,14 @@ public class CreatePayment {
   private Long payment_through_id;
   private String receipt_path;
   private String receipt_file_name;
+  private Date created_at;
 
+  public Date getCreated_at() {
+    return created_at;
+  }
+  public void setCreated_at(Date created_at) {
+    this.created_at = created_at;
+  }
   public Long getStudent_id() {
     return student_id;
   }

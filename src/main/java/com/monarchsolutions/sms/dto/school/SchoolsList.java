@@ -24,7 +24,14 @@ public class SchoolsList {
     private Boolean enabled;
     private BigDecimal default_tuition;
     private String school_status;
+    private String image;
 
+    public String getImage() {
+        return image;
+    }
+    public void setImage(String image) {
+        this.image = image;
+    }
     public Long getSchool_id() {
         return school_id;
     }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.monarchsolutions.sms.dto.common.PageResult;
 import com.monarchsolutions.sms.dto.common.UserLoginDTO;
 import com.monarchsolutions.sms.dto.user.UserDetails;
+import com.monarchsolutions.sms.dto.user.UserDetailsCache;
 import com.monarchsolutions.sms.dto.user.UserListDTO;
 import com.monarchsolutions.sms.dto.user.UsersBalanceDTO;
 import com.monarchsolutions.sms.dto.user.CreateUserRequest;
@@ -302,6 +303,40 @@ public class UserRepository {
 			new MappingConfig("balance", BigDecimal.class),
 		};
 		return MapperUtil.mapRow(data, config, UserDetails.class);
+	}
+
+	public List<UserDetailsCache> getUserBasic(Long token_user_id, Long userId, String lang) {
+    StoredProcedureQuery query = entityManager
+      .createStoredProcedureQuery("getUser");
+    query.registerStoredProcedureParameter("token_user_id", Long.class, ParameterMode.IN);
+    query.registerStoredProcedureParameter("userId",         Long.class, ParameterMode.IN);
+    query.registerStoredProcedureParameter("lang",           String.class, ParameterMode.IN);
+
+    query.setParameter("token_user_id", token_user_id);
+    query.setParameter("userId",         userId);
+    query.setParameter("lang",           lang);
+
+    query.execute();
+
+    @SuppressWarnings("unchecked")
+    List<Object[]> rows = query.getResultList();
+    List<UserDetailsCache> out = new ArrayList<>(rows.size());
+
+    for (Object[] r : rows) {
+      UserDetailsCache u = new UserDetailsCache();
+      // [0] user_id
+      u.setUser_id(((Number) r[0]).longValue());
+      // [2] school_id
+      u.setSchool_id(((Number) r[2]).longValue());
+      // [4] email
+      u.setEmail((String) r[4]);
+      // [5] username
+      u.setUsername((String) r[5]);
+      // [7] full_name
+      u.setFull_name((String) r[7]);
+      out.add(u);
+    }
+    return out;
 	}
 
 	public List<UserBalanceDTO> findActiveUserBalancesBySchoolId(Long schoolId, String search_criteria) {

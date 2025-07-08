@@ -20,6 +20,7 @@ public class UpdateSchoolRequest {
     private String phone_number;
     private String email;
     private BigDecimal default_tuition;
+    private String image;
 
     public Long getSchool_id() {
         return school_id;
@@ -122,6 +123,12 @@ public class UpdateSchoolRequest {
     }
     public void setDefault_tuition(BigDecimal default_tuition) {
         this.default_tuition = default_tuition;
+    }
+    public String getImage() {
+        return image;
+    }
+    public void setImage(String image) {
+        this.image = image;
     }
     
 }

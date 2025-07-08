@@ -154,6 +154,7 @@ public class PaymentRepository {
       .registerStoredProcedureParameter("p_receipt_path", String.class, ParameterMode.IN)
       .registerStoredProcedureParameter("p_receipt_file_name", String.class, ParameterMode.IN)
       .registerStoredProcedureParameter("p_responsable_user_id", Integer.class, ParameterMode.IN)
+      .registerStoredProcedureParameter("p_created_at", Date.class, ParameterMode.IN)
       .registerStoredProcedureParameter("lang", String.class, ParameterMode.IN)
       // this SP always returns a single row with a single column "result" (the JSON)
     ;
@@ -178,6 +179,7 @@ public class PaymentRepository {
     q.setParameter("p_receipt_file_name", req.getReceipt_file_name());
     // the one who’s performing the action is the same as token user
     q.setParameter("p_responsable_user_id", tokenUserId.intValue());
+    q.setParameter("p_created_at", req.getCreated_at());
     q.setParameter("lang", lang);
 
     q.execute();
