@@ -1,0 +1,5 @@
+# Ignore compiled class files
+*.class
+
+# Ignore target folder (common for Maven projects)
+target/

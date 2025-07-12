@@ -36,8 +36,8 @@ public class GroupService {
         return groupRepository.changeGroupStatus(tokenSchoolId, userId, lang);
     }
 
-    public List<GetClassesCatalog> getClassesCatalog(Long token_user_id, String lang) {
+    public List<GetClassesCatalog> getClassesCatalog(Long token_user_id, Long school_id, String lang) {
         // If tokenSchoolId is not null, the SP will filter users by school.
-        return groupRepository.getClassesCatalog(token_user_id,lang);
+        return groupRepository.getClassesCatalog(token_user_id, school_id, lang);
     }
 }

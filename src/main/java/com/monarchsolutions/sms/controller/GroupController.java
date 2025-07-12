@@ -101,13 +101,14 @@ public class GroupController {
     @GetMapping("/catalog")
     public ResponseEntity<List<GetClassesCatalog>> getClassesCatalog(
         @RequestHeader("Authorization") String authHeader,
+		@RequestParam(required = false) Long school_id,
 		@RequestParam(defaultValue = "en") String lang
     ) {
         // strip off "Bearer "
         String 	token    = authHeader.replaceFirst("^Bearer\\s+", "");
             Long 		token_user_id= jwtUtil.extractUserId(token);
 
-        List<GetClassesCatalog> balances = groupService.getClassesCatalog(token_user_id,lang);
+        List<GetClassesCatalog> balances = groupService.getClassesCatalog(token_user_id, school_id, lang);
         return ResponseEntity.ok(balances);
     }
     

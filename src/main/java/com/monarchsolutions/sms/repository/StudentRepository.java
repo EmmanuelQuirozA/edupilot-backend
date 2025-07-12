@@ -51,7 +51,7 @@ public class StudentRepository {
 	public PageResult<Map<String,Object>> getStudentsList(
 			Long tokenSchoolId,  
 			Long student_id,
-			Long register_id,
+			String register_id,
 			String full_name,
 			String payment_reference,
 			String generation,
@@ -75,9 +75,9 @@ public class StudentRepository {
 					// 1) the IDs
 					if (tokenSchoolId != null) { stmt.setInt(idx++, tokenSchoolId.intValue()); } else { stmt.setNull(idx++, Types.INTEGER); }				
 					if (student_id != null) { stmt.setInt(idx++, student_id.intValue()); } else { stmt.setNull(idx++, Types.INTEGER); }
-					if (register_id != null) { stmt.setInt(idx++, register_id.intValue()); } else { stmt.setNull(idx++, Types.INTEGER); }
 
 					// 2) the filters
+					stmt.setString(idx++, register_id);
 					stmt.setString(idx++, full_name);
 					stmt.setString(idx++, payment_reference);
 					stmt.setString(idx++, generation);

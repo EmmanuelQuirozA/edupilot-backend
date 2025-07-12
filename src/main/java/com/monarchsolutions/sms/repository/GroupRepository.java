@@ -142,7 +142,7 @@ public class GroupRepository {
         return result != null ? result.toString() : null;
     }
 
-	public List<GetClassesCatalog>  getClassesCatalog(Long token_user_id, String lang) {
+	public List<GetClassesCatalog>  getClassesCatalog(Long token_user_id, Long school_id, String lang) {
 		String sql = """
 			SELECT
                 g.group_id,
@@ -158,6 +158,7 @@ public class GroupRepository {
 				LEFT JOIN scholar_levels sl ON g.scholar_level_id = sl.scholar_level_id
 
 			WHERE g.enabled = 1
+                AND g.school_id = :school_id
 
 				/* 2) only users in the same or a related school as the caller */
 				AND (
@@ -170,6 +171,7 @@ public class GroupRepository {
 		// bind parameters _without_ the leading colon:
 		q.setParameter("token_user_id",	token_user_id);
 		q.setParameter("lang",      			lang);
+		q.setParameter("school_id",      			school_id);
 
     @SuppressWarnings("unchecked")
     List<Object[]> rows = q.getResultList();

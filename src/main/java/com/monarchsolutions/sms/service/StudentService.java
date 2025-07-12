@@ -29,7 +29,7 @@ public class StudentService {
     public PageResult<Map<String,Object>> getStudentsList(
         Long tokenSchoolId,  
         Long student_id,
-        Long register_id,
+        String register_id,
         String full_name,
         String payment_reference,
         String generation,

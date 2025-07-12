@@ -97,7 +97,7 @@ public class StudentController {
     public ResponseEntity<?> getStudentsList(
         @RequestHeader("Authorization") String authHeader,
         @RequestParam(required = false) Long student_id,
-        @RequestParam(required = false) Long register_id,
+        @RequestParam(required = false) String register_id,
         @RequestParam(required = false) String full_name,
         @RequestParam(required = false) String payment_reference,
         @RequestParam(required = false) String generation,
