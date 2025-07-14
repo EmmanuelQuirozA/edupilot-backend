@@ -332,8 +332,28 @@ public class UserRepository {
       u.setEmail((String) r[4]);
       // [5] username
       u.setUsername((String) r[5]);
+      // [6] role_name
+			u.setRole_name((String) r[6]);
       // [7] full_name
       u.setFull_name((String) r[7]);
+      // [11] first_name
+			u.setFirst_name((String) r[11]);
+      // [14] birthday
+			Object raw = r[14];
+			if (raw instanceof java.sql.Date sqlDate) {
+					u.setBirth_date(sqlDate.toLocalDate());
+			} else if (raw instanceof java.sql.Timestamp ts) {
+					u.setBirth_date(ts.toLocalDateTime().toLocalDate());
+			} else {
+					u.setBirth_date(null);
+			}
+
+			// u.setUser_id(((Number) r[0]).longValue());
+			// u.setSchool_id(((Number) r[1]).longValue());
+			// u.setEmail((String) r[2]);
+			// u.setUsername((String) r[3]);
+			// u.setRole_name((String) r[4]);
+			// u.setFull_name((String) r[5]);
       out.add(u);
     }
     return out;
