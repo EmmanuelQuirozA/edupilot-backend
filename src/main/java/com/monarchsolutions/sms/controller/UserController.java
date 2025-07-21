@@ -208,7 +208,7 @@ public class UserController {
 
 	// Endpoint for retrieving the user details
 	@PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
-	@GetMapping("/{userId}")
+	@GetMapping("/{userId:\\d+}")
 	public ResponseEntity<?> getUser(
 		@RequestHeader("Authorization") String authHeader,
 		@PathVariable("userId") Long userId,
