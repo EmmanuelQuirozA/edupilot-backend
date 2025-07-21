@@ -2,6 +2,7 @@ package com.monarchsolutions.sms.service;
 
 import com.monarchsolutions.sms.dto.common.PageResult;
 import com.monarchsolutions.sms.dto.user.CreateUserRequest;
+import com.monarchsolutions.sms.dto.user.UpdatePasswordRequest;
 import com.monarchsolutions.sms.dto.user.UpdateUserRequest;
 import com.monarchsolutions.sms.dto.user.UserBalanceDTO;
 import com.monarchsolutions.sms.dto.user.UserDetails;
@@ -97,4 +98,19 @@ public class UserService {
     public List<UsersBalanceDTO> getUsersBalance(Long token_user_id, String full_name, String lang) {
         return userRepository.getUsersBalance(token_user_id, full_name, lang);
     }
+    
+    @Transactional
+    public void changePassword(Long tokenUserId, UpdatePasswordRequest req) {
+        String currentHash = userRepository.findPasswordHashById(tokenUserId);
+        if (currentHash == null) {
+            throw new IllegalArgumentException("User not found");
+        }
+        if (!passwordEncoder.matches(req.getOldPassword(), currentHash)) {
+            throw new IllegalArgumentException("Current password is incorrect");
+        }
+
+        String newHash = passwordEncoder.encode(req.getNewPassword());
+        userRepository.updatePasswordHash(tokenUserId, newHash);
+    }
+    
 }

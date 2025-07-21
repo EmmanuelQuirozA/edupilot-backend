@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.monarchsolutions.sms.dto.common.PageResult;
 import com.monarchsolutions.sms.dto.user.CreateUserRequest;
+import com.monarchsolutions.sms.dto.user.UpdatePasswordRequest;
 import com.monarchsolutions.sms.dto.user.UpdateUserRequest;
 import com.monarchsolutions.sms.dto.user.UserBalanceDTO;
 import com.monarchsolutions.sms.dto.user.UserDetails;
@@ -15,6 +16,7 @@ import com.monarchsolutions.sms.validation.SchoolAdminGroup;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -197,7 +199,31 @@ public class UserController {
 		try {
 			String token = authHeader.substring(7);
 			Long token_user_id = jwtUtil.extractUserId(token);
-			UserDetails user = userService.getUser(token_user_id, userId, lang);
+			UserDetails user;
+			if (userId != null) {
+				user = userService.getUser(token_user_id, userId, lang);
+			} else {
+				user = userService.getUser(token_user_id, token_user_id, lang);
+			}
+
+			return ResponseEntity.ok(user);
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
+
+	// Endpoint for retrieving the user details
+	@PreAuthorize("isAuthenticated()")
+	@GetMapping("/self-details")
+	public ResponseEntity<?> getUserSelfDetails(
+		@RequestHeader("Authorization") String authHeader,
+		@RequestParam(defaultValue = "en") String lang
+	) {
+		try {
+			String token = authHeader.substring(7);
+			Long token_user_id = jwtUtil.extractUserId(token);
+			UserDetails user = userService.getUser(token_user_id, token_user_id, lang);
+
 			return ResponseEntity.ok(user);
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body(e.getMessage());
@@ -223,7 +249,7 @@ public class UserController {
   public ResponseEntity<List<UsersBalanceDTO>> getUsersBalance(
       @RequestHeader("Authorization") String authHeader,
 			@RequestParam(required = false) String full_name,
-			@RequestParam(required = false) String lang
+			@RequestParam(defaultValue = "en") String lang
   ) {
     // strip off "Bearer "
     String 	token    = authHeader.replaceFirst("^Bearer\\s+", "");
@@ -232,4 +258,71 @@ public class UserController {
     List<UsersBalanceDTO> balances = userService.getUsersBalance(token_user_id, full_name, lang);
     return ResponseEntity.ok(balances);
   }
+
+	@PreAuthorize("isAuthenticated()")
+	@PutMapping("/password")
+	public ResponseEntity<Map<String,Object>> updatePassword(
+		@RequestHeader("Authorization") String authHeader,
+		@RequestBody UpdatePasswordRequest req,
+		@RequestParam(defaultValue = "en") String lang
+	) {
+		// Prepare the response map once
+		Map<String,Object> resp = new LinkedHashMap<>();
+
+		// Extract token_user_id
+		String token    = authHeader.replaceFirst("^Bearer\\s+", "");
+		Long   userId   = jwtUtil.extractUserId(token);
+
+		try {
+				userService.changePassword(userId, req);
+
+				// success
+				resp.put("success", true);
+				resp.put("type",    "success");
+				resp.put("title",   lang.equalsIgnoreCase("es") ? "Éxito" : "Success");
+				resp.put("message",
+					lang.equalsIgnoreCase("es")
+						? "Contraseña actualizada correctamente."
+						: "Password updated successfully."
+				);
+				return ResponseEntity.ok(resp);
+
+		} catch (IllegalArgumentException iae) {
+				// e.g. bad old password or user not found
+				resp.put("success", false);
+				resp.put("type",    "error");
+				resp.put("title",
+					lang.equalsIgnoreCase("es") ? "Error" : "Error"
+				);
+				// Choose message based on lang
+				String msg = iae.getMessage();
+				// If you want static translations instead of exception text:
+				if (lang.equalsIgnoreCase("es")) {
+					if ("Current password is incorrect".equals(msg)) {
+						msg = "La contraseña actual es incorrecta.";
+					} else if ("User not found".equals(msg)) {
+						msg = "Usuario no encontrado.";
+					}
+				}
+				resp.put("message", msg);
+				return ResponseEntity
+					.status(HttpStatus.BAD_REQUEST)
+					.body(resp);
+
+		} catch (Exception e) {
+			resp.put("success", false);
+			resp.put("type",    "error");
+			resp.put("title",
+				lang.equalsIgnoreCase("es") ? "Error inesperado" : "Unexpected error"
+			);
+			resp.put("message",
+				lang.equalsIgnoreCase("es")
+					? "Algo salió mal. Por favor intente de nuevo."
+					: "Something went wrong. Please try again."
+			);
+			return ResponseEntity
+				.status(HttpStatus.INTERNAL_SERVER_ERROR)
+				.body(resp);
+		}
+	}
 }

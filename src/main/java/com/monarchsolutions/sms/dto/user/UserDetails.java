@@ -21,6 +21,7 @@ public class UserDetails {
     private LocalDate birth_date;
     private String phone_number;
     private String tax_id;
+    private String street;
     private String ext_number;
     private String int_number;
     private String suburb;
@@ -137,6 +138,12 @@ public class UserDetails {
     }
     public void setTax_id(String tax_id) {
       this.tax_id = tax_id;
+    }
+    public String getStreet() {
+      return street;
+    }
+    public void setStreet(String street) {
+      this.street = street;
     }
     public String getExt_number() {
       return ext_number;

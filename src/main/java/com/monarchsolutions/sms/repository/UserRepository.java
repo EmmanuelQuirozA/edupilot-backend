@@ -12,6 +12,7 @@ import com.monarchsolutions.sms.dto.user.UpdateUserRequest;
 import com.monarchsolutions.sms.dto.user.UserBalanceDTO;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import jakarta.persistence.ParameterMode;
@@ -52,39 +53,44 @@ public class UserRepository {
 		query.setParameter("p_username_or_email", usernameOrEmail);
 		query.setParameter("lang", lang);
 
-		// Execute the stored procedure
-		query.execute();
-		
-		// Get the single result.
-		Object result = query.getSingleResult();
-		if (result == null) {
-			return null;
-		}
-		
-		// The SP returns a row with multiple columns.
-		// Cast the result to Object[]
-		Object[] data = (Object[]) result;
-		UserLoginDTO user = new UserLoginDTO();
-		// Mapping
+		try {
+			// Execute the stored procedure
+			query.execute();
+			
+			// Get the single result.
+			Object result = query.getSingleResult();
+			if (result == null) {
+				return null;
+			}
+			
+			// The SP returns a row with multiple columns.
+			// Cast the result to Object[]
+			Object[] data = (Object[]) result;
+			UserLoginDTO user = new UserLoginDTO();
+			// Mapping
 
-		user.setUserId(data[0] != null ? ((Number) data[0]).longValue() : null);
-		user.setSchoolId(data[1] != null ? ((Number) data[1]).longValue() : null);
-		user.setRoleId(data[2] != null ? ((Number) data[2]).longValue() : null);
-		user.setEmail(data[3] != null ? (String) data[3] : null);
-		user.setUsername(data[4] != null ? (String) data[4] : null);
-		user.setPassword(data[5] != null ? (String) data[5] : null);
-		user.setRoleName(data[6] != null ? (String) data[6] : null);
-		user.setFullName(data[7] != null ? (String) data[7] : null);
-		user.setAddress(data[8] != null ? (String) data[8] : null);
-		user.setCommercialName(data[9] != null ? (String) data[9] : null);
-		user.setBusinessName(data[10] != null ? (String) data[10] : null);
-		user.setPersonalEmail(data[11] != null ? (String) data[11] : null);
-		user.setEnabledUser(data[12] != null ? (Boolean) data[12] : null);
-		user.setEnabledRole(data[13] != null ? (Boolean) data[13] : null);
-		user.setEnabledSchool(data[14] != null ? (Boolean) data[14] : null);
-		user.setUsernameOrEmail(data[15] != null ? (String) data[15] : null);
-		
-		return user;
+			user.setUserId(data[0] != null ? ((Number) data[0]).longValue() : null);
+			user.setSchoolId(data[1] != null ? ((Number) data[1]).longValue() : null);
+			user.setRoleId(data[2] != null ? ((Number) data[2]).longValue() : null);
+			user.setEmail(data[3] != null ? (String) data[3] : null);
+			user.setUsername(data[4] != null ? (String) data[4] : null);
+			user.setPassword(data[5] != null ? (String) data[5] : null);
+			user.setRoleName(data[6] != null ? (String) data[6] : null);
+			user.setFullName(data[7] != null ? (String) data[7] : null);
+			user.setAddress(data[8] != null ? (String) data[8] : null);
+			user.setCommercialName(data[9] != null ? (String) data[9] : null);
+			user.setBusinessName(data[10] != null ? (String) data[10] : null);
+			user.setPersonalEmail(data[11] != null ? (String) data[11] : null);
+			user.setEnabledUser(data[12] != null ? (Boolean) data[12] : null);
+			user.setEnabledRole(data[13] != null ? (Boolean) data[13] : null);
+			user.setEnabledSchool(data[14] != null ? (Boolean) data[14] : null);
+			user.setUsernameOrEmail(data[15] != null ? (String) data[15] : null);
+			
+			return user;
+    } catch (NoResultException ex) {
+        // no row → return null
+        return null;
+    }
 	}
 	
 	// Get Users List
@@ -287,6 +293,7 @@ public class UserRepository {
 			new MappingConfig("birth_date", LocalDate.class),
 			new MappingConfig("phone_number", String.class),
 			new MappingConfig("tax_id", String.class),
+			new MappingConfig("street", String.class),
 			new MappingConfig("ext_number", String.class),
 			new MappingConfig("int_number", String.class),
 			new MappingConfig("suburb", String.class),
@@ -447,5 +454,26 @@ public class UserRepository {
       list.add(dto);
     }
     return list;
+	}
+
+
+	/** Fetch the stored (hashed) password for a given user ID. */
+	public String findPasswordHashById(Long userId) {
+		Object result = entityManager.createNativeQuery(
+				"SELECT password FROM users WHERE user_id = :uid"
+			)
+			.setParameter("uid", userId)
+			.getSingleResult();
+		return result == null ? null : result.toString();
+	}
+
+	/** Overwrite the password field with the new bcrypt hash. */
+	public void updatePasswordHash(Long userId, String newHash) {
+		entityManager.createNativeQuery(
+				"UPDATE users SET password = :pw WHERE user_id = :uid"
+			)
+			.setParameter("pw", newHash)
+			.setParameter("uid", userId)
+			.executeUpdate();
 	}
 }
