@@ -189,6 +189,24 @@ public class UserController {
 	}
 
 	// Endpoint for retrieving the user details
+	@PreAuthorize("isAuthenticated()")
+	@GetMapping("/self-details")
+	public ResponseEntity<?> getUserSelfDetails(
+		@RequestHeader("Authorization") String authHeader,
+		@RequestParam(defaultValue = "en") String lang
+	) {
+		try {
+			String token = authHeader.substring(7);
+			Long token_user_id = jwtUtil.extractUserId(token);
+			UserDetails user = userService.getUser(token_user_id, token_user_id, lang);
+
+			return ResponseEntity.ok(user);
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
+
+	// Endpoint for retrieving the user details
 	@PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
 	@GetMapping("/{userId}")
 	public ResponseEntity<?> getUser(
@@ -205,24 +223,6 @@ public class UserController {
 			} else {
 				user = userService.getUser(token_user_id, token_user_id, lang);
 			}
-
-			return ResponseEntity.ok(user);
-		} catch (Exception e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
-		}
-	}
-
-	// Endpoint for retrieving the user details
-	@PreAuthorize("isAuthenticated()")
-	@GetMapping("/self-details")
-	public ResponseEntity<?> getUserSelfDetails(
-		@RequestHeader("Authorization") String authHeader,
-		@RequestParam(defaultValue = "en") String lang
-	) {
-		try {
-			String token = authHeader.substring(7);
-			Long token_user_id = jwtUtil.extractUserId(token);
-			UserDetails user = userService.getUser(token_user_id, token_user_id, lang);
 
 			return ResponseEntity.ok(user);
 		} catch (Exception e) {

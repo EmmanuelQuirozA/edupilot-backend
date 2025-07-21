@@ -3,3 +3,7 @@
 
 # Ignore target folder (common for Maven projects)
 target/
+
+# Ignore local files
+var/img/
+var/protectedfiles/
