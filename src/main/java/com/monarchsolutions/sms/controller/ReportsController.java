@@ -253,23 +253,6 @@ public class ReportsController {
 	}
 
 	// Endpoint for retrieving the list of paymentDetails.
-	@PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','FINANCE','STUDENT')")
-	@GetMapping("/balancerecharge")
-	public ResponseEntity<?> getBalanceRecharge(
-										@RequestHeader("Authorization") String authHeader,
-										@RequestParam(required = false) Long user_id,
-										@RequestParam(defaultValue = "en") String lang) {
-		try {
-			String token = authHeader.substring(7);
-			Long tokenSchoolId = jwtUtil.extractSchoolId(token);
-			List<BalanceRechargeResponse> paymentDetails = reportsService.getBalanceRecharge(tokenSchoolId, user_id, lang);
-			return ResponseEntity.ok(paymentDetails);
-		} catch (Exception e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
-		}
-	}
-
-	  // Endpoint for retrieving the list of paymentDetails.
   @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','FINANCE','STUDENT')")
   @GetMapping("/balance-recharges")
   public ResponseEntity<?> getBalanceRecharges(

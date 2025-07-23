@@ -2,13 +2,19 @@ package com.monarchsolutions.sms.controller;
 
 import com.monarchsolutions.sms.service.BalanceService;
 import com.monarchsolutions.sms.util.JwtUtil;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.monarchsolutions.sms.dto.balance.CreateBalanceRechargeDTO;
+import com.monarchsolutions.sms.dto.balance.YearlyActivityDto;
+import com.monarchsolutions.sms.dto.common.PageResult;
 
 @RestController
 @RequestMapping("/api/balances")
@@ -47,4 +53,72 @@ public class BalanceController {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(err);
     }
   }
+
+  // Endpoint for retrieving the list of paymentDetails.
+  @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','FINANCE','STUDENT')")
+  @GetMapping("/account-activity")
+  public ResponseEntity<?> getBalanceRecharges(
+    @RequestHeader("Authorization") String authHeader,
+    @RequestParam(required = false) Long user_id,
+    @RequestParam(defaultValue = "en")          String lang,
+    @RequestParam(defaultValue = "0")           Integer offset,
+    @RequestParam(defaultValue = "10")          Integer limit,
+    @RequestParam(name = "export_all", defaultValue = "false") Boolean exportAll,
+    @RequestParam(required = false) String order_by,
+    @RequestParam(required = false) String order_dir
+  ) throws Exception {
+    try {
+      // strip off "Bearer "
+      String token    = authHeader.replaceFirst("^Bearer\\s+", "");
+      Long   token_user_id = jwtUtil.extractUserId(token);
+			String role        = jwtUtil.extractUserRole(token);
+
+			// 2) if STUDENT, override student_id with their own
+			Long effectiveuserId = user_id;
+			if ("STUDENT".equalsIgnoreCase(role)) {
+				effectiveuserId = token_user_id;
+			}
+
+      PageResult<Map<String,Object>> page = balanceService.getAccountActivity(
+        token_user_id,
+        effectiveuserId,
+        lang,
+        offset,
+        limit,
+        exportAll,
+        order_by,
+        order_dir
+      );
+
+      return ResponseEntity.ok(page);
+    } catch (Exception e) {
+      return ResponseEntity.badRequest().body(e.getMessage());
+    }
+  }
+
+  @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','STUDENT')")
+  @GetMapping("/account-activity-grouped")
+  public ResponseEntity<List<YearlyActivityDto>> getAccountActivityGroup(
+      @RequestHeader("Authorization") String authHeader,
+      @RequestParam(required = false) Long user_id,
+      @RequestParam(defaultValue = "en") String lang
+  ) {
+    
+    // strip off "Bearer "
+    String token    = authHeader.replaceFirst("^Bearer\\s+", "");
+    Long   token_user_id = jwtUtil.extractUserId(token);
+    String role        = jwtUtil.extractUserRole(token);
+
+    // 2) if STUDENT, override student_id with their own
+    Long effectiveuserId = user_id;
+    if ("STUDENT".equalsIgnoreCase(role)) {
+      effectiveuserId = token_user_id;
+    }
+
+    List<YearlyActivityDto> grouped =
+      balanceService.getAccountActivityGroup(token_user_id, effectiveuserId, lang
+      );
+    return ResponseEntity.ok(grouped);
+  }
+
 }
