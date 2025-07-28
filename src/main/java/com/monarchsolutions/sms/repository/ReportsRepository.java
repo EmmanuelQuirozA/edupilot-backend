@@ -1,13 +1,9 @@
 package com.monarchsolutions.sms.repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.monarchsolutions.sms.dto.reports.PaymentsResponse;
 import com.monarchsolutions.sms.dto.reports.PaymentRequestListResponse;
 import com.monarchsolutions.sms.dto.reports.PaymentRequestDetailsResponseV2;
-import com.monarchsolutions.sms.dto.reports.PaymentRequestBreakdownResponse;
 import com.monarchsolutions.sms.dto.common.PageResult;
-import com.monarchsolutions.sms.dto.reports.BalanceRechargeResponse;
-import com.monarchsolutions.sms.dto.student.StudentListResponse;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.ParameterMode;
@@ -411,35 +407,6 @@ public class ReportsRepository {
 		return MapperUtil.mapRow(data, config, PaymentRequestListResponse.class);
 	}
 
-	// Get Student Balance List
-	public List<BalanceRechargeResponse> getBalanceRecharge(Long tokenSchoolId, Long user_id, String lang){
-		// Create the stored procedure query
-		StoredProcedureQuery query = entityManager.createStoredProcedureQuery("getBalanceRecharge");
-
-		// Register IN parameters
-		query.registerStoredProcedureParameter("tokenSchoolId", Long.class, ParameterMode.IN);
-		query.registerStoredProcedureParameter("user_id", Long.class, ParameterMode.IN);
-		query.registerStoredProcedureParameter("lang", String.class, ParameterMode.IN);
-
-		// Set the parameter values
-		query.setParameter("tokenSchoolId", tokenSchoolId);
-		query.setParameter("user_id", user_id);
-		query.setParameter("lang", lang);
-		
-		// Execute the stored procedure
-		query.execute();
-
-		// Retrieve the results as a list of Object arrays
-		@SuppressWarnings("unchecked")
-		List<Object[]> results = query.getResultList();
-		List<BalanceRechargeResponse> balanceRecharges = new ArrayList<>();
-
-		for (Object[] data : results) {
-				balanceRecharges.add(mapBalanceRecharges(data));
-		}
-		return balanceRecharges;
-	}
-
 	public PageResult<Map<String,Object>> getBalanceRecharges(
 		Long token_user_id,
     Long user_id,
@@ -519,30 +486,6 @@ public class ReportsRepository {
 
 		return new PageResult<>(content, totalCount, page, size);
 	}
-
-	private BalanceRechargeResponse mapBalanceRecharges(Object[] data) {
-		MappingConfig[] config = new MappingConfig[] {
-			new MappingConfig("balance_recharge_id", Long.class),
-			new MappingConfig("user_id", Long.class),
-			new MappingConfig("responsable_user_id", Long.class),
-			new MappingConfig("date", String.class),
-			new MappingConfig("amount", BigDecimal.class),
-			new MappingConfig("user_full_name", String.class),
-			new MappingConfig("responsable_full_name", String.class),
-			new MappingConfig("school_description", String.class),
-			new MappingConfig("role_name", String.class),
-			new MappingConfig("group_name", String.class),
-			new MappingConfig("generation", String.class),
-			new MappingConfig("grade_group", String.class),
-			new MappingConfig("grade", String.class),
-			new MappingConfig("group", String.class),
-			new MappingConfig("scholar_level_id", String.class),
-			new MappingConfig("scholar_level_name", String.class),
-		};
-
-		return MapperUtil.mapRow(data, config, BalanceRechargeResponse.class);
-	}
-
 
 
 

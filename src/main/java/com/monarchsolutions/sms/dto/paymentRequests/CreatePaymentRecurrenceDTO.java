@@ -18,7 +18,6 @@ public class CreatePaymentRecurrenceDTO {
     private LocalDate  end_date;
     private String     comments;
     private LocalDate  payment_month;
-
     public Integer getSchool_id() {
         return school_id;
     }
@@ -31,7 +30,6 @@ public class CreatePaymentRecurrenceDTO {
     public void setGroup_id(Integer group_id) {
         this.group_id = group_id;
     }
-
     public Integer getStudent_id() {
         return student_id;
     }

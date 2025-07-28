@@ -6,7 +6,7 @@ import java.util.List;
 public class ByMonthPaymentsDTO {
   private int month;               // 1=Jan … 12=Dec
   private BigDecimal total;        // sum of this month’s payment amounts
-  private List<StudentPaymentsDTO> items;  // your existing DTO
+  private List<StudentPaymentsDTO> items;
 
   // ctor, getters & setters
   public ByMonthPaymentsDTO(int month, BigDecimal total, List<StudentPaymentsDTO> items) {
