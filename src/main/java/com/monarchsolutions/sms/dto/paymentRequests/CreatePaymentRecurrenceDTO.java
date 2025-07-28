@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class CreatePaymentRecurrenceDTO {
+    private Integer    school_id;
+    private Integer    group_id;
     private Integer    student_id;
     private Integer    payment_concept_id;
     private BigDecimal amount;
@@ -16,6 +18,19 @@ public class CreatePaymentRecurrenceDTO {
     private LocalDate  end_date;
     private String     comments;
     private LocalDate  payment_month;
+
+    public Integer getSchool_id() {
+        return school_id;
+    }
+    public void setSchool_id(Integer school_id) {
+        this.school_id = school_id;
+    }
+    public Integer getGroup_id() {
+        return group_id;
+    }
+    public void setGroup_id(Integer group_id) {
+        this.group_id = group_id;
+    }
 
     public Integer getStudent_id() {
         return student_id;
