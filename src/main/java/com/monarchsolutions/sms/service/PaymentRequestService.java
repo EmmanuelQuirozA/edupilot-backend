@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRequestDTO;
+import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRecurrenceDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.StudentPaymentRequestDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.ValidatePaymentRequestExistence;
 import com.monarchsolutions.sms.repository.PaymentRequestRepository;
@@ -22,6 +23,12 @@ public class PaymentRequestService {
   public List<Map<String,Object>> createPaymentRequest(Long token_user_id, Long school_id,Long group_id,  Long student_id, CreatePaymentRequestDTO request) throws Exception {
       // Call the repository method that converts the request to JSON and executes the stored procedure
       return paymentRequestRepository.createPaymentRequest(token_user_id,  school_id, group_id, student_id, request);
+  }
+
+  public String createPaymentRecurrence(Long tokenUserId,
+                                        CreatePaymentRecurrenceDTO dto,
+                                        String lang) {
+    return paymentRequestRepository.createPaymentRecurrence(tokenUserId, dto, lang);
   }
 
   public List<ValidatePaymentRequestExistence> validatePaymentRequests(Long token_user_id, Long school_id, Long group_id, Long payment_concept_id, Date payment_month) {
