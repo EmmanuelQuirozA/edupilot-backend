@@ -28,6 +28,13 @@ public class PaymentRequestService {
   public String createPaymentRecurrence(Long tokenUserId,
                                         CreatePaymentRecurrenceDTO dto,
                                         String lang) {
+    int count = 0;
+    if (dto.getSchool_id() != null) count++;
+    if (dto.getGroup_id() != null) count++;
+    if (dto.getStudent_id() != null) count++;
+    if (count != 1) {
+      throw new IllegalArgumentException("Provide exactly one of school_id, group_id or student_id");
+    }
     return paymentRequestRepository.createPaymentRecurrence(tokenUserId, dto, lang);
   }
 

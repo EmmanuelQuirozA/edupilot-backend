@@ -91,6 +91,8 @@ public class PaymentRequestRepository {
     StoredProcedureQuery q = entityManager
         .createStoredProcedureQuery("createPaymentRecurrence")
         .registerStoredProcedureParameter("p_token_user_id", Integer.class, ParameterMode.IN)
+        .registerStoredProcedureParameter("p_school_id", Integer.class, ParameterMode.IN)
+        .registerStoredProcedureParameter("p_group_id", Integer.class, ParameterMode.IN)
         .registerStoredProcedureParameter("p_student_id", Integer.class, ParameterMode.IN)
         .registerStoredProcedureParameter("p_payment_concept_id", Integer.class, ParameterMode.IN)
         .registerStoredProcedureParameter("p_amount", java.math.BigDecimal.class, ParameterMode.IN)
@@ -106,6 +108,8 @@ public class PaymentRequestRepository {
         .registerStoredProcedureParameter("lang", String.class, ParameterMode.IN);
 
     q.setParameter("p_token_user_id", tokenUserId != null ? tokenUserId.intValue() : null);
+    q.setParameter("p_school_id", dto.getSchool_id());
+    q.setParameter("p_group_id", dto.getGroup_id());
     q.setParameter("p_student_id", dto.getStudent_id());
     q.setParameter("p_payment_concept_id", dto.getPayment_concept_id());
     q.setParameter("p_amount", dto.getAmount());
