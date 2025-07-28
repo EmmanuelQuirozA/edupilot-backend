@@ -42,11 +42,10 @@ public class UserController {
 
 	// Endpoint to create a new user or multiple users.
 	@PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
-	@PostMapping("/create")
-	public ResponseEntity<?> createUser(@RequestBody Object payload,
-											@RequestHeader("Authorization") String authHeader,
-											@RequestParam(defaultValue = "en") String lang) {
-		try {
+        @PostMapping("/create")
+        public ResponseEntity<?> createUser(@RequestBody Object payload,
+                                                                               @RequestHeader("Authorization") String authHeader,
+                                                                               @RequestParam(defaultValue = "en") String lang) throws Exception {
 			// Extract the token (remove "Bearer " prefix)
 			String token = authHeader.substring(7);
 			Long responsible_user_id = jwtUtil.extractUserId(token);
@@ -83,20 +82,16 @@ public class UserController {
 				jsonResponse = userService.createUser(tokenSchoolId, lang, responsible_user_id, req);
 			}
 			
-			return ResponseEntity.ok(jsonResponse);
-		} catch (Exception e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
-		}
-	}
+                        return ResponseEntity.ok(jsonResponse);
+        }
 
 	// Endpoint to update an existing user.
 	@PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
 	@PutMapping("/update/{user_id}")
-	public ResponseEntity<?> updateUser(@RequestBody UpdateUserRequest request,
-											@RequestHeader("Authorization") String authHeader,
-											@RequestParam(defaultValue = "en") String lang,
-											@PathVariable("user_id") Long user_id) {
-		try {
+        public ResponseEntity<?> updateUser(@RequestBody UpdateUserRequest request,
+                                                                               @RequestHeader("Authorization") String authHeader,
+                                                                               @RequestParam(defaultValue = "en") String lang,
+                                                                               @PathVariable("user_id") Long user_id) throws Exception {
 			request.setUser_id(user_id);
 			// Extract the token (remove "Bearer " prefix)
 			String token = authHeader.substring(7);
@@ -117,20 +112,16 @@ public class UserController {
 			Long tokenSchoolId = jwtUtil.extractSchoolId(token);
 			Long responsible_user_id = jwtUtil.extractUserId(token);
 			// Call the service method (which will hash the password and pass the JSON data to the SP)
-			String jsonResponse = userService.updateUser(tokenSchoolId, lang, user_id, responsible_user_id, request);
-			return ResponseEntity.ok(jsonResponse);
-		} catch (Exception e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
-		}
-	}
+                        String jsonResponse = userService.updateUser(tokenSchoolId, lang, user_id, responsible_user_id, request);
+                        return ResponseEntity.ok(jsonResponse);
+        }
 
 	// Endpoint to toggle or change the user's status.
 	@PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
 	@PostMapping("/update/{userId}/status")
-	public ResponseEntity<?> changeUserStatus(@PathVariable("userId") Integer userId,
-												@RequestParam(defaultValue = "en") String lang,
-												@RequestHeader("Authorization") String authHeader) {
-		try {
+        public ResponseEntity<?> changeUserStatus(@PathVariable("userId") Integer userId,
+                                                                               @RequestParam(defaultValue = "en") String lang,
+                                                                               @RequestHeader("Authorization") String authHeader) throws Exception {
 			// Extract the token (remove "Bearer " prefix)
 			String token = authHeader.substring(7);
 			// Extract data from the token
@@ -139,11 +130,8 @@ public class UserController {
 			// Call the service method 
 			String jsonResponse = userService.changeUserStatus(userId, lang, tokenSchoolId, responsible_user_id);
 			
-			return ResponseEntity.ok(jsonResponse);
-		} catch (Exception e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
-		}
-	}
+                        return ResponseEntity.ok(jsonResponse);
+        }
 
 	// Endpoint for retrieving the list of users.
 	@PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
@@ -161,14 +149,13 @@ public class UserController {
 		@RequestParam(name = "export_all", defaultValue = "false") Boolean exportAll,
 		@RequestParam(required = false) String order_by,
 		@RequestParam(required = false) String order_dir
-	) throws Exception {
-		try {
-			// strip off "Bearer "
-			String token    = authHeader.replaceFirst("^Bearer\\s+", "");
-			Long   token_user_id = jwtUtil.extractUserId(token);
-			PageResult<Map<String,Object>> page;
-			// If the authenticated user is SCHOOL_ADMIN, filter out users with role_id 1 or 4.
-			page = userService.getUsersList(
+        ) throws Exception {
+                        // strip off "Bearer "
+                        String token    = authHeader.replaceFirst("^Bearer\\s+", "");
+                        Long   token_user_id = jwtUtil.extractUserId(token);
+                        PageResult<Map<String,Object>> page;
+                        // If the authenticated user is SCHOOL_ADMIN, filter out users with role_id 1 or 4.
+                        page = userService.getUsersList(
 				token_user_id,
 				user_id,
 				school_id,
@@ -181,54 +168,43 @@ public class UserController {
 				exportAll,
 				order_by,
 				order_dir
-			);
-			return ResponseEntity.ok(page);
-		} catch (Exception e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
-		}
-	}
+                        );
+                        return ResponseEntity.ok(page);
+        }
 
 	// Endpoint for retrieving the user details
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/self-details")
-	public ResponseEntity<?> getUserSelfDetails(
-		@RequestHeader("Authorization") String authHeader,
-		@RequestParam(defaultValue = "en") String lang
-	) {
-		try {
-			String token = authHeader.substring(7);
-			Long token_user_id = jwtUtil.extractUserId(token);
-			UserDetails user = userService.getUser(token_user_id, token_user_id, lang);
+        public ResponseEntity<?> getUserSelfDetails(
+                @RequestHeader("Authorization") String authHeader,
+                @RequestParam(defaultValue = "en") String lang
+        ) throws Exception {
+                        String token = authHeader.substring(7);
+                        Long token_user_id = jwtUtil.extractUserId(token);
+                        UserDetails user = userService.getUser(token_user_id, token_user_id, lang);
 
-			return ResponseEntity.ok(user);
-		} catch (Exception e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
-		}
-	}
+                        return ResponseEntity.ok(user);
+        }
 
 	// Endpoint for retrieving the user details
 	@PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
 	@GetMapping("/details/{userId:[0-9]+}")
-	public ResponseEntity<?> getUser(
-		@RequestHeader("Authorization") String authHeader,
-		@PathVariable("userId") Long userId,
-		@RequestParam(defaultValue = "en") String lang
-	) {
-		try {
-			String token = authHeader.substring(7);
-			Long token_user_id = jwtUtil.extractUserId(token);
-			UserDetails user;
-			if (userId != null) {
-				user = userService.getUser(token_user_id, userId, lang);
-			} else {
-				user = userService.getUser(token_user_id, token_user_id, lang);
-			}
+        public ResponseEntity<?> getUser(
+                @RequestHeader("Authorization") String authHeader,
+                @PathVariable("userId") Long userId,
+                @RequestParam(defaultValue = "en") String lang
+        ) throws Exception {
+                        String token = authHeader.substring(7);
+                        Long token_user_id = jwtUtil.extractUserId(token);
+                        UserDetails user;
+                        if (userId != null) {
+                                user = userService.getUser(token_user_id, userId, lang);
+                        } else {
+                                user = userService.getUser(token_user_id, token_user_id, lang);
+                        }
 
-			return ResponseEntity.ok(user);
-		} catch (Exception e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
-		}
-	}
+                        return ResponseEntity.ok(user);
+        }
 
 	// @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
   // @GetMapping("/balances")
@@ -261,11 +237,11 @@ public class UserController {
 
 	@PreAuthorize("isAuthenticated()")
 	@PutMapping("/password")
-	public ResponseEntity<Map<String,Object>> updatePassword(
-		@RequestHeader("Authorization") String authHeader,
-		@RequestBody UpdatePasswordRequest req,
-		@RequestParam(defaultValue = "en") String lang
-	) {
+        public ResponseEntity<Map<String,Object>> updatePassword(
+                @RequestHeader("Authorization") String authHeader,
+                @RequestBody UpdatePasswordRequest req,
+                @RequestParam(defaultValue = "en") String lang
+        ) throws Exception {
 		// Prepare the response map once
 		Map<String,Object> resp = new LinkedHashMap<>();
 
@@ -309,20 +285,6 @@ public class UserController {
 					.status(HttpStatus.BAD_REQUEST)
 					.body(resp);
 
-		} catch (Exception e) {
-			resp.put("success", false);
-			resp.put("type",    "error");
-			resp.put("title",
-				lang.equalsIgnoreCase("es") ? "Error inesperado" : "Unexpected error"
-			);
-			resp.put("message",
-				lang.equalsIgnoreCase("es")
-					? "Algo salió mal. Por favor intente de nuevo."
-					: "Something went wrong. Please try again."
-			);
-			return ResponseEntity
-				.status(HttpStatus.INTERNAL_SERVER_ERROR)
-				.body(resp);
-		}
-	}
+                }
+        }
 }

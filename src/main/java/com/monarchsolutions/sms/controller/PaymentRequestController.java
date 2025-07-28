@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.monarchsolutions.sms.dto.catalogs.ScholarLevelsDto;
 import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRequestDTO;
+import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRecurrenceDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.StudentPaymentRequestDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.ValidatePaymentRequestExistence;
 import com.monarchsolutions.sms.service.CatalogsService;
@@ -57,6 +58,19 @@ public class PaymentRequestController {
           // Call the service method (which will hash the password and pass the JSON data to the SP)
           List<Map<String,Object>> createdRows = paymentRequestService.createPaymentRequest(token_user_id, school_id, group_id, student_id, request);
           return ResponseEntity.ok(createdRows);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
+    @PostMapping("/recurrence")
+    public ResponseEntity<String> createPaymentRecurrence(
+        @RequestHeader("Authorization") String authHeader,
+        @RequestBody CreatePaymentRecurrenceDTO request,
+        @RequestParam(defaultValue = "en") String lang
+    ) {
+        String token = authHeader.substring(7);
+        Long tokenUserId = jwtUtil.extractUserId(token);
+        String json = paymentRequestService.createPaymentRecurrence(tokenUserId, request, lang);
+        return ResponseEntity.ok(json);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")

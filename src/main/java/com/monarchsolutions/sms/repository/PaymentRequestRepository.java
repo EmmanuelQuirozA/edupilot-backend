@@ -14,6 +14,7 @@ import org.springframework.stereotype.Repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRequestDTO;
+import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRecurrenceDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.StudentPaymentRequestDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.ValidatePaymentRequestExistence;
 
@@ -79,6 +80,56 @@ public class PaymentRequestRepository {
     }
 
     return result;
+  }
+
+  /**
+   * Calls the createPaymentRecurrence stored procedure and returns its JSON result.
+   */
+  public String createPaymentRecurrence(Long tokenUserId,
+                                        CreatePaymentRecurrenceDTO dto,
+                                        String lang) {
+    StoredProcedureQuery q = entityManager
+        .createStoredProcedureQuery("createPaymentRecurrence")
+        .registerStoredProcedureParameter("p_token_user_id", Integer.class, ParameterMode.IN)
+        .registerStoredProcedureParameter("p_school_id", Integer.class, ParameterMode.IN)
+        .registerStoredProcedureParameter("p_group_id", Integer.class, ParameterMode.IN)
+        .registerStoredProcedureParameter("p_student_id", Integer.class, ParameterMode.IN)
+        .registerStoredProcedureParameter("p_payment_concept_id", Integer.class, ParameterMode.IN)
+        .registerStoredProcedureParameter("p_amount", java.math.BigDecimal.class, ParameterMode.IN)
+        .registerStoredProcedureParameter("p_fee_type", String.class, ParameterMode.IN)
+        .registerStoredProcedureParameter("p_late_fee", java.math.BigDecimal.class, ParameterMode.IN)
+        .registerStoredProcedureParameter("p_late_fee_frequency", Integer.class, ParameterMode.IN)
+        .registerStoredProcedureParameter("p_period", String.class, ParameterMode.IN)
+        .registerStoredProcedureParameter("p_interval_count", Integer.class, ParameterMode.IN)
+        .registerStoredProcedureParameter("p_start_date", java.sql.Date.class, ParameterMode.IN)
+        .registerStoredProcedureParameter("p_end_date", java.sql.Date.class, ParameterMode.IN)
+        .registerStoredProcedureParameter("p_comments", String.class, ParameterMode.IN)
+        .registerStoredProcedureParameter("p_payment_month", java.sql.Date.class, ParameterMode.IN)
+        .registerStoredProcedureParameter("lang", String.class, ParameterMode.IN);
+
+    q.setParameter("p_token_user_id", tokenUserId != null ? tokenUserId.intValue() : null);
+    q.setParameter("p_school_id", dto.getSchool_id());
+    q.setParameter("p_group_id", dto.getGroup_id());
+    q.setParameter("p_student_id", dto.getStudent_id());
+    q.setParameter("p_payment_concept_id", dto.getPayment_concept_id());
+    q.setParameter("p_amount", dto.getAmount());
+    q.setParameter("p_fee_type", dto.getFee_type());
+    q.setParameter("p_late_fee", dto.getLate_fee());
+    q.setParameter("p_late_fee_frequency", dto.getLate_fee_frequency());
+    q.setParameter("p_period", dto.getPeriod());
+    q.setParameter("p_interval_count", dto.getInterval_count());
+    q.setParameter("p_start_date", dto.getStart_date() != null ? java.sql.Date.valueOf(dto.getStart_date()) : null);
+    q.setParameter("p_end_date", dto.getEnd_date() != null ? java.sql.Date.valueOf(dto.getEnd_date()) : null);
+    q.setParameter("p_comments", dto.getComments());
+    q.setParameter("p_payment_month", dto.getPayment_month() != null ? java.sql.Date.valueOf(dto.getPayment_month()) : null);
+    q.setParameter("lang", lang);
+
+    q.execute();
+    Object single = q.getSingleResult();
+    if (single instanceof Object[]) {
+      return (String) ((Object[]) single)[0];
+    }
+    return (String) single;
   }
 
   // Get payment request Activity Logs List
