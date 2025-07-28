@@ -2,12 +2,10 @@ package com.monarchsolutions.sms.service;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.monarchsolutions.sms.dto.common.PageResult;
-import com.monarchsolutions.sms.dto.reports.BalanceRechargeResponse;
 import com.monarchsolutions.sms.dto.reports.PaymentRequestDetailsResponseV2;
 import com.monarchsolutions.sms.dto.reports.PaymentRequestDetailsResponseV2.BreakdownEntry;
 import com.monarchsolutions.sms.dto.reports.PaymentRequestDetailsResponseV2.PaymentDetail;
 import com.monarchsolutions.sms.dto.reports.PaymentRequestDetailsResponseV2.PaymentInfoSummary;
-import com.monarchsolutions.sms.dto.reports.PaymentsResponse;
 import com.monarchsolutions.sms.repository.ReportsRepository;
 
 import java.math.BigDecimal;
@@ -174,11 +172,6 @@ public class ReportsService {
 			size,
 			export_all
         );
-    }
-
-    public List<BalanceRechargeResponse> getBalanceRecharge(Long tokenSchoolId, Long user_id, String lang){
-        // If tokenSchoolId is not null, the SP will filter students by school.
-        return reportsRepository.getBalanceRecharge(tokenSchoolId, user_id, lang);
     }
 
     @Transactional(readOnly = true)
