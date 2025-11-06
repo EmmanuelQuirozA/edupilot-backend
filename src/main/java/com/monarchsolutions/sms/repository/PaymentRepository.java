@@ -154,32 +154,35 @@ public class PaymentRepository {
       .registerStoredProcedureParameter("p_receipt_path", String.class, ParameterMode.IN)
       .registerStoredProcedureParameter("p_receipt_file_name", String.class, ParameterMode.IN)
       .registerStoredProcedureParameter("p_responsable_user_id", Integer.class, ParameterMode.IN)
-      .registerStoredProcedureParameter("p_created_at", Date.class, ParameterMode.IN)
       .registerStoredProcedureParameter("lang", String.class, ParameterMode.IN)
       // this SP always returns a single row with a single column "result" (the JSON)
     ;
 
-    q.setParameter("p_token_user_id", tokenUserId.intValue());
-    q.setParameter("p_student_id", req.getStudent_id().intValue());
-    q.setParameter("p_payment_concept_id", req.getPayment_concept_id());
-		String pm = req.getPayment_month();
-		Date   sqlPm = null;
-		if (pm != null && !pm.trim().isEmpty()) {
-			sqlPm = Date.valueOf(pm);
-		}
-		q.setParameter("p_payment_month", sqlPm);
+    Integer tokenUserIdInt = tokenUserId != null ? tokenUserId.intValue() : null;
+    Integer studentId = req.getStudent_id() != null ? req.getStudent_id().intValue() : null;
+    Integer conceptId = req.getPayment_concept_id() != null ? req.getPayment_concept_id().intValue() : null;
+    Integer paymentRequestId = req.getPayment_request_id() != null ? req.getPayment_request_id().intValue() : null;
+    Integer paymentThroughId = req.getPayment_through_id() != null ? req.getPayment_through_id().intValue() : null;
+
+    q.setParameter("p_token_user_id", tokenUserIdInt);
+    q.setParameter("p_student_id", studentId);
+    q.setParameter("p_payment_concept_id", conceptId);
+
+    String pm = req.getPayment_month();
+    Date sqlPm = null;
+    if (pm != null && !pm.trim().isEmpty()) {
+      sqlPm = Date.valueOf(pm);
+    }
+    q.setParameter("p_payment_month", sqlPm);
+
     q.setParameter("p_amount", req.getAmount());
     q.setParameter("p_comments", req.getComments());
-    q.setParameter("p_payment_request_id",
-        req.getPayment_request_id() != null
-            ? req.getPayment_request_id().intValue()
-            : null);
-    q.setParameter("p_payment_through_id", req.getPayment_through_id());
+    q.setParameter("p_payment_request_id", paymentRequestId);
+    q.setParameter("p_payment_through_id", paymentThroughId);
     q.setParameter("p_receipt_path", req.getReceipt_path());
     q.setParameter("p_receipt_file_name", req.getReceipt_file_name());
     // the one who’s performing the action is the same as token user
-    q.setParameter("p_responsable_user_id", tokenUserId.intValue());
-    q.setParameter("p_created_at", req.getCreated_at());
+    q.setParameter("p_responsable_user_id", tokenUserIdInt);
     q.setParameter("lang", lang);
 
     q.execute();
