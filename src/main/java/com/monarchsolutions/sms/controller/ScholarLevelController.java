@@ -16,7 +16,7 @@ public class ScholarLevelController {
     private ScholarLevelService scholarLevelService;
 
     @GetMapping("/list")
-    public ResponseEntity<List<ScholarLevelsDTO>> getScholarLevels(@RequestParam(defaultValue = "en") String lang) {
+    public ResponseEntity<List<ScholarLevelsDTO>> getScholarLevels(@RequestParam(defaultValue = "es") String lang) {
         List<ScholarLevelsDTO> responses = scholarLevelService.getScholarLevels(lang);
         return ResponseEntity.ok(responses);
     }

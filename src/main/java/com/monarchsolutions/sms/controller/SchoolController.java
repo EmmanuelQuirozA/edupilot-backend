@@ -45,12 +45,14 @@ public class SchoolController {
 	@GetMapping("/list")
 	public ResponseEntity<?> getSchoolsList(@RequestHeader("Authorization") String authHeader,
 											@RequestParam(required = false) Long school_id,
-											@RequestParam(defaultValue = "en") String lang,
+											@RequestParam(defaultValue = "es") String lang,
 											@RequestParam(defaultValue = "-1") int status_filter) {
 		try {
 			String token = authHeader.substring(7);
-			Long token_user_id = jwtUtil.extractUserId(token);
-			List<SchoolsList> schools = schoolService.getSchoolsList(token_user_id, school_id, lang, status_filter);
+			// Long token_user_id = jwtUtil.extractUserId(token);
+			Long token_school_id = jwtUtil.extractSchoolId(token);
+			List<SchoolsList> schools = schoolService.getSchoolsList(token_school_id, school_id, lang, status_filter);
+			System.out.println(token_school_id);
 			return ResponseEntity.ok(schools);
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body(e.getMessage());
@@ -62,7 +64,7 @@ public class SchoolController {
 	@GetMapping("/listRelated")
 	public ResponseEntity<?> getRelatedSchoolList(@RequestHeader("Authorization") String authHeader,
 											@RequestParam(required = false) Long school_id,
-											@RequestParam(defaultValue = "en") String lang) {
+											@RequestParam(defaultValue = "es") String lang) {
 		try {
 			String token = authHeader.substring(7);
 			Long tokenSchoolId = jwtUtil.extractSchoolId(token);
@@ -133,7 +135,7 @@ public class SchoolController {
 	@PreAuthorize("hasAnyRole('ADMIN')")
 	@PostMapping("/update/{school_id}/status")
 	public ResponseEntity<String> changeUserStatus(@PathVariable("school_id") Long school_id,
-													@RequestParam(defaultValue = "en") String lang,
+													@RequestParam(defaultValue = "es") String lang,
 													@RequestHeader("Authorization") String authHeader) {
 		try {
 			String token = authHeader.substring(7);

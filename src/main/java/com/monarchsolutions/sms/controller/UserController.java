@@ -45,7 +45,7 @@ public class UserController {
         @PostMapping("/create")
         public ResponseEntity<?> createUser(@RequestBody Object payload,
                                                                                @RequestHeader("Authorization") String authHeader,
-                                                                               @RequestParam(defaultValue = "en") String lang) throws Exception {
+                                                                               @RequestParam(defaultValue = "es") String lang) throws Exception {
 			// Extract the token (remove "Bearer " prefix)
 			String token = authHeader.substring(7);
 			Long responsible_user_id = jwtUtil.extractUserId(token);
@@ -90,7 +90,7 @@ public class UserController {
 	@PutMapping("/update/{user_id}")
         public ResponseEntity<?> updateUser(@RequestBody UpdateUserRequest request,
                                                                                @RequestHeader("Authorization") String authHeader,
-                                                                               @RequestParam(defaultValue = "en") String lang,
+                                                                               @RequestParam(defaultValue = "es") String lang,
                                                                                @PathVariable("user_id") Long user_id) throws Exception {
 			request.setUser_id(user_id);
 			// Extract the token (remove "Bearer " prefix)
@@ -120,7 +120,7 @@ public class UserController {
 	@PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
 	@PostMapping("/update/{userId}/status")
         public ResponseEntity<?> changeUserStatus(@PathVariable("userId") Integer userId,
-                                                                               @RequestParam(defaultValue = "en") String lang,
+                                                                               @RequestParam(defaultValue = "es") String lang,
                                                                                @RequestHeader("Authorization") String authHeader) throws Exception {
 			// Extract the token (remove "Bearer " prefix)
 			String token = authHeader.substring(7);
@@ -143,7 +143,7 @@ public class UserController {
 		@RequestParam(required = false) Long role_id,
 		@RequestParam(required = false) String full_name,
 		@RequestParam(required = false) Boolean enabled,
-		@RequestParam(defaultValue = "en")          String lang,
+		@RequestParam(defaultValue = "es")          String lang,
 		@RequestParam(defaultValue = "0")           Integer offset,
 		@RequestParam(defaultValue = "10")          Integer limit,
 		@RequestParam(name = "export_all", defaultValue = "false") Boolean exportAll,
@@ -177,7 +177,7 @@ public class UserController {
 	@GetMapping("/self-details")
         public ResponseEntity<?> getUserSelfDetails(
                 @RequestHeader("Authorization") String authHeader,
-                @RequestParam(defaultValue = "en") String lang
+                @RequestParam(defaultValue = "es") String lang
         ) throws Exception {
                         String token = authHeader.substring(7);
                         Long token_user_id = jwtUtil.extractUserId(token);
@@ -192,7 +192,7 @@ public class UserController {
         public ResponseEntity<?> getUser(
                 @RequestHeader("Authorization") String authHeader,
                 @PathVariable("userId") Long userId,
-                @RequestParam(defaultValue = "en") String lang
+                @RequestParam(defaultValue = "es") String lang
         ) throws Exception {
                         String token = authHeader.substring(7);
                         Long token_user_id = jwtUtil.extractUserId(token);
@@ -225,7 +225,7 @@ public class UserController {
   public ResponseEntity<List<UsersBalanceDTO>> getUsersBalance(
       @RequestHeader("Authorization") String authHeader,
 			@RequestParam(required = false) String full_name,
-			@RequestParam(defaultValue = "en") String lang
+			@RequestParam(defaultValue = "es") String lang
   ) {
     // strip off "Bearer "
     String 	token    = authHeader.replaceFirst("^Bearer\\s+", "");
@@ -240,7 +240,7 @@ public class UserController {
         public ResponseEntity<Map<String,Object>> updatePassword(
                 @RequestHeader("Authorization") String authHeader,
                 @RequestBody UpdatePasswordRequest req,
-                @RequestParam(defaultValue = "en") String lang
+                @RequestParam(defaultValue = "es") String lang
         ) throws Exception {
 		// Prepare the response map once
 		Map<String,Object> resp = new LinkedHashMap<>();

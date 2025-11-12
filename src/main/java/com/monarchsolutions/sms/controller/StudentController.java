@@ -47,7 +47,7 @@ public class StudentController {
     @PostMapping("/create")
     public ResponseEntity<String> createStudent(@RequestBody Object payload,
                                             @RequestHeader("Authorization") String authHeader,
-                                            @RequestParam(defaultValue = "en") String lang) {
+                                            @RequestParam(defaultValue = "es") String lang) {
         try {
             // Extract the token (remove "Bearer " prefix)
             String token = authHeader.substring(7);
@@ -103,7 +103,7 @@ public class StudentController {
         @RequestParam(required = false) String generation,
         @RequestParam(required = false) String grade_group,
         @RequestParam(required = false) Boolean enabled,
-        @RequestParam(defaultValue = "en") String lang,
+        @RequestParam(defaultValue = "es") String lang,
         @RequestParam(defaultValue = "0")  Integer offset,
         @RequestParam(defaultValue = "10") Integer limit,
         @RequestParam(name = "export_all", defaultValue = "false") Boolean exportAll,
@@ -141,7 +141,7 @@ public class StudentController {
     @PutMapping("/update/{user_id}")
     public ResponseEntity<String> updateStudent(@RequestBody UpdateStudentRequest request,
                                              @RequestHeader("Authorization") String authHeader,
-                                             @RequestParam(defaultValue = "en") String lang,
+                                             @RequestParam(defaultValue = "es") String lang,
                                              @PathVariable("user_id") Long user_id) {
         try {
             request.setUser_id(user_id);
@@ -176,7 +176,7 @@ public class StudentController {
     @GetMapping("/student-details/{student_id}")
     public ResponseEntity<?> getStudent(@RequestHeader("Authorization") String authHeader,
                                         @PathVariable(required = true) Long student_id,
-                                        @RequestParam(defaultValue = "en") String lang) {
+                                        @RequestParam(defaultValue = "es") String lang) {
         try {
             String token = authHeader.substring(7);
             Long token_user_id = jwtUtil.extractUserId(token);
@@ -192,7 +192,7 @@ public class StudentController {
     @GetMapping("/read-only")
     public ResponseEntity<?> getStudentDetails(@RequestHeader("Authorization") String authHeader,
                                         @RequestParam(required = false) Long student_id,
-                                        @RequestParam(defaultValue = "en") String lang) {
+                                        @RequestParam(defaultValue = "es") String lang) {
         try {
             String token = authHeader.substring(7);
             Long token_user_id = jwtUtil.extractUserId(token);

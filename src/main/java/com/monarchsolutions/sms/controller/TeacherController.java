@@ -44,7 +44,7 @@ public class TeacherController {
       @RequestParam(required = false) Long school_id,
       @RequestParam(required = false) String full_name,
       @RequestParam(required = false) Boolean enabled,
-      @RequestParam(defaultValue = "en")          String lang,
+      @RequestParam(defaultValue = "es")          String lang,
       @RequestParam(defaultValue = "0")           Integer offset,
       @RequestParam(defaultValue = "10")          Integer limit,
       @RequestParam(name = "export_all", defaultValue = "false") Boolean exportAll,
@@ -81,7 +81,7 @@ public class TeacherController {
 	@PostMapping("/create")
 	public ResponseEntity<?> createTeacher(@RequestBody Object payload,
 											@RequestHeader("Authorization") String authHeader,
-											@RequestParam(defaultValue = "en") String lang) {
+											@RequestParam(defaultValue = "es") String lang) {
 		try {
 			// Extract the token (remove "Bearer " prefix)
 			String token = authHeader.substring(7);

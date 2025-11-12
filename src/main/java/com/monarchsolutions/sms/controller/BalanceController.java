@@ -36,7 +36,7 @@ public class BalanceController {
   @PostMapping("/recharge")
   public ResponseEntity<String> recharge(
       @RequestHeader("Authorization") String authHeader,
-      @RequestParam(defaultValue = "en") String lang,
+      @RequestParam(defaultValue = "es") String lang,
       @RequestBody CreateBalanceRechargeDTO dto
   ) {
     try {
@@ -60,7 +60,7 @@ public class BalanceController {
   public ResponseEntity<?> getBalanceRecharges(
     @RequestHeader("Authorization") String authHeader,
     @RequestParam(required = false) Long user_id,
-    @RequestParam(defaultValue = "en")          String lang,
+    @RequestParam(defaultValue = "es")          String lang,
     @RequestParam(defaultValue = "0")           Integer offset,
     @RequestParam(defaultValue = "10")          Integer limit,
     @RequestParam(name = "export_all", defaultValue = "false") Boolean exportAll,
@@ -101,7 +101,7 @@ public class BalanceController {
   public ResponseEntity<List<YearlyActivityDto>> getAccountActivityGroup(
       @RequestHeader("Authorization") String authHeader,
       @RequestParam(required = false) Long user_id,
-      @RequestParam(defaultValue = "en") String lang
+      @RequestParam(defaultValue = "es") String lang
   ) {
     
     // strip off "Bearer "

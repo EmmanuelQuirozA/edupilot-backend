@@ -29,7 +29,7 @@ public class GroupController {
     @GetMapping("/list")
     public ResponseEntity<?> getGroupsList( @RequestHeader("Authorization") String authHeader,
                                             @RequestParam(required = false) Long school_id,
-                                            @RequestParam(defaultValue = "en") String lang,
+                                            @RequestParam(defaultValue = "es") String lang,
                                             @RequestParam(required = false) Integer status_filter) {
         try {
             String token = authHeader.substring(7);
@@ -45,7 +45,7 @@ public class GroupController {
     @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
     @PostMapping("/create")
     public ResponseEntity<String> createGroup(@RequestHeader("Authorization") String authHeader,
-                                             @RequestParam(defaultValue = "en") String lang,
+                                             @RequestParam(defaultValue = "es") String lang,
                                              @RequestBody CreateGroupRequest request) {
         try {
             // Extract the token (remove "Bearer " prefix)
@@ -65,7 +65,7 @@ public class GroupController {
     @PutMapping("/update/{group_id}")
     public ResponseEntity<String> updateGroup(@RequestHeader("Authorization") String authHeader,
                                              @PathVariable("group_id") Long group_id,
-                                             @RequestParam(defaultValue = "en") String lang,
+                                             @RequestParam(defaultValue = "es") String lang,
                                              @RequestBody UpdateGroupRequest request) {
         try {
             request.setGroup_id(group_id);
@@ -85,7 +85,7 @@ public class GroupController {
     @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
     @PostMapping("/update/{group_id}/status")
     public ResponseEntity<String> changeGroupStatus( @RequestHeader("Authorization") String authHeader,
-                                                    @RequestParam(defaultValue = "en") String lang,
+                                                    @RequestParam(defaultValue = "es") String lang,
                                                     @PathVariable("group_id") Long group_id) {
         try {
             String token = authHeader.substring(7);
@@ -102,7 +102,7 @@ public class GroupController {
     public ResponseEntity<List<GetClassesCatalog>> getClassesCatalog(
         @RequestHeader("Authorization") String authHeader,
 		@RequestParam(required = false) Long school_id,
-		@RequestParam(defaultValue = "en") String lang
+		@RequestParam(defaultValue = "es") String lang
     ) {
         // strip off "Bearer "
         String 	token    = authHeader.replaceFirst("^Bearer\\s+", "");

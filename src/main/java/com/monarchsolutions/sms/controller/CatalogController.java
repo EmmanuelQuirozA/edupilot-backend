@@ -20,25 +20,25 @@ public class CatalogController {
 
   @GetMapping("/payment-concepts")
   public ResponseEntity<List<PaymentConceptsDto>> paymentConcepts(
-          @RequestParam(defaultValue = "en") String lang) {
+          @RequestParam(defaultValue = "es") String lang) {
       return ResponseEntity.ok(CatalogsService.getPaymentConcepts(lang));
   }
 
   @GetMapping("/payment-statuses")
   public ResponseEntity<List<PaymentStatusesDto>> paymentStatuses(
-          @RequestParam(defaultValue = "en") String lang) {
+          @RequestParam(defaultValue = "es") String lang) {
       return ResponseEntity.ok(CatalogsService.getPaymentStatuses(lang));
   }
 
   @GetMapping("/payment-through")
   public ResponseEntity<List<PaymentThroughDto>> paymentThrough(
-          @RequestParam(defaultValue = "en") String lang) {
+          @RequestParam(defaultValue = "es") String lang) {
       return ResponseEntity.ok(CatalogsService.getPaymentThrough(lang));
   }
 
   @GetMapping("/scholar-levels")
   public ResponseEntity<List<ScholarLevelsDto>> scholarLevels(
-          @RequestParam(defaultValue = "en") String lang) {
+          @RequestParam(defaultValue = "es") String lang) {
       return ResponseEntity.ok(CatalogsService.getScholarLevels(lang));
   }
 }

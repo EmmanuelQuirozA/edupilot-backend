@@ -25,7 +25,7 @@ public class RoleController {
     // Endpoint for retrieving the list of roles.
     @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
     @GetMapping("")
-    public ResponseEntity<?> getRoles(@RequestParam(defaultValue = "en") String lang,
+    public ResponseEntity<?> getRoles(@RequestParam(defaultValue = "es") String lang,
                                       @RequestParam(defaultValue = "1") int role_level,
                                       @RequestParam(defaultValue = "-1") int status_filter,
                                       @RequestHeader("Authorization") String authHeader) {

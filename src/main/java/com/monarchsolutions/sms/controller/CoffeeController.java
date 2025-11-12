@@ -48,7 +48,7 @@ public class CoffeeController {
   @GetMapping("/my-purchases")
   public ResponseEntity<List<SaleGroupDTO>> getMyPurchases(
       @RequestHeader("Authorization") String authHeader,
-      @RequestParam(defaultValue = "en") String lang
+      @RequestParam(defaultValue = "es") String lang
   ) {
     String token = authHeader.replaceFirst("^Bearer\\s+", "");
     Long   userId= jwtUtil.extractUserId(token);
@@ -65,7 +65,7 @@ public class CoffeeController {
     @RequestParam(required = false) Long menu_id,
     @RequestParam(required = false) String search_criteria,
     @RequestParam(required = false) Boolean enabled,
-    @RequestParam(defaultValue = "en")          String lang,
+    @RequestParam(defaultValue = "es")          String lang,
     @RequestParam(defaultValue = "0")           Integer offset,
     @RequestParam(defaultValue = "10")          Integer limit,
     @RequestParam(name = "export_all", defaultValue = "false") Boolean exportAll,
@@ -106,7 +106,7 @@ public class CoffeeController {
     @RequestParam(required = false) String full_name,
     @RequestParam(required = false) String item_name,
     @RequestParam(required = false) LocalDate created_at,
-    @RequestParam(defaultValue = "en")          String lang,
+    @RequestParam(defaultValue = "es")          String lang,
     @RequestParam(defaultValue = "0")           Integer offset,
     @RequestParam(defaultValue = "10")          Integer limit,
     @RequestParam(name = "export_all", defaultValue = "false") Boolean exportAll,
@@ -156,7 +156,7 @@ public class CoffeeController {
   public ResponseEntity<String> updateCoffeeMenu( 
     @RequestHeader("Authorization") String authHeader,
     @PathVariable("menu_id") Long menu_id,
-    @RequestParam(defaultValue = "en") String lang,
+    @RequestParam(defaultValue = "es") String lang,
     @RequestPart(value = "request", required = false)
         UpdateCoffeeMenuDTO request,                  // now optional
     @RequestParam(value = "removeImage", defaultValue = "false")
@@ -210,7 +210,7 @@ public class CoffeeController {
   @PostMapping("/update/{menu_id}/status")
   public ResponseEntity<String> changeMenuStatus( @RequestHeader("Authorization") String authHeader,
                                                   @PathVariable("menu_id") Long menu_id,
-                                                  @RequestParam(defaultValue = "en") String lang) {
+                                                  @RequestParam(defaultValue = "es") String lang) {
     try {
       String token = authHeader.substring(7);
       Long token_user_id = jwtUtil.extractUserId(token);
@@ -249,7 +249,7 @@ public class CoffeeController {
   )
   public ResponseEntity<String> processSale(
       @RequestHeader("Authorization") String auth,
-      @RequestParam(defaultValue = "en") String lang,
+      @RequestParam(defaultValue = "es") String lang,
       @RequestBody ProcessCoffeeSaleDTO sale
   ) {
     try {
@@ -281,7 +281,7 @@ public class CoffeeController {
   )
   public ResponseEntity<String> createCoffeeMenu(
       @RequestHeader("Authorization") String authHeader,
-      @RequestParam(defaultValue = "en") String lang,
+      @RequestParam(defaultValue = "es") String lang,
       @RequestPart("request") CreateCoffeeMenuDTO dto,
       @RequestPart(value="image", required=false) MultipartFile image
   ) {

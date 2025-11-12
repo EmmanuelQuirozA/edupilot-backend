@@ -32,7 +32,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(
-          @RequestParam(defaultValue = "en") String lang,
+          @RequestParam(defaultValue = "es") String lang,
           @RequestBody UserLoginDTO loginRequest) throws Exception {
         // Retrieve the language parameter
 

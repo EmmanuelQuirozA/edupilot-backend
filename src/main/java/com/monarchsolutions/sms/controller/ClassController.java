@@ -32,7 +32,7 @@ public class ClassController {
     @RequestParam(required = false) String grade_group,
     @RequestParam(required = false) String scholar_level_name,
     @RequestParam(required = false) Boolean enabled,
-    @RequestParam(defaultValue = "en")          String lang,
+    @RequestParam(defaultValue = "es")          String lang,
     @RequestParam(defaultValue = "0")           Integer offset,
     @RequestParam(defaultValue = "10")          Integer limit,
     @RequestParam(name = "export_all", defaultValue = "false") Boolean exportAll,

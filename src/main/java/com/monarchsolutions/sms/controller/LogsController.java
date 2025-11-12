@@ -30,7 +30,7 @@ public class LogsController {
     public ResponseEntity<?> getUsersActivityLog(
                                         // @RequestHeader("Authorization") String authHeader,
                                         @RequestParam(required = false) Long school_id,
-                                        @RequestParam(defaultValue = "en") String lang) {
+                                        @RequestParam(defaultValue = "es") String lang) {
         try {
             // String token = authHeader.substring(7);
             // Long tokenSchoolId = jwtUtil.extractSchoolId(token);
@@ -47,7 +47,7 @@ public class LogsController {
     public ResponseEntity<List<PaymentRequestLogGroupDto>> getPaymentRequestLogs(
             @RequestHeader("Authorization") String authHeader,
             @PathVariable("paymentRequestId") Long paymentRequestId,
-            @RequestParam(defaultValue = "en") String lang
+            @RequestParam(defaultValue = "es") String lang
     ) {
         // strip "Bearer "
         String token = authHeader.substring(7);
@@ -69,7 +69,7 @@ public class LogsController {
     public ResponseEntity<List<PaymentLogGroupDto>> getPaymentLogs(
             @RequestHeader("Authorization") String authHeader,
             @PathVariable("paymentId") Long paymentId,
-            @RequestParam(defaultValue = "en") String lang
+            @RequestParam(defaultValue = "es") String lang
     ) {
         // strip "Bearer "
         String token = authHeader.substring(7);

@@ -44,7 +44,7 @@ public class PaymentRequestController {
       @RequestParam(required = false) Long group_id,
       @RequestParam(required = false) Long student_id,
       @RequestBody CreatePaymentRequestDTO request,
-      @RequestParam(defaultValue = "en") String lang
+      @RequestParam(defaultValue = "es") String lang
     ) throws Exception {
 
           // 1) Normalize “YYYY-MM” → “YYYY-MM-01”
@@ -73,7 +73,7 @@ public class PaymentRequestController {
     public ResponseEntity<String> createPaymentRecurrence(
         @RequestHeader("Authorization") String authHeader,
         @RequestBody CreatePaymentRecurrenceDTO request,
-        @RequestParam(defaultValue = "en") String lang
+        @RequestParam(defaultValue = "es") String lang
     ) {
         String token = authHeader.substring(7);
         Long tokenUserId = jwtUtil.extractUserId(token);
@@ -136,7 +136,7 @@ public class PaymentRequestController {
     @GetMapping("/student-pending-payments")
     public ResponseEntity<List<StudentPaymentRequestDTO>> list(
         @RequestHeader("Authorization") String authHeader,
-        @RequestParam(defaultValue = "en")     String lang
+        @RequestParam(defaultValue = "es")     String lang
     ) {
         // strip off "Bearer "
         String token       = authHeader.replaceFirst("^Bearer\\s+", "");

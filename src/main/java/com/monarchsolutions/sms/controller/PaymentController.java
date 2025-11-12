@@ -262,7 +262,7 @@ public class PaymentController {
       @RequestParam(required = false) LocalDate paymentMonth,
       @RequestParam(required = false) LocalDate paymentCreatedAt,
       @RequestParam(required = false, defaultValue = "false") Boolean tuitions,
-      @RequestParam(defaultValue = "en")     String lang
+      @RequestParam(defaultValue = "es")     String lang
   ) {
     String token = authHeader.replaceFirst("^Bearer\\s+", "");
     Long   tokenUser = jwtUtil.extractUserId(token);
