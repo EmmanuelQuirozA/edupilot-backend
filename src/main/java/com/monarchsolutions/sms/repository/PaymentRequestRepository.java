@@ -5,7 +5,6 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,7 +33,12 @@ public class PaymentRequestRepository {
   private ObjectMapper objectMapper;
 
   // Create PaymentRequests
-  public List<Map<String,Object>> createPaymentRequest(Long token_user_id, Long school_id, Long group_id, Long student_id, CreatePaymentRequestDTO request) throws Exception {
+  public Map<String, Object> createPaymentRequest(Long token_user_id,
+                                                  Long school_id,
+                                                  Long group_id,
+                                                  Long student_id,
+                                                  CreatePaymentRequestDTO request,
+                                                  String lang) throws Exception {
     // 0) if payment_month is the empty string, force it to null:
     if ("".equals(request.getPayment_month())) {
         request.setPayment_month(null);
@@ -48,38 +52,45 @@ public class PaymentRequestRepository {
 
     // 1) Register IN params exactly as your SP signature expects:
     query.registerStoredProcedureParameter("token_user_id", Long.class, ParameterMode.IN);
-    query.registerStoredProcedureParameter("school_id", Long.class, ParameterMode.IN);
-    query.registerStoredProcedureParameter("group_id", Long.class, ParameterMode.IN);
-    query.registerStoredProcedureParameter("student_id", Long.class, ParameterMode.IN);
-    query.registerStoredProcedureParameter("payload", String.class, ParameterMode.IN);
+    query.registerStoredProcedureParameter("p_school_id", Long.class, ParameterMode.IN);
+    query.registerStoredProcedureParameter("p_group_id", Long.class, ParameterMode.IN);
+    query.registerStoredProcedureParameter("p_student_id", Long.class, ParameterMode.IN);
+    query.registerStoredProcedureParameter("p_payload", String.class, ParameterMode.IN);
+    query.registerStoredProcedureParameter("lang", String.class, ParameterMode.IN);
 
     // 2) Set each parameter value
     query.setParameter("token_user_id", token_user_id != null ? token_user_id.intValue() : null);
-    query.setParameter("school_id", school_id != null ? school_id.intValue() : null);
-    query.setParameter("group_id", group_id != null ? group_id.intValue() : null);
-    query.setParameter("student_id", student_id != null ? student_id.intValue() : null);
-    query.setParameter("payload", payloadDataJson);
+    query.setParameter("p_school_id", school_id != null ? school_id.intValue() : null);
+    query.setParameter("p_group_id", group_id != null ? group_id.intValue() : null);
+    query.setParameter("p_student_id", student_id != null ? student_id.intValue() : null);
+    query.setParameter("p_payload", payloadDataJson);
+    query.setParameter("lang", lang);
 
     // 3) Execute. Because INSERT generates an “update count,” JPA sees multiple results.
     query.execute();
-    
-    // 4) Now grab the SELECT rows (the second resultset). JPA lets us call getResultList().
-    List<Object[]> raw = query.getResultList();
 
-    // 5) Map each Object[] → a Map with keys “payment_request_id” and “full_name”
-    List<Map<String,Object>> result = new ArrayList<>();
-    for (Object[] row : raw) {
-      Map<String,Object> m = new LinkedHashMap<>();
-      // note: MySQL returns numeric columns usually as BigInteger or BigDecimal,
-      // so cast appropriately (often ((Number)row[0]).intValue())
-      Number prId = (Number) row[0];
-      String fullName = (String) row[1];
-      m.put("payment_request_id", prId != null ? prId.longValue() : null);
-      m.put("full_name", fullName);
-      result.add(m);
+    // 4) Retrieve the JSON response from the stored procedure.
+    List<?> raw = query.getResultList();
+    if (raw.isEmpty()) {
+      return Collections.emptyMap();
     }
 
-    return result;
+    Object firstRow = raw.get(0);
+    String json;
+    if (firstRow instanceof Object[]) {
+      Object[] row = (Object[]) firstRow;
+      json = row.length > 0 && row[0] != null ? row[0].toString() : null;
+    } else {
+      json = firstRow != null ? firstRow.toString() : null;
+    }
+
+    if (json == null || json.isBlank()) {
+      return Collections.emptyMap();
+    }
+
+    @SuppressWarnings("unchecked")
+    Map<String, Object> parsed = objectMapper.readValue(json, Map.class);
+    return parsed;
   }
 
   /**
