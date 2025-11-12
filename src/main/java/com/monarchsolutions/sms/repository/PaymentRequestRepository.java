@@ -70,7 +70,7 @@ public class PaymentRequestRepository {
     query.execute();
 
     // 4) Retrieve the JSON response from the stored procedure.
-    List<?> raw = query.getResultList();
+    List<Object> raw = collectStoredProcedureResults(query);
     if (raw.isEmpty()) {
       return Collections.emptyMap();
     }
@@ -406,6 +406,26 @@ public class PaymentRequestRepository {
 
     response.put("data", dataEntries.isEmpty() ? java.util.List.of() : dataEntries);
     return response;
+  }
+
+  private List<Object> collectStoredProcedureResults(StoredProcedureQuery query) {
+    List<Object> allResults = new java.util.ArrayList<>();
+
+    boolean moreResults = true;
+    while (moreResults) {
+      try {
+        List<?> current = query.getResultList();
+        if (current != null && !current.isEmpty()) {
+          allResults.addAll(current);
+        }
+      } catch (IllegalStateException ignored) {
+        query.getUpdateCount();
+      }
+
+      moreResults = query.hasMoreResults();
+    }
+
+    return allResults;
   }
 
   private void addDataFrom(Object source,
