@@ -90,6 +90,44 @@ public class PaymentRequestRepository {
 
     @SuppressWarnings("unchecked")
     Map<String, Object> parsed = objectMapper.readValue(json, Map.class);
+
+    // Ensure the response follows the expected structure with a "data" array
+    if (!parsed.containsKey("data")) {
+      Map<String, Object> structured = new java.util.LinkedHashMap<>();
+
+      java.util.Set<String> metaKeys = java.util.Set.of(
+          "type",
+          "title",
+          "message",
+          "success",
+          "code",
+          "status",
+          "errors"
+      );
+
+      java.util.Map<String, Object> dataEntry = new java.util.LinkedHashMap<>();
+
+      for (java.util.Map.Entry<String, Object> entry : parsed.entrySet()) {
+        String key = entry.getKey();
+        Object value = entry.getValue();
+
+        if (metaKeys.contains(key)) {
+          structured.put(key, value);
+        } else {
+          dataEntry.put(key, value);
+        }
+      }
+
+      structured.put(
+          "data",
+          dataEntry.isEmpty()
+              ? java.util.List.of()
+              : java.util.List.of(dataEntry)
+      );
+
+      return structured.isEmpty() ? parsed : structured;
+    }
+
     return parsed;
   }
 
