@@ -20,9 +20,14 @@ public class PaymentRequestService {
   @Autowired
   private PaymentRequestRepository paymentRequestRepository;
 
-  public List<Map<String,Object>> createPaymentRequest(Long token_user_id, Long school_id,Long group_id,  Long student_id, CreatePaymentRequestDTO request) throws Exception {
+  public Map<String, Object> createPaymentRequest(Long token_user_id,
+                                                  Long school_id,
+                                                  Long group_id,
+                                                  Long student_id,
+                                                  CreatePaymentRequestDTO request,
+                                                  String lang) throws Exception {
       // Call the repository method that converts the request to JSON and executes the stored procedure
-      return paymentRequestRepository.createPaymentRequest(token_user_id,  school_id, group_id, student_id, request);
+      return paymentRequestRepository.createPaymentRequest(token_user_id,  school_id, group_id, student_id, request, lang);
   }
 
   public String createPaymentRecurrence(Long tokenUserId,

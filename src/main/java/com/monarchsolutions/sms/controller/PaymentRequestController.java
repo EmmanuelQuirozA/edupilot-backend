@@ -43,7 +43,8 @@ public class PaymentRequestController {
       @RequestParam(required = false) Long school_id,
       @RequestParam(required = false) Long group_id,
       @RequestParam(required = false) Long student_id,
-      @RequestBody CreatePaymentRequestDTO request
+      @RequestBody CreatePaymentRequestDTO request,
+      @RequestParam(defaultValue = "en") String lang
     ) throws Exception {
 
           // 1) Normalize “YYYY-MM” → “YYYY-MM-01”
@@ -56,8 +57,15 @@ public class PaymentRequestController {
           // Extract schoolId from the token (if available)
           Long token_user_id = jwtUtil.extractUserId(token);
           // Call the service method (which will hash the password and pass the JSON data to the SP)
-          List<Map<String,Object>> createdRows = paymentRequestService.createPaymentRequest(token_user_id, school_id, group_id, student_id, request);
-          return ResponseEntity.ok(createdRows);
+          Map<String, Object> response = paymentRequestService.createPaymentRequest(
+              token_user_id,
+              school_id,
+              group_id,
+              student_id,
+              request,
+              lang
+          );
+          return ResponseEntity.ok(response);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
