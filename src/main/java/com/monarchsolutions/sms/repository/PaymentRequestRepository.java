@@ -75,60 +75,7 @@ public class PaymentRequestRepository {
       return Collections.emptyMap();
     }
 
-    Object firstRow = raw.get(0);
-    String json;
-    if (firstRow instanceof Object[]) {
-      Object[] row = (Object[]) firstRow;
-      json = row.length > 0 && row[0] != null ? row[0].toString() : null;
-    } else {
-      json = firstRow != null ? firstRow.toString() : null;
-    }
-
-    if (json == null || json.isBlank()) {
-      return Collections.emptyMap();
-    }
-
-    @SuppressWarnings("unchecked")
-    Map<String, Object> parsed = objectMapper.readValue(json, Map.class);
-
-    // Ensure the response follows the expected structure with a "data" array
-    if (!parsed.containsKey("data")) {
-      Map<String, Object> structured = new java.util.LinkedHashMap<>();
-
-      java.util.Set<String> metaKeys = java.util.Set.of(
-          "type",
-          "title",
-          "message",
-          "success",
-          "code",
-          "status",
-          "errors"
-      );
-
-      java.util.Map<String, Object> dataEntry = new java.util.LinkedHashMap<>();
-
-      for (java.util.Map.Entry<String, Object> entry : parsed.entrySet()) {
-        String key = entry.getKey();
-        Object value = entry.getValue();
-
-        if (metaKeys.contains(key)) {
-          structured.put(key, value);
-        } else {
-          dataEntry.put(key, value);
-        }
-      }
-
-      structured.put(
-          "data",
-          dataEntry.isEmpty()
-              ? java.util.List.of()
-              : java.util.List.of(dataEntry)
-      );
-
-      return structured.isEmpty() ? parsed : structured;
-    }
-
-    return parsed;
+    return mergeCreatePaymentRequestResult(raw);
   }
 
   /**
@@ -425,5 +372,155 @@ public class PaymentRequestRepository {
       out.add(dto);
     }
     return out;
+  }
+
+  private static final java.util.Set<String> META_KEYS = java.util.Set.of(
+      "type",
+      "title",
+      "message",
+      "success",
+      "code",
+      "status",
+      "errors"
+  );
+
+  private Map<String, Object> mergeCreatePaymentRequestResult(List<?> raw) throws Exception {
+    Object firstRow = raw.get(0);
+    String json = extractJson(firstRow);
+    if (json == null || json.isBlank()) {
+      return Collections.emptyMap();
+    }
+
+    @SuppressWarnings("unchecked")
+    Map<String, Object> parsed = objectMapper.readValue(json, Map.class);
+    Map<String, Object> normalized = normalizeMap(parsed);
+
+    Map<String, Object> response = new java.util.LinkedHashMap<>();
+    java.util.List<Map<String, Object>> dataEntries = new java.util.ArrayList<>();
+
+    addMetaAndData(normalized, response, dataEntries);
+
+    for (int i = 1; i < raw.size(); i++) {
+      addDataFrom(raw.get(i), response, dataEntries);
+    }
+
+    response.put("data", dataEntries.isEmpty() ? java.util.List.of() : dataEntries);
+    return response;
+  }
+
+  private void addDataFrom(Object source,
+                           Map<String, Object> metaTarget,
+                           java.util.List<Map<String, Object>> dataTarget) throws Exception {
+    for (Map<String, Object> item : convertRowToMaps(source)) {
+      addMetaAndData(item, metaTarget, dataTarget);
+    }
+  }
+
+  private void addMetaAndData(Map<String, Object> source,
+                              Map<String, Object> metaTarget,
+                              java.util.List<Map<String, Object>> dataTarget) throws Exception {
+    if (source == null || source.isEmpty()) {
+      return;
+    }
+
+    Object nestedData = source.remove("data");
+    if (nestedData != null) {
+      addDataFrom(nestedData, metaTarget, dataTarget);
+    }
+
+    Map<String, Object> metaPortion = extractMetaPortion(source);
+    if (!metaPortion.isEmpty()) {
+      metaTarget.putAll(metaPortion);
+    }
+
+    if (!source.isEmpty()) {
+      dataTarget.add(new java.util.LinkedHashMap<>(source));
+    }
+  }
+
+  private Map<String, Object> extractMetaPortion(Map<String, Object> source) {
+    Map<String, Object> meta = new java.util.LinkedHashMap<>();
+    java.util.Iterator<Map.Entry<String, Object>> iterator = source.entrySet().iterator();
+    while (iterator.hasNext()) {
+      Map.Entry<String, Object> entry = iterator.next();
+      if (META_KEYS.contains(entry.getKey())) {
+        meta.put(entry.getKey(), entry.getValue());
+        iterator.remove();
+      }
+    }
+    return meta;
+  }
+
+  private java.util.List<Map<String, Object>> convertRowToMaps(Object raw) throws Exception {
+    if (raw == null) {
+      return java.util.List.of();
+    }
+
+    if (raw instanceof Map<?, ?> map) {
+      return java.util.List.of(normalizeMap(map));
+    }
+
+    if (raw instanceof List<?> list) {
+      java.util.List<Map<String, Object>> result = new java.util.ArrayList<>();
+      for (Object item : list) {
+        result.addAll(convertRowToMaps(item));
+      }
+      return result;
+    }
+
+    if (raw instanceof Object[] array) {
+      if (array.length == 1) {
+        return convertRowToMaps(array[0]);
+      }
+      Map<String, Object> map = new java.util.LinkedHashMap<>();
+      for (int i = 0; i < array.length; i++) {
+        map.put("column_" + i, array[i]);
+      }
+      return java.util.List.of(map);
+    }
+
+    if (raw instanceof String str) {
+      String trimmed = str.trim();
+      if (trimmed.isEmpty()) {
+        return java.util.List.of();
+      }
+      if (trimmed.startsWith("{")) {
+        @SuppressWarnings("unchecked")
+        Map<String, Object> map = objectMapper.readValue(trimmed, Map.class);
+        return java.util.List.of(normalizeMap(map));
+      }
+      if (trimmed.startsWith("[")) {
+        @SuppressWarnings("unchecked")
+        List<Object> list = objectMapper.readValue(trimmed, List.class);
+        return convertRowToMaps(list);
+      }
+
+      Map<String, Object> map = new java.util.LinkedHashMap<>();
+      map.put("value", trimmed);
+      return java.util.List.of(map);
+    }
+
+    Map<String, Object> map = new java.util.LinkedHashMap<>();
+    map.put("value", raw);
+    return java.util.List.of(map);
+  }
+
+  private Map<String, Object> normalizeMap(Map<?, ?> original) {
+    Map<String, Object> normalized = new java.util.LinkedHashMap<>();
+    for (Map.Entry<?, ?> entry : original.entrySet()) {
+      Object key = entry.getKey();
+      if (key == null) {
+        continue;
+      }
+      normalized.put(key.toString(), entry.getValue());
+    }
+    return normalized;
+  }
+
+  private String extractJson(Object row) {
+    if (row instanceof Object[] array) {
+      return array.length > 0 && array[0] != null ? array[0].toString() : null;
+    }
+    return row != null ? row.toString() : null;
   }
 }
