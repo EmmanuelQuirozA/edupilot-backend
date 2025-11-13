@@ -385,26 +385,50 @@ public class PaymentRequestRepository {
   );
 
   private Map<String, Object> mergeCreatePaymentRequestResult(List<?> raw) throws Exception {
-    Object firstRow = raw.get(0);
-    String json = extractJson(firstRow);
-    if (json == null || json.isBlank()) {
+    if (raw == null || raw.isEmpty()) {
       return Collections.emptyMap();
     }
 
-    @SuppressWarnings("unchecked")
-    Map<String, Object> parsed = objectMapper.readValue(json, Map.class);
-    Map<String, Object> normalized = normalizeMap(parsed);
-
     Map<String, Object> response = new java.util.LinkedHashMap<>();
-    java.util.List<Map<String, Object>> dataEntries = new java.util.ArrayList<>();
+    Map<String, Object> dataSection = new java.util.LinkedHashMap<>();
 
-    addMetaAndData(normalized, response, dataEntries);
-
-    for (int i = 1; i < raw.size(); i++) {
-      addDataFrom(raw.get(i), response, dataEntries);
+    java.util.List<Map<String, Object>> firstRows = convertRowToMaps(raw.get(0));
+    for (Map<String, Object> row : firstRows) {
+      mergeRowIntoResponse(row, response, dataSection);
     }
 
-    response.put("data", dataEntries.isEmpty() ? java.util.List.of() : dataEntries);
+    java.util.List<String> listKeys = dataSection.entrySet().stream()
+        .filter(e -> e.getValue() instanceof java.util.List<?> )
+        .map(Map.Entry::getKey)
+        .collect(java.util.stream.Collectors.toCollection(java.util.ArrayList::new));
+
+    int listKeyIndex = 0;
+    for (int i = 1; i < raw.size(); i++) {
+      java.util.List<Map<String, Object>> rows = convertRowToMaps(raw.get(i));
+      if (rows.isEmpty()) {
+        continue;
+      }
+
+      String targetKey = null;
+      if (listKeyIndex < listKeys.size()) {
+        targetKey = listKeys.get(listKeyIndex++);
+      } else if (dataSection.containsKey("created") && dataSection.get("created") instanceof java.util.List<?>) {
+        targetKey = "created";
+      }
+
+      if (targetKey != null) {
+        appendRows(dataSection, targetKey, rows);
+      } else {
+        appendRows(dataSection, "rows", rows);
+      }
+    }
+
+    if (!dataSection.isEmpty()) {
+      response.put("data", dataSection);
+    } else if (!response.containsKey("data")) {
+      response.put("data", Collections.emptyMap());
+    }
+
     return response;
   }
 
@@ -428,36 +452,6 @@ public class PaymentRequestRepository {
     return allResults;
   }
 
-  private void addDataFrom(Object source,
-                           Map<String, Object> metaTarget,
-                           java.util.List<Map<String, Object>> dataTarget) throws Exception {
-    for (Map<String, Object> item : convertRowToMaps(source)) {
-      addMetaAndData(item, metaTarget, dataTarget);
-    }
-  }
-
-  private void addMetaAndData(Map<String, Object> source,
-                              Map<String, Object> metaTarget,
-                              java.util.List<Map<String, Object>> dataTarget) throws Exception {
-    if (source == null || source.isEmpty()) {
-      return;
-    }
-
-    Object nestedData = source.remove("data");
-    if (nestedData != null) {
-      addDataFrom(nestedData, metaTarget, dataTarget);
-    }
-
-    Map<String, Object> metaPortion = extractMetaPortion(source);
-    if (!metaPortion.isEmpty()) {
-      metaTarget.putAll(metaPortion);
-    }
-
-    if (!source.isEmpty()) {
-      dataTarget.add(new java.util.LinkedHashMap<>(source));
-    }
-  }
-
   private Map<String, Object> extractMetaPortion(Map<String, Object> source) {
     Map<String, Object> meta = new java.util.LinkedHashMap<>();
     java.util.Iterator<Map.Entry<String, Object>> iterator = source.entrySet().iterator();
@@ -469,6 +463,94 @@ public class PaymentRequestRepository {
       }
     }
     return meta;
+  }
+
+  private void mergeRowIntoResponse(Map<String, Object> row,
+                                    Map<String, Object> response,
+                                    Map<String, Object> dataSection) throws Exception {
+    if (row == null || row.isEmpty()) {
+      return;
+    }
+
+    Object nestedData = row.remove("data");
+    if (nestedData != null) {
+      mergeIntoDataSection(nestedData, dataSection);
+    }
+
+    Map<String, Object> meta = extractMetaPortion(row);
+    if (!meta.isEmpty()) {
+      response.putAll(meta);
+    }
+
+    if (!row.isEmpty()) {
+      mergeIntoDataSection(row, dataSection);
+    }
+  }
+
+  private void mergeIntoDataSection(Object source,
+                                    Map<String, Object> target) throws Exception {
+    if (source == null) {
+      return;
+    }
+
+    if (source instanceof Map<?, ?> mapSource) {
+      Map<String, Object> normalized = normalizeMap(mapSource);
+      for (Map.Entry<String, Object> entry : normalized.entrySet()) {
+        String key = entry.getKey();
+        Object value = entry.getValue();
+        if ("data".equals(key)) {
+          mergeIntoDataSection(value, target);
+          continue;
+        }
+
+        if (value instanceof Map<?, ?> nestedMap) {
+          @SuppressWarnings("unchecked")
+          Map<String, Object> existing = (Map<String, Object>) target.computeIfAbsent(
+              key,
+              k -> new java.util.LinkedHashMap<>()
+          );
+          mergeIntoDataSection(nestedMap, existing);
+        } else if (value instanceof java.util.List<?> listValue) {
+          appendRows(target, key, convertListToMapList(listValue));
+        } else {
+          target.put(key, value);
+        }
+      }
+      return;
+    }
+
+    if (source instanceof java.util.List<?> list) {
+      appendRows(target, "items", convertListToMapList(list));
+    }
+  }
+
+  private java.util.List<Map<String, Object>> convertListToMapList(java.util.List<?> list) throws Exception {
+    java.util.List<Map<String, Object>> rows = new java.util.ArrayList<>();
+    for (Object item : list) {
+      rows.addAll(convertRowToMaps(item));
+    }
+    return rows;
+  }
+
+  private void appendRows(Map<String, Object> target,
+                          String key,
+                          java.util.List<Map<String, Object>> rows) {
+    if (rows == null || rows.isEmpty()) {
+      return;
+    }
+
+    Object current = target.get(key);
+    java.util.List<Map<String, Object>> list;
+    if (current instanceof java.util.List<?>) {
+      @SuppressWarnings("unchecked")
+      java.util.List<Map<String, Object>> existing = (java.util.List<Map<String, Object>>) current;
+      list = existing;
+    } else {
+      list = new java.util.ArrayList<>();
+      target.put(key, list);
+    }
+
+    list.addAll(rows);
   }
 
   private java.util.List<Map<String, Object>> convertRowToMaps(Object raw) throws Exception {
@@ -537,10 +619,4 @@ public class PaymentRequestRepository {
     return normalized;
   }
 
-  private String extractJson(Object row) {
-    if (row instanceof Object[] array) {
-      return array.length > 0 && array[0] != null ? array[0].toString() : null;
-    }
-    return row != null ? row.toString() : null;
-  }
 }
