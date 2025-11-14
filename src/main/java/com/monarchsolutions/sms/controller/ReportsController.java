@@ -249,10 +249,73 @@ public class ReportsController {
 			return ResponseEntity.ok(page);
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body(e.getMessage());
-		}
-	}
+                }
+        }
 
-	// Endpoint for retrieving the list of paymentDetails.
+        @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','STUDENT')")
+        @GetMapping("/payment-request-recurrences")
+        public ResponseEntity<?> getPaymentRecurrences(
+                @RequestHeader("Authorization") String authHeader,
+                @RequestParam(required = false) Long school_id,
+                @RequestParam(required = false) Long student_id,
+                @RequestParam(required = false) Long payment_request_id,
+                @RequestParam(required = false)
+                @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+                LocalDate payment_month,
+                @RequestParam(required = false) String pt_name,
+                @RequestParam(required = false) String payment_reference,
+                @RequestParam(required = false) String student_full_name,
+                @RequestParam(required = false) Boolean sc_enabled,
+                @RequestParam(required = false) Boolean u_enabled,
+                @RequestParam(required = false) Boolean g_enabled,
+                @RequestParam(required = false) String grade_group,
+                @RequestParam(defaultValue = "es") String lang,
+                @RequestParam(required = false) String order_by,
+                @RequestParam(required = false) String order_dir,
+                @RequestParam(defaultValue = "0") Integer offset,
+                @RequestParam(defaultValue = "10") Integer limit,
+                @RequestParam(name = "export_all", defaultValue = "false") Boolean exportAll
+        ) {
+                try {
+                        String token       = authHeader.replaceFirst("^Bearer\\s+", "");
+                        Long   tokenUserId = jwtUtil.extractUserId(token);
+                        String role        = jwtUtil.extractUserRole(token);
+
+                        Long effectiveStudentId = student_id;
+                        if ("STUDENT".equalsIgnoreCase(role)) {
+                                GetStudentDetails details =
+                                        studentService.getStudentDetails(tokenUserId, null, lang);
+                                effectiveStudentId = details.getStudentId();
+                        }
+
+                        PageResult<Map<String,Object>> page = reportsService.getPaymentRecurrences(
+                                tokenUserId,
+                                school_id,
+                                effectiveStudentId,
+                                payment_request_id,
+                                payment_month,
+                                pt_name,
+                                payment_reference,
+                                student_full_name,
+                                sc_enabled,
+                                u_enabled,
+                                g_enabled,
+                                grade_group,
+                                lang,
+                                offset,
+                                limit,
+                                exportAll,
+                                order_by,
+                                order_dir
+                        );
+
+                        return ResponseEntity.ok(page);
+                } catch (Exception e) {
+                        return ResponseEntity.badRequest().body(e.getMessage());
+                }
+        }
+
+        // Endpoint for retrieving the list of paymentDetails.
   @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','FINANCE','STUDENT')")
   @GetMapping("/balance-recharges")
   public ResponseEntity<?> getBalanceRecharges(
