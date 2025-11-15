@@ -146,6 +146,7 @@ public class GroupRepository {
 		String sql = """
 			SELECT
                 g.group_id,
+                g.generation,
 				CASE WHEN :lang = 'en' THEN sl.name_en ELSE sl.name_es END AS scholar_level_name,
                 CONCAT(g.grade,'-',g.`group`) AS grade_group
 			FROM `groups` g
@@ -161,7 +162,7 @@ public class GroupRepository {
                 AND g.school_id = :school_id
 
 				/* 2) only users in the same or a related school as the caller */
-				AND (
+				OR (
 						sc.school_id         = uc.school_id
 					OR sc.related_school_id = uc.school_id
 				);
@@ -180,8 +181,9 @@ public class GroupRepository {
     for (Object[] r : rows) {
       GetClassesCatalog dto = new GetClassesCatalog();
       dto.setGroup_id( ((Number) r[0]).longValue());
-      dto.setScholar_level_name((String) r[1]);
-      dto.setGrade_group((String) r[2]);
+      dto.setGeneration((String) r[1]);
+      dto.setScholar_level_name((String) r[2]);
+      dto.setGrade_group((String) r[3]);
       list.add(dto);
     }
     return list;

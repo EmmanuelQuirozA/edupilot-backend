@@ -70,7 +70,7 @@ public class PaymentRequestController {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
-    @PostMapping("/schedule")
+    @PostMapping("/create-schedule")
     public ResponseEntity<?> createPaymentRequestSchedule(
         @RequestHeader("Authorization") String authHeader,
         @RequestParam(required = false) Long school_id,
