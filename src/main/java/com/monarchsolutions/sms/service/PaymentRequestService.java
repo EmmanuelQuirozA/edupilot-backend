@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRequestDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRecurrenceDTO;
+import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRequestScheduleDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.StudentPaymentRequestDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.ValidatePaymentRequestExistence;
 import com.monarchsolutions.sms.repository.PaymentRequestRepository;
@@ -28,6 +29,25 @@ public class PaymentRequestService {
                                                   String lang) throws Exception {
       // Call the repository method that converts the request to JSON and executes the stored procedure
       return paymentRequestRepository.createPaymentRequest(token_user_id,  school_id, group_id, student_id, request, lang);
+  }
+
+  public Map<String, Object> createPaymentRequestSchedule(Long tokenUserId,
+                                                          Long schoolId,
+                                                          Long groupId,
+                                                          Long studentId,
+                                                          CreatePaymentRequestScheduleDTO request,
+                                                          String lang) throws Exception {
+    if (schoolId == null && groupId == null && studentId == null) {
+      throw new IllegalArgumentException("At least one of school_id, group_id or student_id must be provided");
+    }
+    return paymentRequestRepository.createPaymentRequestSchedule(
+        tokenUserId,
+        schoolId,
+        groupId,
+        studentId,
+        request,
+        lang
+    );
   }
 
   public String createPaymentRecurrence(Long tokenUserId,
