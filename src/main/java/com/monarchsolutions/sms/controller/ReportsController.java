@@ -315,6 +315,66 @@ public class ReportsController {
                 }
         }
 
+
+        @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','STUDENT')")
+        @GetMapping("/payment-request-schedule")
+        public ResponseEntity<?> getPaymentRequestSchedule(
+                @RequestHeader("Authorization") String authHeader,
+                @RequestParam(required = false) String rule_name,
+                @RequestParam(required = false) Boolean active,
+                @RequestParam(required = false) Long school_id,
+                @RequestParam(required = false) Long group_id,
+                @RequestParam(required = false) Long student_id,
+                @RequestParam(required = false)
+                @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+                LocalDate due_start,
+                @RequestParam(required = false)
+                @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+                LocalDate due_end,
+                @RequestParam(required = false) String global_search,
+                @RequestParam(required = false) String order_by,
+                @RequestParam(required = false) String order_dir,
+                @RequestParam(defaultValue = "0") Integer offset,
+                @RequestParam(defaultValue = "10") Integer limit,
+                @RequestParam(name = "export_all", defaultValue = "false") Boolean exportAll,
+                @RequestParam(defaultValue = "es") String lang
+        ) {
+                try {
+                        String token       = authHeader.replaceFirst("^Bearer\\s+", "");
+                        Long   tokenUserId = jwtUtil.extractUserId(token);
+                        String role        = jwtUtil.extractUserRole(token);
+
+                        Long effectiveStudentId = student_id;
+                        if ("STUDENT".equalsIgnoreCase(role)) {
+                                GetStudentDetails details =
+                                        studentService.getStudentDetails(tokenUserId, null, lang);
+                                effectiveStudentId = details.getStudentId();
+                        }
+
+                        PageResult<Map<String,Object>> page = reportsService.getPaymentRequestSchedule(
+                                tokenUserId,
+                                rule_name,
+                                active,
+                                school_id,
+                                group_id,
+                                effectiveStudentId,
+                                due_start,
+                                due_end,
+                                global_search,
+                                order_by,
+                                order_dir,
+                                offset,
+                                limit,
+                                exportAll,
+                                lang
+                        );
+
+                        return ResponseEntity.ok(page);
+                } catch (Exception e) {
+                        return ResponseEntity.badRequest().body(e.getMessage());
+                }
+        }
+
         // Endpoint for retrieving the list of paymentDetails.
   @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','FINANCE','STUDENT')")
   @GetMapping("/balance-recharges")

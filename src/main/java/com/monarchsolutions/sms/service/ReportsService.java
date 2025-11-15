@@ -165,6 +165,45 @@ public class ReportsService {
 
 
     @Transactional(readOnly = true)
+    public PageResult<Map<String,Object>> getPaymentRequestSchedule(
+        Long tokenUserId,
+        String ruleName,
+        Boolean active,
+        Long schoolId,
+        Long groupId,
+        Long studentId,
+        LocalDate dueStart,
+        LocalDate dueEnd,
+        String globalSearch,
+        String orderBy,
+        String orderDir,
+        Integer offset,
+        Integer limit,
+        Boolean exportAll,
+        String lang
+    ) throws Exception {
+        boolean exportAllFlag = exportAll != null && exportAll;
+        return reportsRepository.getPaymentRequestSchedule(
+            tokenUserId,
+            ruleName,
+            active,
+            schoolId,
+            groupId,
+            studentId,
+            dueStart,
+            dueEnd,
+            globalSearch,
+            orderBy,
+            orderDir,
+            offset,
+            limit,
+            exportAllFlag,
+            lang
+        );
+    }
+
+
+    @Transactional(readOnly = true)
     public PageResult<Map<String,Object>> getPaymentRequests(
         Long token_user_id,
         Long student_id,

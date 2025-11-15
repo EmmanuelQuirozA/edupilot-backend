@@ -319,10 +319,89 @@ public class ReportsRepository {
                 return new PageResult<>(content, totalCount, offsetValue, limitValue);
         }
 
-	public ReportsRepository(DataSource dataSource, ObjectMapper objectMapper) {
-		this.dataSource     = dataSource;
-		this.objectMapper   = objectMapper;
-	}
+        public PageResult<Map<String,Object>> getPaymentRequestSchedule(
+                Long tokenUserId,
+                String ruleName,
+                Boolean active,
+                Long schoolId,
+                Long groupId,
+                Long studentId,
+                LocalDate dueStart,
+                LocalDate dueEnd,
+                String globalSearch,
+                String orderBy,
+                String orderDir,
+                Integer offset,
+                Integer limit,
+                boolean exportAll,
+                String lang
+        ) throws SQLException {
+                String call = "{CALL getPaymentRequestSchedule(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+                List<Map<String,Object>> content = new ArrayList<>();
+                long totalCount = 0;
+
+                try (Connection conn = dataSource.getConnection();
+                        CallableStatement stmt = conn.prepareCall(call)) {
+
+                        int idx = 1;
+                        if (tokenUserId != null) { stmt.setInt(idx++, tokenUserId.intValue()); } else { stmt.setNull(idx++, Types.INTEGER); }
+                        stmt.setString(idx++, ruleName);
+                        if (active != null) { stmt.setBoolean(idx++, active); } else { stmt.setNull(idx++, Types.BOOLEAN); }
+                        if (schoolId != null) { stmt.setInt(idx++, schoolId.intValue()); } else { stmt.setNull(idx++, Types.INTEGER); }
+                        if (groupId != null) { stmt.setInt(idx++, groupId.intValue()); } else { stmt.setNull(idx++, Types.INTEGER); }
+                        if (studentId != null) { stmt.setInt(idx++, studentId.intValue()); } else { stmt.setNull(idx++, Types.INTEGER); }
+
+                        if (dueStart != null) { stmt.setDate(idx++, java.sql.Date.valueOf(dueStart)); } else { stmt.setNull(idx++, Types.DATE); }
+                        if (dueEnd != null) { stmt.setDate(idx++, java.sql.Date.valueOf(dueEnd)); } else { stmt.setNull(idx++, Types.DATE); }
+
+                        stmt.setString(idx++, globalSearch);
+                        stmt.setString(idx++, orderBy);
+                        stmt.setString(idx++, orderDir);
+
+                        if (exportAll) {
+                                stmt.setNull(idx++, Types.INTEGER);
+                                stmt.setNull(idx++, Types.INTEGER);
+                        } else {
+                                if (offset != null) { stmt.setInt(idx++, offset); } else { stmt.setNull(idx++, Types.INTEGER); }
+                                if (limit != null) { stmt.setInt(idx++, limit); } else { stmt.setNull(idx++, Types.INTEGER); }
+                        }
+
+                        stmt.setBoolean(idx++, exportAll);
+                        stmt.setString(idx++, lang);
+
+                        boolean hasRs = stmt.execute();
+                        if (hasRs) {
+                                try (ResultSet rs = stmt.getResultSet()) {
+                                        ResultSetMetaData md = rs.getMetaData();
+                                        int cols = md.getColumnCount();
+                                        while (rs.next()) {
+                                                Map<String,Object> row = new LinkedHashMap<>();
+                                                for (int c = 1; c <= cols; c++) {
+                                                        row.put(md.getColumnLabel(c), rs.getObject(c));
+                                                }
+                                                content.add(row);
+                                        }
+                                }
+                        }
+
+                        if (stmt.getMoreResults()) {
+                                try (ResultSet rs2 = stmt.getResultSet()) {
+                                        if (rs2.next()) {
+                                                totalCount = rs2.getLong(1);
+                                        }
+                                }
+                        }
+                }
+
+                int offsetValue = offset != null ? offset : 0;
+                int limitValue  = limit != null ? limit : Math.max(content.size(), 1);
+                return new PageResult<>(content, totalCount, offsetValue, limitValue);
+        }
+
+        public ReportsRepository(DataSource dataSource, ObjectMapper objectMapper) {
+                this.dataSource     = dataSource;
+                this.objectMapper   = objectMapper;
+        }
 
 	public PageResult<Map<String,Object>> getPayments(
 		Long tokenUserId,
