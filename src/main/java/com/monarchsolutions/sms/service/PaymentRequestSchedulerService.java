@@ -104,10 +104,13 @@ public class PaymentRequestSchedulerService {
                     defaultLang
                 );
 
+                ruleMeta.put("response", response);
+
+                ensureSuccessfulResponse(response);
+
                 Map<String, Object> dataSection = extractDataSection(response);
                 Object massUpload = dataSection.get("mass_upload");
                 ruleMeta.put("mass_upload", massUpload);
-                ruleMeta.put("response", response);
 
                 createdRequests += extractCreatedCount(dataSection);
                 failedStudents += extractFailedCount(dataSection);
@@ -159,6 +162,24 @@ public class PaymentRequestSchedulerService {
             errorStack,
             metadataJson
         );
+    }
+
+    private void ensureSuccessfulResponse(Map<String, Object> response) {
+        if (response == null) {
+            throw new IllegalStateException("Payment request creation returned an empty response");
+        }
+        Object success = response.get("success");
+        boolean isSuccess = false;
+        if (success instanceof Boolean boolValue) {
+            isSuccess = boolValue;
+        } else if (success instanceof String strValue) {
+            isSuccess = Boolean.parseBoolean(strValue);
+        }
+        if (!isSuccess) {
+            Object message = response.get("message");
+            String errorMessage = message != null ? message.toString() : "Payment request creation failed";
+            throw new IllegalStateException(errorMessage);
+        }
     }
 
     private String stackTrace(Exception ex) {
