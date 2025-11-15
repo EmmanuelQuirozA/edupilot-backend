@@ -14,6 +14,7 @@ import org.springframework.stereotype.Repository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRequestDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRecurrenceDTO;
+import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRequestScheduleDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.StudentPaymentRequestDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.ValidatePaymentRequestExistence;
 
@@ -70,6 +71,40 @@ public class PaymentRequestRepository {
     query.execute();
 
     // 4) Retrieve the JSON response from the stored procedure.
+    List<Object> raw = collectStoredProcedureResults(query);
+    if (raw.isEmpty()) {
+      return Collections.emptyMap();
+    }
+
+    return mergeCreatePaymentRequestResult(raw);
+  }
+
+  public Map<String, Object> createPaymentRequestSchedule(Long tokenUserId,
+                                                          Long schoolId,
+                                                          Long groupId,
+                                                          Long studentId,
+                                                          CreatePaymentRequestScheduleDTO request,
+                                                          String lang) throws Exception {
+    String payloadDataJson = objectMapper.writeValueAsString(request);
+
+    StoredProcedureQuery query = entityManager.createStoredProcedureQuery("createPaymentRequestSchedule");
+
+    query.registerStoredProcedureParameter("token_user_id", Long.class, ParameterMode.IN);
+    query.registerStoredProcedureParameter("p_school_id", Long.class, ParameterMode.IN);
+    query.registerStoredProcedureParameter("p_group_id", Long.class, ParameterMode.IN);
+    query.registerStoredProcedureParameter("p_student_id", Long.class, ParameterMode.IN);
+    query.registerStoredProcedureParameter("p_payload", String.class, ParameterMode.IN);
+    query.registerStoredProcedureParameter("lang", String.class, ParameterMode.IN);
+
+    query.setParameter("token_user_id", tokenUserId != null ? tokenUserId.intValue() : null);
+    query.setParameter("p_school_id", schoolId != null ? schoolId.intValue() : null);
+    query.setParameter("p_group_id", groupId != null ? groupId.intValue() : null);
+    query.setParameter("p_student_id", studentId != null ? studentId.intValue() : null);
+    query.setParameter("p_payload", payloadDataJson);
+    query.setParameter("lang", lang);
+
+    query.execute();
+
     List<Object> raw = collectStoredProcedureResults(query);
     if (raw.isEmpty()) {
       return Collections.emptyMap();

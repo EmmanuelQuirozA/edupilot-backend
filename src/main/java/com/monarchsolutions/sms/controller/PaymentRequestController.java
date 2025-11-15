@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import com.monarchsolutions.sms.dto.catalogs.ScholarLevelsDto;
 import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRequestDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRecurrenceDTO;
+import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRequestScheduleDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.StudentPaymentRequestDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.ValidatePaymentRequestExistence;
 import com.monarchsolutions.sms.service.CatalogsService;
@@ -34,7 +35,7 @@ public class PaymentRequestController {
 
     @Autowired
     private JwtUtil jwtUtil;
-    
+
     // Endpoint to create a new group
     @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
     @PostMapping("/create")
@@ -66,6 +67,29 @@ public class PaymentRequestController {
               lang
           );
           return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
+    @PostMapping("/schedule")
+    public ResponseEntity<?> createPaymentRequestSchedule(
+        @RequestHeader("Authorization") String authHeader,
+        @RequestParam(required = false) Long school_id,
+        @RequestParam(required = false) Long group_id,
+        @RequestParam(required = false) Long student_id,
+        @RequestBody CreatePaymentRequestScheduleDTO request,
+        @RequestParam(defaultValue = "es") String lang
+    ) throws Exception {
+        String token = authHeader.substring(7);
+        Long tokenUserId = jwtUtil.extractUserId(token);
+        Map<String, Object> response = paymentRequestService.createPaymentRequestSchedule(
+            tokenUserId,
+            school_id,
+            group_id,
+            student_id,
+            request,
+            lang
+        );
+        return ResponseEntity.ok(response);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
