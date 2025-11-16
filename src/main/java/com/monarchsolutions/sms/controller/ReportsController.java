@@ -455,16 +455,23 @@ public class ReportsController {
 		@RequestBody UpdatePaymentRequest body,
 		@RequestParam(defaultValue="en") String lang
 	) {
-		try {
-			String token = authHeader.substring(7);
-			// extract user_id from the token to pass as responsable_user_id
-			Long userId = Long.valueOf(jwtUtil.extractUserId(token)); 
-			Map<String,Object> jsonData = body.getData();
-			String jsonResult = reportsService.updatePaymentRequest(paymentRequestId, userId, jsonData, lang);
-			// the SP returns a tiny one‐row result: JSON_OBJECT AS result
-			// forward it verbatim
-			return ResponseEntity.ok()
-								.header("Content-Type","application/json")
+                try {
+                        String token = authHeader.substring(7);
+                        // extract user_id from the token to pass as responsable_user_id
+                        Long userId = Long.valueOf(jwtUtil.extractUserId(token));
+                        Map<String,Object> jsonData = body.getData();
+                        Object paymentMonth = jsonData.get("payment_month");
+                        if (paymentMonth instanceof String paymentMonthStr) {
+                                String normalizedPaymentMonth = paymentMonthStr.trim();
+                                if (!normalizedPaymentMonth.isEmpty() && normalizedPaymentMonth.matches("\\d{4}-\\d{2}")) {
+                                        jsonData.put("payment_month", normalizedPaymentMonth + "-01");
+                                }
+                        }
+                        String jsonResult = reportsService.updatePaymentRequest(paymentRequestId, userId, jsonData, lang);
+                        // the SP returns a tiny one‐row result: JSON_OBJECT AS result
+                        // forward it verbatim
+                        return ResponseEntity.ok()
+                                                                .header("Content-Type","application/json")
 								.body(jsonResult);
 		} catch(Exception e) {
 			return ResponseEntity.badRequest().body(Map.of(
