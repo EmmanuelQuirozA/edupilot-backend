@@ -34,7 +34,9 @@ public class PaymentRequestScheduleRepository {
         rule.setLateFee(rs.getBigDecimal("late_fee"));
         rule.setLateFeeFrequency(getInteger(rs, "late_fee_frequency"));
         rule.setComments(rs.getString("comments"));
-        rule.setNextDueDate(rs.getObject("next_execution_date", LocalDate.class));
+        rule.setNextExecutionDate(rs.getObject("next_execution_date", LocalDate.class));
+        rule.setNextDueDate(rs.getObject("next_due_date", LocalDate.class));
+        rule.setPaymentWindow(getInteger(rs, "payment_window"));
         rule.setPeriodOfTimeId(getInteger(rs, "period_of_time_id"));
         rule.setIntervalCount(getInteger(rs, "interval_count"));
         rule.setEndDate(rs.getObject("end_date", LocalDate.class));
@@ -66,6 +68,10 @@ public class PaymentRequestScheduleRepository {
                 late_fee_frequency,
                 comments,
                 next_execution_date,
+<<<<<<< HEAD
+=======
+                next_due_date,
+>>>>>>> b4a48367c199ceec74e9c81e0f55e94e6d92e48e
                 payment_window,
                 period_of_time_id,
                 interval_count,
@@ -82,16 +88,20 @@ public class PaymentRequestScheduleRepository {
         return jdbcTemplate.query(sql, params, RULE_MAPPER);
     }
 
-    public void updateNextDueDate(Long scheduleId, LocalDate nextDueDate) {
+    public void updateNextExecutionDate(Long scheduleId, LocalDate nextExecutionDate) {
         String sql = """
             UPDATE payment_request_scheduled
+<<<<<<< HEAD
                SET next_execution_date = :nextDueDate,
+=======
+               SET next_execution_date = :nextExecutionDate,
+>>>>>>> b4a48367c199ceec74e9c81e0f55e94e6d92e48e
                    updated_at = NOW()
              WHERE payment_request_scheduled_id = :scheduleId
         """;
 
         MapSqlParameterSource params = new MapSqlParameterSource()
-            .addValue("nextDueDate", nextDueDate)
+            .addValue("nextExecutionDate", nextExecutionDate)
             .addValue("scheduleId", scheduleId);
 
         jdbcTemplate.update(sql, params);
