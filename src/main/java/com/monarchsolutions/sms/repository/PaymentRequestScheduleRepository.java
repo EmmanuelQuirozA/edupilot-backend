@@ -35,6 +35,7 @@ public class PaymentRequestScheduleRepository {
         rule.setLateFeeFrequency(getInteger(rs, "late_fee_frequency"));
         rule.setComments(rs.getString("comments"));
         rule.setNextExecutionDate(rs.getObject("next_execution_date", LocalDate.class));
+        rule.setNextDueDate(rs.getObject("next_due_date", LocalDate.class));
         rule.setPaymentWindow(getInteger(rs, "payment_window"));
         rule.setPeriodOfTimeId(getInteger(rs, "period_of_time_id"));
         rule.setIntervalCount(getInteger(rs, "interval_count"));
@@ -67,6 +68,7 @@ public class PaymentRequestScheduleRepository {
                 late_fee_frequency,
                 comments,
                 next_execution_date,
+                next_due_date,
                 payment_window,
                 period_of_time_id,
                 interval_count,
