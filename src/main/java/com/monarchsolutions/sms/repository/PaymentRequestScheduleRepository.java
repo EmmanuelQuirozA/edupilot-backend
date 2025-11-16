@@ -28,7 +28,12 @@ public class PaymentRequestScheduleRepository {
         rule.setSchoolId(getLong(rs, "school_id"));
         rule.setGroupId(getLong(rs, "group_id"));
         rule.setStudentId(getLong(rs, "student_id"));
-        rule.setPayload(rs.getString("payload"));
+        rule.setPaymentConceptId(getLong(rs, "payment_concept_id"));
+        rule.setAmount(rs.getBigDecimal("amount"));
+        rule.setFeeType(rs.getString("fee_type"));
+        rule.setLateFee(rs.getBigDecimal("late_fee"));
+        rule.setLateFeeFrequency(getInteger(rs, "late_fee_frequency"));
+        rule.setComments(rs.getString("comments"));
         rule.setNextDueDate(rs.getObject("next_due_date", LocalDate.class));
         rule.setPeriodOfTimeId(getInteger(rs, "period_of_time_id"));
         rule.setIntervalCount(getInteger(rs, "interval_count"));
@@ -54,7 +59,12 @@ public class PaymentRequestScheduleRepository {
                 school_id,
                 group_id,
                 student_id,
-                payload,
+                payment_concept_id,
+                amount,
+                fee_type,
+                late_fee,
+                late_fee_frequency,
+                comments,
                 next_due_date,
                 period_of_time_id,
                 interval_count,
