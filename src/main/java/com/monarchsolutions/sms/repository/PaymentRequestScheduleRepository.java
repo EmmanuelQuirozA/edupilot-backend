@@ -34,7 +34,7 @@ public class PaymentRequestScheduleRepository {
         rule.setLateFee(rs.getBigDecimal("late_fee"));
         rule.setLateFeeFrequency(getInteger(rs, "late_fee_frequency"));
         rule.setComments(rs.getString("comments"));
-        rule.setNextDueDate(rs.getObject("next_due_date", LocalDate.class));
+        rule.setNextDueDate(rs.getObject("next_execution_date", LocalDate.class));
         rule.setPeriodOfTimeId(getInteger(rs, "period_of_time_id"));
         rule.setIntervalCount(getInteger(rs, "interval_count"));
         rule.setEndDate(rs.getObject("end_date", LocalDate.class));
@@ -65,15 +65,16 @@ public class PaymentRequestScheduleRepository {
                 late_fee,
                 late_fee_frequency,
                 comments,
-                next_due_date,
+                next_execution_date,
+                payment_window,
                 period_of_time_id,
                 interval_count,
                 end_date,
-                created_by
+                1 AS created_by -- user_id 1 is system
             FROM payment_request_scheduled
             WHERE active = 1
-              AND next_due_date IS NOT NULL
-              AND next_due_date <= :referenceDate
+              AND next_execution_date IS NOT NULL
+              AND next_execution_date <= :referenceDate
               AND (end_date IS NULL OR end_date >= :referenceDate)
         """;
 
@@ -84,7 +85,7 @@ public class PaymentRequestScheduleRepository {
     public void updateNextDueDate(Long scheduleId, LocalDate nextDueDate) {
         String sql = """
             UPDATE payment_request_scheduled
-               SET next_due_date = :nextDueDate,
+               SET next_execution_date = :nextDueDate,
                    updated_at = NOW()
              WHERE payment_request_scheduled_id = :scheduleId
         """;

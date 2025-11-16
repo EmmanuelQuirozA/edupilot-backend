@@ -16,7 +16,16 @@ public class CreatePaymentRequestScheduleDTO {
     private String     comments;
     private LocalDate  start_date;
     private LocalDate  end_date;
-    private LocalDate  next_due_date;
+    private LocalDate  next_execution_date;
+    private LocalDate  payment_window;
+
+    public LocalDate getPayment_window() {
+        return payment_window;
+    }
+
+    public void setPayment_window(LocalDate payment_window) {
+        this.payment_window = payment_window;
+    }
 
     public Integer getPayment_concept_id() {
         return payment_concept_id;
@@ -114,11 +123,11 @@ public class CreatePaymentRequestScheduleDTO {
         this.end_date = end_date;
     }
 
-    public LocalDate getNext_due_date() {
-        return next_due_date;
+    public LocalDate getNext_execution_date() {
+        return next_execution_date;
     }
 
-    public void setNext_due_date(LocalDate next_due_date) {
-        this.next_due_date = next_due_date;
+    public void setNext_execution_date(LocalDate next_execution_date) {
+        this.next_execution_date = next_execution_date;
     }
 }
