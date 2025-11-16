@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Map;
 
@@ -19,6 +20,7 @@ import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRequestSchedule
 import com.monarchsolutions.sms.dto.paymentRequests.StudentPaymentRequestDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.ValidatePaymentRequestExistence;
 import com.monarchsolutions.sms.service.CatalogsService;
+import com.monarchsolutions.sms.service.PaymentRequestSchedulerService;
 import com.monarchsolutions.sms.service.PaymentRequestService;
 import com.monarchsolutions.sms.service.StudentService;
 import com.monarchsolutions.sms.util.JwtUtil;
@@ -32,6 +34,9 @@ public class PaymentRequestController {
 
     @Autowired
     private PaymentRequestService paymentRequestService;
+
+    @Autowired
+    private PaymentRequestSchedulerService paymentRequestSchedulerService;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -179,5 +184,32 @@ public class PaymentRequestController {
         paymentRequestService.getStudentPaymentRequests(effectiveStudentId, lang);
 
         return ResponseEntity.ok(list);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
+    @PostMapping("/trigger-scheduler")
+    public ResponseEntity<?> triggerPaymentRequestScheduler(
+        @RequestParam(required = false, name = "reference_date") String referenceDateParam
+    ) {
+        LocalDate referenceDate = null;
+        if (referenceDateParam != null && !referenceDateParam.isBlank()) {
+            try {
+                referenceDate = LocalDate.parse(referenceDateParam);
+            } catch (DateTimeParseException ex) {
+                return ResponseEntity.badRequest().body(Map.of(
+                    "status", "error",
+                    "message", "reference_date must use ISO format (yyyy-MM-dd)",
+                    "details", ex.getParsedString()
+                ));
+            }
+        }
+
+        paymentRequestSchedulerService.execute(referenceDate);
+
+        String usedDate = referenceDate != null ? referenceDate.toString() : LocalDate.now().toString();
+        return ResponseEntity.ok(Map.of(
+            "status", "triggered",
+            "reference_date", usedDate
+        ));
     }
 }
