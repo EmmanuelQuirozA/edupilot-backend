@@ -95,7 +95,7 @@ public class PaymentRequestSchedulerService {
             ruleMeta.put("group_id", rule.getGroupId());
             ruleMeta.put("student_id", rule.getStudentId());
             try {
-                CreatePaymentRequestDTO payload = buildPayload(rule);
+                CreatePaymentRequestDTO payload = buildPayload(rule, today);
                 Map<String, Object> response = paymentRequestService.createPaymentRequest(
                     rule.getCreatedBy(),
                     rule.getSchoolId(),
@@ -169,17 +169,17 @@ public class PaymentRequestSchedulerService {
     }
 
     private void advanceSchedule(PaymentRequestScheduleRule rule) {
-        LocalDate current = rule.getNextDueDate();
-        LocalDate next = calculateNextDueDate(current, rule.getPeriodOfTimeId(), rule.getIntervalCount());
+        LocalDate current = rule.getNextExecutionDate();
+        LocalDate next = calculateNextExecutionDate(current, rule.getPeriodOfTimeId(), rule.getIntervalCount());
         if (next == null || (rule.getEndDate() != null && next.isAfter(rule.getEndDate()))) {
             scheduleRepository.deactivate(rule.getPaymentRequestScheduledId());
         } else {
-            scheduleRepository.updateNextDueDate(rule.getPaymentRequestScheduledId(), next);
+            scheduleRepository.updateNextExecutionDate(rule.getPaymentRequestScheduledId(), next);
         }
         scheduleRepository.touchExecution(rule.getPaymentRequestScheduledId());
     }
 
-    private LocalDate calculateNextDueDate(LocalDate current, Integer periodOfTimeId, Integer interval) {
+    private LocalDate calculateNextExecutionDate(LocalDate current, Integer periodOfTimeId, Integer interval) {
         if (current == null || periodOfTimeId == null) {
             return null;
         }
@@ -196,11 +196,11 @@ public class PaymentRequestSchedulerService {
         return current.plus(steps, unit);
     }
 
-    private CreatePaymentRequestDTO buildPayload(PaymentRequestScheduleRule rule) {
+    private CreatePaymentRequestDTO buildPayload(PaymentRequestScheduleRule rule, LocalDate executionDate) {
         CreatePaymentRequestDTO dto = new CreatePaymentRequestDTO();
         dto.setPayment_concept_id(toInteger(rule.getPaymentConceptId()));
         dto.setAmount(rule.getAmount());
-        dto.setPay_by(rule.getNextDueDate());
+        dto.setPay_by(calculatePayBy(executionDate, rule.getPaymentWindow()));
         dto.setComments(rule.getComments());
         dto.setLate_fee(rule.getLateFee());
         dto.setFee_type(rule.getFeeType());
@@ -224,14 +224,20 @@ public class PaymentRequestSchedulerService {
             return normalizePaymentMonth(rule.getPaymentMonth());
         }
 
-        LocalDate nextDue = rule.getNextDueDate();
-        if (nextDue == null) {
+        LocalDate nextExecution = rule.getNextExecutionDate();
+        if (nextExecution == null) {
             return null;
         }
 
-        LocalDate firstDayOfMonth = nextDue.withDayOfMonth(1);
+        LocalDate firstDayOfMonth = nextExecution.withDayOfMonth(1);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         return formatter.format(firstDayOfMonth);
+    }
+
+    private LocalDate calculatePayBy(LocalDate executionDate, Integer paymentWindow) {
+        int windowDays = paymentWindow != null ? paymentWindow : 0;
+        LocalDate baseDate = executionDate != null ? executionDate : LocalDate.now();
+        return baseDate.plusDays(windowDays);
     }
 
     private String normalizePaymentMonth(String rawValue) {

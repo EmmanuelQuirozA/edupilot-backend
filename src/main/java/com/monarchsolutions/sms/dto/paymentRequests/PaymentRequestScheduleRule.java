@@ -17,7 +17,8 @@ public class PaymentRequestScheduleRule {
     private String comments;
     private String paymentMonth;
     private Boolean partialPayment;
-    private LocalDate nextDueDate;
+    private LocalDate nextExecutionDate;
+    private Integer paymentWindow;
     private Integer periodOfTimeId;
     private Integer intervalCount;
     private LocalDate endDate;
@@ -119,12 +120,20 @@ public class PaymentRequestScheduleRule {
         this.partialPayment = partialPayment;
     }
 
-    public LocalDate getNextDueDate() {
-        return nextDueDate;
+    public LocalDate getNextExecutionDate() {
+        return nextExecutionDate;
     }
 
-    public void setNextDueDate(LocalDate nextDueDate) {
-        this.nextDueDate = nextDueDate;
+    public void setNextExecutionDate(LocalDate nextExecutionDate) {
+        this.nextExecutionDate = nextExecutionDate;
+    }
+
+    public Integer getPaymentWindow() {
+        return paymentWindow;
+    }
+
+    public void setPaymentWindow(Integer paymentWindow) {
+        this.paymentWindow = paymentWindow;
     }
 
     public Integer getPeriodOfTimeId() {
