@@ -5,6 +5,7 @@ import java.io.StringWriter;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -94,7 +95,7 @@ public class PaymentRequestSchedulerService {
             ruleMeta.put("group_id", rule.getGroupId());
             ruleMeta.put("student_id", rule.getStudentId());
             try {
-                CreatePaymentRequestDTO payload = objectMapper.readValue(rule.getPayload(), CreatePaymentRequestDTO.class);
+                CreatePaymentRequestDTO payload = buildPayload(rule);
                 Map<String, Object> response = paymentRequestService.createPaymentRequest(
                     rule.getCreatedBy(),
                     rule.getSchoolId(),
@@ -193,6 +194,36 @@ public class PaymentRequestSchedulerService {
         };
 
         return current.plus(steps, unit);
+    }
+
+    private CreatePaymentRequestDTO buildPayload(PaymentRequestScheduleRule rule) {
+        CreatePaymentRequestDTO dto = new CreatePaymentRequestDTO();
+        dto.setPayment_concept_id(toInteger(rule.getPaymentConceptId()));
+        dto.setAmount(rule.getAmount());
+        dto.setPay_by(rule.getNextDueDate());
+        dto.setComments(rule.getComments());
+        dto.setLate_fee(rule.getLateFee());
+        dto.setFee_type(rule.getFeeType());
+        dto.setLate_fee_frequency(rule.getLateFeeFrequency() != null ? rule.getLateFeeFrequency().toString() : null);
+        dto.setPayment_month(resolvePaymentMonth(rule));
+        dto.setPartial_payment(rule.getPartialPayment() != null ? rule.getPartialPayment() : Boolean.FALSE);
+        return dto;
+    }
+
+    private Integer toInteger(Long value) {
+        return value != null ? value.intValue() : null;
+    }
+
+    private String resolvePaymentMonth(PaymentRequestScheduleRule rule) {
+        if (rule.getPaymentMonth() != null && !rule.getPaymentMonth().isBlank()) {
+            return rule.getPaymentMonth();
+        }
+        LocalDate nextDue = rule.getNextDueDate();
+        if (nextDue == null) {
+            return null;
+        }
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
+        return formatter.format(nextDue);
     }
 
     @SuppressWarnings("unchecked")

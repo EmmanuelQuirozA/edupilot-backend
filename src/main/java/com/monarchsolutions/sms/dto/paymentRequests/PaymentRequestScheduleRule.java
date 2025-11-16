@@ -1,5 +1,6 @@
 package com.monarchsolutions.sms.dto.paymentRequests;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class PaymentRequestScheduleRule {
@@ -8,7 +9,14 @@ public class PaymentRequestScheduleRule {
     private Long schoolId;
     private Long groupId;
     private Long studentId;
-    private String payload;
+    private Long paymentConceptId;
+    private BigDecimal amount;
+    private String feeType;
+    private BigDecimal lateFee;
+    private Integer lateFeeFrequency;
+    private String comments;
+    private String paymentMonth;
+    private Boolean partialPayment;
     private LocalDate nextDueDate;
     private Integer periodOfTimeId;
     private Integer intervalCount;
@@ -47,12 +55,68 @@ public class PaymentRequestScheduleRule {
         this.studentId = studentId;
     }
 
-    public String getPayload() {
-        return payload;
+    public Long getPaymentConceptId() {
+        return paymentConceptId;
     }
 
-    public void setPayload(String payload) {
-        this.payload = payload;
+    public void setPaymentConceptId(Long paymentConceptId) {
+        this.paymentConceptId = paymentConceptId;
+    }
+
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
+    }
+
+    public String getFeeType() {
+        return feeType;
+    }
+
+    public void setFeeType(String feeType) {
+        this.feeType = feeType;
+    }
+
+    public BigDecimal getLateFee() {
+        return lateFee;
+    }
+
+    public void setLateFee(BigDecimal lateFee) {
+        this.lateFee = lateFee;
+    }
+
+    public Integer getLateFeeFrequency() {
+        return lateFeeFrequency;
+    }
+
+    public void setLateFeeFrequency(Integer lateFeeFrequency) {
+        this.lateFeeFrequency = lateFeeFrequency;
+    }
+
+    public String getComments() {
+        return comments;
+    }
+
+    public void setComments(String comments) {
+        this.comments = comments;
+    }
+
+    public String getPaymentMonth() {
+        return paymentMonth;
+    }
+
+    public void setPaymentMonth(String paymentMonth) {
+        this.paymentMonth = paymentMonth;
+    }
+
+    public Boolean getPartialPayment() {
+        return partialPayment;
+    }
+
+    public void setPartialPayment(Boolean partialPayment) {
+        this.partialPayment = partialPayment;
     }
 
     public LocalDate getNextDueDate() {
