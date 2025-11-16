@@ -215,15 +215,31 @@ public class PaymentRequestSchedulerService {
     }
 
     private String resolvePaymentMonth(PaymentRequestScheduleRule rule) {
-        if (rule.getPaymentMonth() != null && !rule.getPaymentMonth().isBlank()) {
-            return rule.getPaymentMonth();
+        Integer conceptId = toInteger(rule.getPaymentConceptId());
+        if (conceptId == null || conceptId != 1) {
+            return null;
         }
+
+        if (rule.getPaymentMonth() != null && !rule.getPaymentMonth().isBlank()) {
+            return normalizePaymentMonth(rule.getPaymentMonth());
+        }
+
         LocalDate nextDue = rule.getNextDueDate();
         if (nextDue == null) {
             return null;
         }
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
-        return formatter.format(nextDue);
+
+        LocalDate firstDayOfMonth = nextDue.withDayOfMonth(1);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        return formatter.format(firstDayOfMonth);
+    }
+
+    private String normalizePaymentMonth(String rawValue) {
+        String trimmed = rawValue.trim();
+        if (trimmed.matches("\\d{4}-\\d{2}$")) {
+            return trimmed + "-01";
+        }
+        return trimmed;
     }
 
     @SuppressWarnings("unchecked")
