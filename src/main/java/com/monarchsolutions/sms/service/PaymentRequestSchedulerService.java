@@ -95,7 +95,7 @@ public class PaymentRequestSchedulerService {
             ruleMeta.put("group_id", rule.getGroupId());
             ruleMeta.put("student_id", rule.getStudentId());
             try {
-                CreatePaymentRequestDTO payload = buildPayload(rule, today);
+                CreatePaymentRequestDTO payload = buildPayload(rule);
                 Map<String, Object> response = paymentRequestService.createPaymentRequest(
                     rule.getCreatedBy(),
                     rule.getSchoolId(),
@@ -196,11 +196,11 @@ public class PaymentRequestSchedulerService {
         return current.plus(steps, unit);
     }
 
-    private CreatePaymentRequestDTO buildPayload(PaymentRequestScheduleRule rule, LocalDate executionDate) {
+    private CreatePaymentRequestDTO buildPayload(PaymentRequestScheduleRule rule) {
         CreatePaymentRequestDTO dto = new CreatePaymentRequestDTO();
         dto.setPayment_concept_id(toInteger(rule.getPaymentConceptId()));
         dto.setAmount(rule.getAmount());
-        dto.setPay_by(calculatePayBy(executionDate, rule.getPaymentWindow()));
+        dto.setPay_by(calculatePayBy(rule.getNextDueDate(), rule.getPaymentWindow()));
         dto.setComments(rule.getComments());
         dto.setLate_fee(rule.getLateFee());
         dto.setFee_type(rule.getFeeType());
@@ -234,9 +234,9 @@ public class PaymentRequestSchedulerService {
         return formatter.format(firstDayOfMonth);
     }
 
-    private LocalDate calculatePayBy(LocalDate executionDate, Integer paymentWindow) {
+    private LocalDate calculatePayBy(LocalDate dueDate, Integer paymentWindow) {
         int windowDays = paymentWindow != null ? paymentWindow : 0;
-        LocalDate baseDate = executionDate != null ? executionDate : LocalDate.now();
+        LocalDate baseDate = dueDate != null ? dueDate : LocalDate.now();
         return baseDate.plusDays(windowDays);
     }
 
