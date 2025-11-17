@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRequestDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRecurrenceDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRequestScheduleDTO;
@@ -111,6 +112,47 @@ public class PaymentRequestRepository {
     }
 
     return mergeCreatePaymentRequestResult(raw);
+  }
+
+  public Map<String, Object> getPaymentRequestScheduledDetails(Long tokenUserId,
+                                                               Long paymentRequestScheduledId,
+                                                               String lang) {
+    StoredProcedureQuery query = entityManager.createStoredProcedureQuery("getPaymentRequestScheduledDetails");
+
+    query.registerStoredProcedureParameter("token_user_id", Long.class, ParameterMode.IN);
+    query.registerStoredProcedureParameter("p_payment_request_scheduled_id", Long.class, ParameterMode.IN);
+    query.registerStoredProcedureParameter("lang", String.class, ParameterMode.IN);
+
+    query.setParameter("token_user_id", tokenUserId);
+    query.setParameter("p_payment_request_scheduled_id", paymentRequestScheduledId);
+    query.setParameter("lang", lang);
+
+    query.execute();
+
+    List<?> raw = query.getResultList();
+    if (raw.isEmpty()) {
+      return Collections.emptyMap();
+    }
+
+    Object first = raw.get(0);
+    String json;
+    if (first instanceof String) {
+      json = (String) first;
+    } else if (first instanceof Object[] arr && arr.length > 0 && arr[0] != null) {
+      json = arr[0].toString();
+    } else {
+      return Collections.emptyMap();
+    }
+
+    if (json == null || json.isBlank()) {
+      return Collections.emptyMap();
+    }
+
+    try {
+      return objectMapper.readValue(json, new TypeReference<Map<String, Object>>() {});
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to parse scheduled payment request details", e);
+    }
   }
 
   /**

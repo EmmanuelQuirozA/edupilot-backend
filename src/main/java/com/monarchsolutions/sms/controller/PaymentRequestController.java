@@ -98,6 +98,23 @@ public class PaymentRequestController {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
+    @GetMapping("/schedule/details")
+    public ResponseEntity<Map<String, Object>> getPaymentRequestScheduleDetails(
+        @RequestHeader("Authorization") String authHeader,
+        @RequestParam(name = "payment_request_scheduled_id") Long paymentRequestScheduledId,
+        @RequestParam(defaultValue = "es") String lang
+    ) {
+        String token = authHeader.substring(7);
+        Long tokenUserId = jwtUtil.extractUserId(token);
+        Map<String, Object> details = paymentRequestService.getPaymentRequestScheduledDetails(
+            tokenUserId,
+            paymentRequestScheduledId,
+            lang
+        );
+        return ResponseEntity.ok(details);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
     @PostMapping("/recurrence")
     public ResponseEntity<String> createPaymentRecurrence(
         @RequestHeader("Authorization") String authHeader,
