@@ -1,6 +1,7 @@
 package com.monarchsolutions.sms.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -77,12 +78,31 @@ public class LogsController {
         Long token_user_id = jwtUtil.extractUserId(token);
 
         List<PaymentLogGroupDto> grouped = UserLogsService.getGroupedPaymentLogs(
-            token_user_id,    
+            token_user_id,
             schoolId,
             paymentId,
             lang
         );
         return ResponseEntity.ok(grouped);
+    }
+
+    // Endpoint to retrieve scheduled job logs from stored procedure getScheduledJobLogs
+    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
+    @GetMapping("/scheduled-jobs")
+    public ResponseEntity<List<Map<String, Object>>> getScheduledJobLogs(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestParam(name = "payment_request_scheduled_id", required = false) Long paymentRequestScheduledId,
+            @RequestParam(defaultValue = "es") String lang
+    ) {
+        String token = authHeader.substring(7);
+        Long tokenUserId = jwtUtil.extractUserId(token);
+
+        List<Map<String, Object>> logs = UserLogsService.getScheduledJobLogs(
+                tokenUserId,
+                paymentRequestScheduledId,
+                lang
+        );
+        return ResponseEntity.ok(logs);
     }
 
 }
