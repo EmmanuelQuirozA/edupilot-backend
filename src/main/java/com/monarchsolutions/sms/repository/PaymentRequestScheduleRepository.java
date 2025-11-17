@@ -35,7 +35,6 @@ public class PaymentRequestScheduleRepository {
         rule.setLateFeeFrequency(getInteger(rs, "late_fee_frequency"));
         rule.setComments(rs.getString("comments"));
         rule.setNextExecutionDate(rs.getObject("next_execution_date", LocalDate.class));
-        rule.setNextDueDate(rs.getObject("next_due_date", LocalDate.class));
         rule.setPaymentWindow(getInteger(rs, "payment_window"));
         rule.setPeriodOfTimeId(getInteger(rs, "period_of_time_id"));
         rule.setIntervalCount(getInteger(rs, "interval_count"));
@@ -68,10 +67,6 @@ public class PaymentRequestScheduleRepository {
                 late_fee_frequency,
                 comments,
                 next_execution_date,
-<<<<<<< HEAD
-=======
-                next_due_date,
->>>>>>> b4a48367c199ceec74e9c81e0f55e94e6d92e48e
                 payment_window,
                 period_of_time_id,
                 interval_count,
@@ -91,11 +86,7 @@ public class PaymentRequestScheduleRepository {
     public void updateNextExecutionDate(Long scheduleId, LocalDate nextExecutionDate) {
         String sql = """
             UPDATE payment_request_scheduled
-<<<<<<< HEAD
-               SET next_execution_date = :nextDueDate,
-=======
                SET next_execution_date = :nextExecutionDate,
->>>>>>> b4a48367c199ceec74e9c81e0f55e94e6d92e48e
                    updated_at = NOW()
              WHERE payment_request_scheduled_id = :scheduleId
         """;
