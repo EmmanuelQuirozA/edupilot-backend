@@ -89,12 +89,12 @@ public class LogsService {
 	}
 
 	// ---------------------------------------
-	public List<PaymentLogGroupDto> getGroupedPaymentLogs(
-		Long token_user_id,
-		Long tokenSchoolId,
-		Long paymentId,
-		String lang
-	) {
+        public List<PaymentLogGroupDto> getGroupedPaymentLogs(
+                Long token_user_id,
+                Long tokenSchoolId,
+                Long paymentId,
+                String lang
+        ) {
 		// 1) Fetch the flat list of row‐level logs
 		List<PaymentLogsDto> flat = logsRepository.getPaymentLogs(
 			token_user_id,tokenSchoolId, paymentId, lang
@@ -144,7 +144,15 @@ public class LogsService {
 
 		// **HERE** re-sort your grouped list by updated_at descending
 		grouped.sort(Comparator.comparing(PaymentLogGroupDto::getUpdated_at).reversed());
-	
-		return grouped;
-	}
+
+                return grouped;
+        }
+
+        public List<Map<String, Object>> getScheduledJobLogs(
+                Long tokenUserId,
+                Long paymentRequestScheduledId,
+                String lang
+        ) {
+                return logsRepository.getScheduledJobLogs(tokenUserId, paymentRequestScheduledId, lang);
+        }
 }

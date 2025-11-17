@@ -7,6 +7,8 @@ import com.monarchsolutions.sms.dto.common.PageResult;
 import com.monarchsolutions.sms.dto.userLogs.UserLogsListDto;
 import com.monarchsolutions.sms.dto.userLogs.paymentRequest.PaymentRequestLogsDto;
 import com.monarchsolutions.sms.dto.userLogs.payments.PaymentLogsDto;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.ParameterMode;
@@ -24,12 +26,14 @@ import javax.sql.DataSource;
 
 @Repository
 public class LogsRepository {
-	
-	@Autowired
-	private DataSource dataSource;
 
-	@PersistenceContext
-	private EntityManager entityManager;
+        @Autowired
+        private DataSource dataSource;
+
+        @PersistenceContext
+        private EntityManager entityManager;
+
+        private final ObjectMapper objectMapper = new ObjectMapper();
 
 	// Get Users Activity Logs List
 	public List<UserLogsListDto> getUsersActivityLog(Long tokenSchoolId, String lang){
@@ -148,7 +152,7 @@ public class LogsRepository {
 
 	// --------------------------------
 	// Get payment request Activity Logs List
-	public List<PaymentLogsDto> getPaymentLogs(Long token_user_id,Long tokenSchoolId, Long payment_request_id, String lang){
+        public List<PaymentLogsDto> getPaymentLogs(Long token_user_id,Long tokenSchoolId, Long payment_request_id, String lang){
 		// Create the stored procedure query
 		StoredProcedureQuery query = entityManager.createStoredProcedureQuery("getPaymentLogs");
 
@@ -206,7 +210,50 @@ public class LogsRepository {
         dto.setUpdated_at(null);
     }
 		
-		return dto;
-	}
+                return dto;
+        }
+
+        // Scheduled job logs (payment_request_scheduled)
+        public List<Map<String, Object>> getScheduledJobLogs(Long tokenUserId,
+                                                             Long paymentRequestScheduledId,
+                                                             String lang) {
+                StoredProcedureQuery query = entityManager.createStoredProcedureQuery("getScheduledJobLogs");
+
+                query.registerStoredProcedureParameter("token_user_id", Long.class, ParameterMode.IN);
+                query.registerStoredProcedureParameter("p_payment_request_scheduled_id", Long.class, ParameterMode.IN);
+                query.registerStoredProcedureParameter("lang", String.class, ParameterMode.IN);
+
+                query.setParameter("token_user_id", tokenUserId);
+                query.setParameter("p_payment_request_scheduled_id", paymentRequestScheduledId);
+                query.setParameter("lang", lang);
+
+                query.execute();
+
+                List<?> raw = query.getResultList();
+                if (raw.isEmpty()) {
+                        return Collections.emptyList();
+                }
+
+                Object first = raw.get(0);
+                String json;
+
+                if (first instanceof String) {
+                        json = (String) first;
+                } else if (first instanceof Object[] arr && arr.length > 0 && arr[0] != null) {
+                        json = arr[0].toString();
+                } else {
+                        return Collections.emptyList();
+                }
+
+                if (json == null || json.isBlank()) {
+                        return Collections.emptyList();
+                }
+
+                try {
+                        return objectMapper.readValue(json, new TypeReference<List<Map<String, Object>>>() {});
+                } catch (Exception e) {
+                        throw new RuntimeException("Failed to parse scheduled job logs JSON", e);
+                }
+        }
 
 }
