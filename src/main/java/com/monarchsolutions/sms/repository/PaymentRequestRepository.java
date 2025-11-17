@@ -481,7 +481,14 @@ public class PaymentRequestRepository {
         query.getUpdateCount();
       }
 
-      moreResults = query.hasMoreResults();
+      try {
+        moreResults = query.hasMoreResults();
+      } catch (Exception ex) {
+        // Some JDBC drivers may close the statement after the last result set,
+        // which causes hasMoreResults() to throw (e.g. "statement closed").
+        // Treat that as the end of the results stream.
+        moreResults = false;
+      }
     }
 
     return allResults;
