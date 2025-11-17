@@ -64,9 +64,15 @@ public class PaymentRequestService {
   }
 
   public List<ValidatePaymentRequestExistence> validatePaymentRequests(Long token_user_id, Long school_id, Long group_id, Long payment_concept_id, Date payment_month) {
-		// If tokenSchoolId is not null, the SP will filter students by school.
-		return paymentRequestRepository.validatePaymentRequests(token_user_id,  school_id, group_id, payment_concept_id, payment_month);
-	}
+                // If tokenSchoolId is not null, the SP will filter students by school.
+                return paymentRequestRepository.validatePaymentRequests(token_user_id,  school_id, group_id, payment_concept_id, payment_month);
+        }
+
+  public Map<String, Object> getPaymentRequestScheduledDetails(Long tokenUserId,
+                                                               Long paymentRequestScheduledId,
+                                                               String lang) {
+    return paymentRequestRepository.getPaymentRequestScheduledDetails(tokenUserId, paymentRequestScheduledId, lang);
+  }
 
 
   public BigDecimal getPendingByStudent(Long token_user_id, Long studentId) {
