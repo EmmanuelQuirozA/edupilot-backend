@@ -147,6 +147,7 @@ public class PaymentRepository {
       .registerStoredProcedureParameter("p_student_id", Integer.class, ParameterMode.IN)
       .registerStoredProcedureParameter("p_payment_concept_id", Integer.class, ParameterMode.IN)
       .registerStoredProcedureParameter("p_payment_month", java.sql.Date.class, ParameterMode.IN)
+      .registerStoredProcedureParameter("p_payment_date", java.sql.Date.class, ParameterMode.IN)
       .registerStoredProcedureParameter("p_amount", java.math.BigDecimal.class, ParameterMode.IN)
       .registerStoredProcedureParameter("p_comments", String.class, ParameterMode.IN)
       .registerStoredProcedureParameter("p_payment_request_id", Integer.class, ParameterMode.IN)
@@ -174,6 +175,13 @@ public class PaymentRepository {
       sqlPm = Date.valueOf(pm);
     }
     q.setParameter("p_payment_month", sqlPm);
+
+    String paymentDate = req.getPayment_date();
+    Date sqlPaymentDate = null;
+    if (paymentDate != null && !paymentDate.trim().isEmpty()) {
+      sqlPaymentDate = Date.valueOf(paymentDate);
+    }
+    q.setParameter("p_payment_date", sqlPaymentDate);
 
     q.setParameter("p_amount", req.getAmount());
     q.setParameter("p_comments", req.getComments());
@@ -210,13 +218,19 @@ public class PaymentRepository {
     // Register the stored procedure parameters
     query.registerStoredProcedureParameter("responsable_user_id", Integer.class, ParameterMode.IN);
     query.registerStoredProcedureParameter("payment_id", Long.class, ParameterMode.IN);
+    query.registerStoredProcedureParameter("payment_date", java.sql.Date.class, ParameterMode.IN);
     query.registerStoredProcedureParameter("p_json", String.class, ParameterMode.IN);
     query.registerStoredProcedureParameter("removeReceipt", Boolean.class, ParameterMode.IN);
     query.registerStoredProcedureParameter("lang", String.class, ParameterMode.IN);
-    
+
     // Set the parameters.
     query.setParameter("responsable_user_id", responsibleUserId);
     query.setParameter("payment_id", payment_id);
+    Date paymentDate = null;
+    if (request.getPayment_date() != null && !request.getPayment_date().trim().isEmpty()) {
+      paymentDate = Date.valueOf(request.getPayment_date());
+    }
+    query.setParameter("payment_date", paymentDate);
     query.setParameter("p_json", paymentDataJson);
     query.setParameter("removeReceipt", removeReceipt);
     query.setParameter("lang", lang);

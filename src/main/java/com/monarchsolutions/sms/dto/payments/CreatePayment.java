@@ -17,6 +17,7 @@ public class CreatePayment {
   private String receipt_path;
   private String receipt_file_name;
   private Date created_at;
+  private String payment_date;
 
   public Date getCreated_at() {
     return created_at;
@@ -78,5 +79,11 @@ public class CreatePayment {
   public void setReceipt_file_name(String receipt_file_name) {
     this.receipt_file_name = receipt_file_name;
   }
-  
+  public String getPayment_date() {
+    return payment_date;
+  }
+  public void setPayment_date(String payment_date) {
+    this.payment_date = payment_date;
+  }
+
 }
