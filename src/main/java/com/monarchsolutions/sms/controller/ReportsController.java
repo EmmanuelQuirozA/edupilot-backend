@@ -423,12 +423,12 @@ public class ReportsController {
     }
   }
 
-	@PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','STUDENT')")
 	@GetMapping("/paymentrequest/details")
 	public ResponseEntity<?> getPaymentRequestDetails(
 		@RequestHeader("Authorization") String authHeader,
 		@RequestParam Long payment_request_id,
-		@RequestParam(defaultValue="en") String lang
+		@RequestParam(defaultValue="es") String lang
 	) {
 		String token = authHeader.substring(7);
 		Long schoolId = jwtUtil.extractSchoolId(token);
@@ -453,7 +453,7 @@ public class ReportsController {
 		@PathVariable("id") Long paymentRequestId,
 		@RequestHeader("Authorization") String authHeader,
 		@RequestBody UpdatePaymentRequest body,
-		@RequestParam(defaultValue="en") String lang
+		@RequestParam(defaultValue="es") String lang
 	) {
                 try {
                         String token = authHeader.substring(7);

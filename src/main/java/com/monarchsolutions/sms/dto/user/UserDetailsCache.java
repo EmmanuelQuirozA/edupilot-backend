@@ -11,6 +11,7 @@ public class UserDetailsCache {
   private String full_name;
   private String first_name;
   private LocalDate birth_date;
+  private String school_name;
   public Long getUser_id() {
     return user_id;
   }
@@ -60,5 +61,10 @@ public class UserDetailsCache {
   public void setFirst_name(String first_name) {
     this.first_name = first_name;
   }
-  
+  public String getSchool_name() {
+    return school_name;
+  }
+  public void setSchool_name(String school_name) {
+    this.school_name = school_name;
+  }
 }

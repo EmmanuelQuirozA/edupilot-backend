@@ -43,7 +43,7 @@ public class LogsController {
     }
 
     // Endpoint for retrieving the list of paymentRequestLogs.
-    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','STUDENT')")
     @GetMapping("/payment-requests/{paymentRequestId}")
     public ResponseEntity<List<PaymentRequestLogGroupDto>> getPaymentRequestLogs(
             @RequestHeader("Authorization") String authHeader,
@@ -65,7 +65,7 @@ public class LogsController {
     }
     
     // Endpoint for retrieving the list of paymentLogs.
-    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','STUDENT')")
     @GetMapping("/payment/{paymentId}")
     public ResponseEntity<List<PaymentLogGroupDto>> getPaymentLogs(
             @RequestHeader("Authorization") String authHeader,

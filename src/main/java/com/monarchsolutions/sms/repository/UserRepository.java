@@ -340,11 +340,13 @@ public class UserRepository {
       // [5] username
       u.setUsername((String) r[5]);
       // [6] role_name
-			u.setRole_name((String) r[6]);
+      u.setRole_name((String) r[6]);
       // [7] full_name
       u.setFull_name((String) r[7]);
+      // [9] commercial_name
+      u.setSchool_name((String) r[9]);
       // [11] first_name
-			u.setFirst_name((String) r[11]);
+      u.setFirst_name((String) r[11]);
       // [14] birthday
 			Object raw = r[14];
 			if (raw instanceof java.sql.Date sqlDate) {
