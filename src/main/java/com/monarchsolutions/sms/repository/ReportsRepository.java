@@ -729,6 +729,8 @@ public class ReportsRepository {
 						pd.setPayment_id(rs.getLong("payment_id"));
 						Timestamp cre = rs.getTimestamp("created_at");
 						if (cre != null) pd.setPay_created_at(cre.toLocalDateTime());
+						Timestamp ppd = rs.getTimestamp("payment_date");
+						if (ppd != null) pd.setPayment_date(ppd.toLocalDateTime());
 						Timestamp upd = rs.getTimestamp("updated_at");
 						if (upd != null) pd.setUpdated_at(upd.toLocalDateTime());
 						Timestamp val = rs.getTimestamp("validated_at");

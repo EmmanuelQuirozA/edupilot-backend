@@ -2,6 +2,7 @@ package com.monarchsolutions.sms.dto.payments;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.time.LocalDateTime;
 
 public class UpdatePaymentDTO {
   private Long payment_id;
@@ -10,8 +11,8 @@ public class UpdatePaymentDTO {
   private BigDecimal amount;
   private Long payment_status_id;
   private String validated_at;
-  private String created_at;
-  private String payment_date;
+  private LocalDateTime created_at;
+  private LocalDateTime payment_date;
   private String comments;
   private Long payment_request_id;
   private Long payment_through_id;
@@ -53,10 +54,10 @@ public class UpdatePaymentDTO {
   public void setValidated_at(String validated_at) {
     this.validated_at = validated_at;
   }
-  public String getCreated_at() {
+  public LocalDateTime getCreated_at() {
     return created_at;
   }
-  public void setCreated_at(String created_at) {
+  public void setCreated_at(LocalDateTime created_at) {
     this.created_at = created_at;
   }
   public String getComments() {
@@ -89,10 +90,10 @@ public class UpdatePaymentDTO {
   public void setReceipt_file_name(String receipt_file_name) {
     this.receipt_file_name = receipt_file_name;
   }
-  public String getPayment_date() {
+  public LocalDateTime getPayment_date() {
     return payment_date;
   }
-  public void setPayment_date(String payment_date) {
+  public void setPayment_date(LocalDateTime payment_date) {
     this.payment_date = payment_date;
   }
   

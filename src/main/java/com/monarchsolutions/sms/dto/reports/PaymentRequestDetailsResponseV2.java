@@ -258,6 +258,7 @@ public class PaymentRequestDetailsResponseV2 {
     private Long payment_status_id;
     private LocalDateTime validated_at;
     private LocalDateTime pay_created_at;
+    private LocalDateTime payment_date;
     private LocalDateTime updated_at;
     private String comments;
     private String pt_name;
@@ -300,6 +301,12 @@ public class PaymentRequestDetailsResponseV2 {
     }
     public void setPay_created_at(LocalDateTime pay_created_at) {
       this.pay_created_at = pay_created_at;
+    }
+    public LocalDateTime getPayment_date() {
+      return payment_date;
+    }
+    public void setPayment_date(LocalDateTime payment_date) {
+      this.payment_date = payment_date;
     }
     public LocalDateTime getUpdated_at() {
       return updated_at;

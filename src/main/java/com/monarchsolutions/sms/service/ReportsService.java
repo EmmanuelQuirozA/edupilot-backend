@@ -306,16 +306,6 @@ public class ReportsService {
         BigDecimal lateFee       = pr.getLate_fee();
         int      freq            = pr.getLate_fee_frequency();
         LocalDateTime closedAt   = pr.getClosed_at();
-        
-        LocalDate payBy;
-        if (pr.getPr_pay_by() != null) {
-            payBy = pr.getPr_pay_by().toLocalDate();
-        } else {
-            // fallback: use creation date or today
-            payBy = pr.getPr_created_at() != null
-                ? pr.getPr_created_at().toLocalDate()
-                : LocalDate.now();
-        }
         String   feeType         = pr.getFee_type();
 
         // determine how many days late:
@@ -333,11 +323,10 @@ public class ReportsService {
         // 2) build fee entries until balance ≥ 0
         AtomicReference<BigDecimal> running = new AtomicReference<>(prAmount.negate());
         LocalDate cursor = pr.getPr_pay_by().toLocalDate().plusDays(freq);
-        
         LocalDate lastPaymentDate = resp.getPayments().stream()
         .map(p -> {
-            if (p.getPay_created_at() != null) {
-                return p.getPay_created_at().toLocalDate();
+            if (p.getPayment_date() != null) {
+                return p.getPayment_date().toLocalDate();
             } else {
                 return LocalDate.MIN;
             }
@@ -347,48 +336,48 @@ public class ReportsService {
 
         // we’ll keep generating fees day by day until our running balance + payments ≥ 0
         while (true) {
-        // 1) Stop if we’ve gone past closedAt:
-        if (closedAt != null
-            && cursor.atStartOfDay().isAfter(closedAt.toLocalDate().atStartOfDay())) {
-            break;
-        }
-        // 2) stop if we’ve gone past both now and the last payment date
-        if (cursor.isAfter(LocalDate.now()) && cursor.isAfter(lastPaymentDate)) {
-            break;
-        }
+            // 1) Stop if we’ve gone past closedAt:
+            if (closedAt != null
+                && cursor.atStartOfDay().isAfter(closedAt.toLocalDate().atStartOfDay())) {
+                break;
+            }
+            // 2) stop if we’ve gone past both now and the last payment date
+            if (cursor.isAfter(LocalDate.now()) && cursor.isAfter(lastPaymentDate)) {
+                break;
+            }
 
-        BigDecimal feeAmt = "$".equals(feeType)
-            ? lateFee.negate()
-            : prAmount.multiply(lateFee)
-                .divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP)
-                .negate();
+            BigDecimal feeAmt = "$".equals(feeType)
+                ? lateFee.negate()
+                : prAmount.multiply(lateFee)
+                    .divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP)
+                    .negate();
 
-        fees.add(new BreakdownEntry(
-            null,
-            "late_fee",
-            null,
-            null,
-            cursor.atStartOfDay(),
-            feeAmt,
-            null
-        ));
-        running.set(running.get().add(feeAmt)); // Update the running balance
+            fees.add(new BreakdownEntry(
+                null,
+                "late_fee",
+                null,
+                null,
+                cursor.atStartOfDay(),
+                feeAmt,
+                null
+            ));
+            running.set(running.get().add(feeAmt)); // Update the running balance
 
-        // snapshot the current cursor so the lambda can use it
-        final LocalDate feeDate = cursor;
+            // snapshot the current cursor so the lambda can use it
+            final LocalDate feeDate = cursor;
 
-        BigDecimal paidUpToFeeDate = resp.getPayments().stream()
-            .filter(p -> !p.getPay_created_at().toLocalDate().isAfter(feeDate))
-            .map(PaymentDetail::getAmount)
-            .filter(Objects::nonNull)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
+            BigDecimal paidUpToFeeDate = resp.getPayments().stream()
+                .filter(p -> !p.getPayment_date().toLocalDate().isAfter(feeDate))
+                .map(PaymentDetail::getAmount)
+                .filter(Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // stop if after adding payments up to this day we’re back to non-negative
-        if (running.get().add(paidUpToFeeDate).compareTo(BigDecimal.ZERO) >= 0) {
-            break;
-        }
+            // stop if after adding payments up to this day we’re back to non-negative
+            if (running.get().add(paidUpToFeeDate).compareTo(BigDecimal.ZERO) >= 0) {
+                break;
+            }
 
-        cursor = cursor.plusDays(freq);
+            cursor = cursor.plusDays(freq);
         }
 
         // 3) payments entries:
@@ -408,7 +397,7 @@ public class ReportsService {
                     "payment",
                     p.getPayment_status_id(),
                     p.getPayment_status_name(),
-                    p.getPay_created_at(),
+                    p.getPayment_date(),
                     paymentAmount,
                     paymentStatusId == 4 ? running.get() : null // Keep balance null for rejected payments
                 );
