@@ -1,6 +1,5 @@
 package com.monarchsolutions.sms.controller;
 
-import com.monarchsolutions.sms.annotation.RequirePermission;
 import com.monarchsolutions.sms.service.BalanceService;
 import com.monarchsolutions.sms.util.JwtUtil;
 
@@ -10,6 +9,7 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.monarchsolutions.sms.dto.balance.CreateBalanceRechargeDTO;
@@ -32,7 +32,7 @@ public class BalanceController {
   }
 
 
-  @RequirePermission(module = "balances", action = "c")
+  @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','FINANCE','STUDENT')")
   @PostMapping("/recharge")
   public ResponseEntity<String> recharge(
       @RequestHeader("Authorization") String authHeader,
@@ -55,7 +55,7 @@ public class BalanceController {
   }
 
   // Endpoint for retrieving the list of paymentDetails.
-  @RequirePermission(module = "balances", action = "r")
+  @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','FINANCE','STUDENT')")
   @GetMapping("/account-activity")
   public ResponseEntity<?> getBalanceRecharges(
     @RequestHeader("Authorization") String authHeader,
@@ -96,7 +96,7 @@ public class BalanceController {
     }
   }
 
-  @RequirePermission(module = "balances", action = "r")
+  @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','STUDENT')")
   @GetMapping("/account-activity-grouped")
   public ResponseEntity<List<YearlyActivityDto>> getAccountActivityGroup(
       @RequestHeader("Authorization") String authHeader,
