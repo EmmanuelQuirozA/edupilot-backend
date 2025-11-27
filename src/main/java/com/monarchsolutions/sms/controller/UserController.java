@@ -235,6 +235,21 @@ public class UserController {
     return ResponseEntity.ok(balances);
   }
 
+  @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','FINANCE')")
+  @GetMapping("/globalsearch")
+  public ResponseEntity<List<UsersBalanceDTO>> globlaSearch(
+      @RequestHeader("Authorization") String authHeader,
+			@RequestParam(required = false) String full_name,
+			@RequestParam(defaultValue = "es") String lang
+  ) {
+    // strip off "Bearer "
+    String 	token    = authHeader.replaceFirst("^Bearer\\s+", "");
+		Long 		token_user_id= jwtUtil.extractUserId(token);
+
+    List<UsersBalanceDTO> balances = userService.getUsersBalance(token_user_id, full_name, lang);
+    return ResponseEntity.ok(balances);
+  }
+
 	@PreAuthorize("isAuthenticated()")
 	@PutMapping("/password")
         public ResponseEntity<Map<String,Object>> updatePassword(

@@ -35,11 +35,12 @@ public class JwtUtil {
     }
 
     // Generate a token containing username and role (or other claims)
-    public String generateToken(Long userId, Long schoolId, String username, String role) {
+    public String generateToken(Long userId, Long schoolId, String username, String role, Long roleId) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
         claims.put("schoolId", schoolId);
         claims.put("role", role);
+        claims.put("roleId", roleId);
         return Jwts.builder()
                     .setHeaderParam("typ", "JWT")
                     .setClaims(claims)
@@ -68,6 +69,11 @@ public class JwtUtil {
     public Long extractUserId(String token) {
         Claims claims = getClaims(token);
         return claims.get("userId", Long.class);
+    }
+
+    public Long extractRoleId(String token) {
+        Claims claims = getClaims(token);
+        return claims.get("roleId", Long.class);
     }
 
     public boolean validateToken(String token) {

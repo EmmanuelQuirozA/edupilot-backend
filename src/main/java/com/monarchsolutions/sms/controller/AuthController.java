@@ -68,7 +68,7 @@ public class AuthController {
         }
 
         // Assume the role is provided in user.getRoleName() (adjust as necessary)
-        String token = jwtUtil.generateToken(user.getUserId(), user.getSchoolId(), user.getUsername(), user.getRoleName());
+        String token = jwtUtil.generateToken(user.getUserId(), user.getSchoolId(), user.getUsername(), user.getRoleName(), user.getRoleId());
         
         Long token_user_id = jwtUtil.extractUserId(token);
         UserDetailsCache userDetails = userService.getUserBasic(token_user_id, user.getUserId(), lang);
