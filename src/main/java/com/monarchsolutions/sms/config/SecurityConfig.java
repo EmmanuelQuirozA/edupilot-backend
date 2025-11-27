@@ -24,14 +24,11 @@ public class SecurityConfig {
         .cors(withDefaults())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/login").permitAll()
-                .requestMatchers("/api/users/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/schools/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/users/school_admin/**").hasRole("SCHOOL_ADMIN")
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .httpBasic(Customizer.withDefaults());
-        
+
         return http.build();
     }
 }
