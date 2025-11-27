@@ -1,5 +1,6 @@
 package com.monarchsolutions.sms.controller;
 
+import com.monarchsolutions.sms.annotation.RequirePermission;
 import com.monarchsolutions.sms.dto.catalogs.PaymentConceptsDto;
 import com.monarchsolutions.sms.dto.catalogs.PaymentStatusesDto;
 import com.monarchsolutions.sms.dto.catalogs.PaymentThroughDto;
@@ -16,6 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/catalog")
+@RequirePermission(module = "catalogs", action = "r")
 public class CatalogController {
   @Autowired
   private CatalogsService CatalogsService;
