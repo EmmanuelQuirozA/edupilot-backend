@@ -1,5 +1,6 @@
 package com.monarchsolutions.sms.controller;
 
+import com.monarchsolutions.sms.annotation.RequirePermission;
 import com.monarchsolutions.sms.dto.catalogs.PaymentConceptsDto;
 import com.monarchsolutions.sms.dto.catalogs.PaymentStatusesDto;
 import com.monarchsolutions.sms.dto.catalogs.PaymentThroughDto;
@@ -7,15 +8,14 @@ import com.monarchsolutions.sms.dto.catalogs.PeriodOfTimeDto;
 import com.monarchsolutions.sms.dto.catalogs.ScholarLevelsDto;
 import com.monarchsolutions.sms.service.CatalogsService;
 import com.monarchsolutions.sms.util.JwtUtil;
-
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/catalog")
+@RequirePermission(module = "catalogs", action = "r")
 public class CatalogController {
   @Autowired
   private CatalogsService CatalogsService;

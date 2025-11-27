@@ -1,15 +1,13 @@
 package com.monarchsolutions.sms.controller;
 
-import java.util.*;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-
+import com.monarchsolutions.sms.annotation.RequirePermission;
 import com.monarchsolutions.sms.dto.common.PageResult;
 import com.monarchsolutions.sms.service.ClassService;
 import com.monarchsolutions.sms.util.JwtUtil;
+import java.util.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/classes")
@@ -22,7 +20,7 @@ public class ClassController {
   private JwtUtil jwtUtil;
 
   // Endpoint for retrieving the list of paymentDetails.
-  @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
+  @RequirePermission(module = "classes", action = "r")
   @GetMapping("")
   public ResponseEntity<?> getClasses(
     @RequestHeader("Authorization") String authHeader,

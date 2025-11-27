@@ -1,20 +1,16 @@
 package com.monarchsolutions.sms.controller;
 
-import com.monarchsolutions.sms.service.BalanceService;
-import com.monarchsolutions.sms.util.JwtUtil;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-
+import com.monarchsolutions.sms.annotation.RequirePermission;
 import com.monarchsolutions.sms.dto.balance.CreateBalanceRechargeDTO;
 import com.monarchsolutions.sms.dto.balance.YearlyActivityDto;
 import com.monarchsolutions.sms.dto.common.PageResult;
+import com.monarchsolutions.sms.service.BalanceService;
+import com.monarchsolutions.sms.util.JwtUtil;
+import java.util.List;
+import java.util.Map;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/balances")
@@ -32,7 +28,7 @@ public class BalanceController {
   }
 
 
-  @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','FINANCE','STUDENT')")
+  @RequirePermission(module = "balances", action = "c")
   @PostMapping("/recharge")
   public ResponseEntity<String> recharge(
       @RequestHeader("Authorization") String authHeader,
@@ -55,7 +51,7 @@ public class BalanceController {
   }
 
   // Endpoint for retrieving the list of paymentDetails.
-  @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','FINANCE','STUDENT')")
+  @RequirePermission(module = "balances", action = "r")
   @GetMapping("/account-activity")
   public ResponseEntity<?> getBalanceRecharges(
     @RequestHeader("Authorization") String authHeader,
@@ -96,7 +92,7 @@ public class BalanceController {
     }
   }
 
-  @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','STUDENT')")
+  @RequirePermission(module = "balances", action = "r")
   @GetMapping("/account-activity-grouped")
   public ResponseEntity<List<YearlyActivityDto>> getAccountActivityGroup(
       @RequestHeader("Authorization") String authHeader,
