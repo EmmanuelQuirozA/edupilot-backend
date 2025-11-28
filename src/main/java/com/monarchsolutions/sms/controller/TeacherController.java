@@ -2,8 +2,9 @@ package com.monarchsolutions.sms.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import com.monarchsolutions.sms.annotation.RequirePermission;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,7 +37,7 @@ public class TeacherController {
   @Autowired
   private JwtUtil jwtUtil;
   // Endpoint for retrieving the list of teachers.
-  @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
+  @RequirePermission(module = "teachers", action = "r")
   @GetMapping("")
   public ResponseEntity<?> getTeachersList(
       @RequestHeader("Authorization") String authHeader,
@@ -77,9 +78,9 @@ public class TeacherController {
   }
 
   // Endpoint to create a new user or multiple users.
-	@PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
-	@PostMapping("/create")
-	public ResponseEntity<?> createTeacher(@RequestBody Object payload,
+        @RequirePermission(module = "teachers", action = "c")
+        @PostMapping("/create")
+        public ResponseEntity<?> createTeacher(@RequestBody Object payload,
 											@RequestHeader("Authorization") String authHeader,
 											@RequestParam(defaultValue = "es") String lang) {
 		try {

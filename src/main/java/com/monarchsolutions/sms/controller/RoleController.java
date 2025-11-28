@@ -5,9 +5,9 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.monarchsolutions.sms.util.JwtUtil;
+import com.monarchsolutions.sms.annotation.RequirePermission;
 
 import com.monarchsolutions.sms.dto.roles.RolesListResponse;
 import com.monarchsolutions.sms.service.RoleService;
@@ -23,7 +23,7 @@ public class RoleController {
     private JwtUtil jwtUtil;
 
     // Endpoint for retrieving the list of roles.
-    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
+    @RequirePermission(module = "roles", action = "r")
     @GetMapping("")
     public ResponseEntity<?> getRoles(@RequestParam(defaultValue = "es") String lang,
                                       @RequestParam(defaultValue = "1") int role_level,

@@ -2,6 +2,7 @@ package com.monarchsolutions.sms.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.monarchsolutions.sms.annotation.RequirePermission;
 import com.monarchsolutions.sms.dto.common.PageResult;
 import com.monarchsolutions.sms.dto.user.CreateUserRequest;
 import com.monarchsolutions.sms.dto.user.UpdatePasswordRequest;
@@ -18,7 +19,6 @@ import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -41,7 +41,7 @@ public class UserController {
 	private ObjectMapper objectMapper;
 
 	// Endpoint to create a new user or multiple users.
-	@PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
+        @RequirePermission(module = "users", action = "c")
         @PostMapping("/create")
         public ResponseEntity<?> createUser(@RequestBody Object payload,
                                                                                @RequestHeader("Authorization") String authHeader,
@@ -86,8 +86,8 @@ public class UserController {
         }
 
 	// Endpoint to update an existing user.
-	@PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
-	@PutMapping("/update/{user_id}")
+        @RequirePermission(module = "users", action = "u")
+        @PutMapping("/update/{user_id}")
         public ResponseEntity<?> updateUser(@RequestBody UpdateUserRequest request,
                                                                                @RequestHeader("Authorization") String authHeader,
                                                                                @RequestParam(defaultValue = "es") String lang,
@@ -117,8 +117,8 @@ public class UserController {
         }
 
 	// Endpoint to toggle or change the user's status.
-	@PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
-	@PostMapping("/update/{userId}/status")
+        @RequirePermission(module = "users", action = "u")
+        @PostMapping("/update/{userId}/status")
         public ResponseEntity<?> changeUserStatus(@PathVariable("userId") Integer userId,
                                                                                @RequestParam(defaultValue = "es") String lang,
                                                                                @RequestHeader("Authorization") String authHeader) throws Exception {
@@ -134,9 +134,9 @@ public class UserController {
         }
 
 	// Endpoint for retrieving the list of users.
-	@PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
-	@GetMapping("")
-	public ResponseEntity<?> getUsersList(
+        @RequirePermission(module = "users", action = "r")
+        @GetMapping("")
+        public ResponseEntity<?> getUsersList(
 		@RequestHeader("Authorization") String authHeader,
 		@RequestParam(required = false) Long user_id,
 		@RequestParam(required = false) Long school_id,
@@ -173,8 +173,8 @@ public class UserController {
         }
 
 	// Endpoint for retrieving the user details
-	@PreAuthorize("isAuthenticated()")
-	@GetMapping("/self-details")
+        @RequirePermission(module = "users", action = "r")
+        @GetMapping("/self-details")
         public ResponseEntity<?> getUserSelfDetails(
                 @RequestHeader("Authorization") String authHeader,
                 @RequestParam(defaultValue = "es") String lang
@@ -187,8 +187,8 @@ public class UserController {
         }
 
 	// Endpoint for retrieving the user details
-	@PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
-	@GetMapping("/details/{userId:[0-9]+}")
+        @RequirePermission(module = "users", action = "r")
+        @GetMapping("/details/{userId:[0-9]+}")
         public ResponseEntity<?> getUser(
                 @RequestHeader("Authorization") String authHeader,
                 @PathVariable("userId") Long userId,
@@ -220,7 +220,7 @@ public class UserController {
   //   return ResponseEntity.ok(balances);
   // }
 	
-	@PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','FINANCE')")
+        @RequirePermission(module = "users", action = "r")
   @GetMapping("/balances")
   public ResponseEntity<List<UsersBalanceDTO>> getUsersBalance(
       @RequestHeader("Authorization") String authHeader,
@@ -235,7 +235,7 @@ public class UserController {
     return ResponseEntity.ok(balances);
   }
 
-  @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','FINANCE')")
+  @RequirePermission(module = "users", action = "r")
   @GetMapping("/globalsearch")
   public ResponseEntity<List<UsersBalanceDTO>> globlaSearch(
       @RequestHeader("Authorization") String authHeader,
@@ -250,8 +250,8 @@ public class UserController {
     return ResponseEntity.ok(balances);
   }
 
-	@PreAuthorize("isAuthenticated()")
-	@PutMapping("/password")
+        @RequirePermission(module = "users", action = "u")
+        @PutMapping("/password")
         public ResponseEntity<Map<String,Object>> updatePassword(
                 @RequestHeader("Authorization") String authHeader,
                 @RequestBody UpdatePasswordRequest req,

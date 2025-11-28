@@ -10,10 +10,11 @@ import com.monarchsolutions.sms.service.SchoolService;
 import com.monarchsolutions.sms.util.JwtUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.monarchsolutions.sms.annotation.RequirePermission;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -28,9 +29,9 @@ public class SchoolController {
 	private JwtUtil jwtUtil;
 
 	// Endpoint to create a new school
-	@PreAuthorize("hasAnyRole('ADMIN')")
-	@PostMapping("/create")
-	public ResponseEntity<String> createSchool(@RequestBody CreateSchoolRequest request) {
+        @RequirePermission(module = "schools", action = "c")
+        @PostMapping("/create")
+        public ResponseEntity<String> createSchool(@RequestBody CreateSchoolRequest request) {
 		try {
 			// Call the service method (which will pass the JSON data to the SP)
 			String jsonResponse = schoolService.createSchool(request);
@@ -41,9 +42,9 @@ public class SchoolController {
 	}
 
 	// Endpoint for retrieving the list of schools.
-	@PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
-	@GetMapping("/list")
-	public ResponseEntity<?> getSchoolsList(@RequestHeader("Authorization") String authHeader,
+        @RequirePermission(module = "schools", action = "r")
+        @GetMapping("/list")
+        public ResponseEntity<?> getSchoolsList(@RequestHeader("Authorization") String authHeader,
 											@RequestParam(required = false) Long school_id,
 											@RequestParam(defaultValue = "es") String lang,
 											@RequestParam(defaultValue = "-1") int status_filter) {
@@ -60,9 +61,9 @@ public class SchoolController {
 	}
 
 	// Endpoint for retrieving the list of related schools for a specific shcool.
-	@PreAuthorize("hasAnyRole('ADMIN')")
-	@GetMapping("/listRelated")
-	public ResponseEntity<?> getRelatedSchoolList(@RequestHeader("Authorization") String authHeader,
+        @RequirePermission(module = "schools", action = "r")
+        @GetMapping("/listRelated")
+        public ResponseEntity<?> getRelatedSchoolList(@RequestHeader("Authorization") String authHeader,
 											@RequestParam(required = false) Long school_id,
 											@RequestParam(defaultValue = "es") String lang) {
 		try {
@@ -76,9 +77,9 @@ public class SchoolController {
 	}
 	
 	// Endpoint to update an existing school.
-	@PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
-	@PutMapping(
-		path     = "/update/{school_id}",
+        @RequirePermission(module = "schools", action = "u")
+        @PutMapping(
+                path     = "/update/{school_id}",
 		produces = MediaType.APPLICATION_JSON_VALUE
 	)
 	public ResponseEntity<?> updateSchool(
@@ -132,9 +133,9 @@ public class SchoolController {
 
 
 	// Endpoint to toggle or change the user's status.
-	@PreAuthorize("hasAnyRole('ADMIN')")
-	@PostMapping("/update/{school_id}/status")
-	public ResponseEntity<String> changeUserStatus(@PathVariable("school_id") Long school_id,
+        @RequirePermission(module = "schools", action = "u")
+        @PostMapping("/update/{school_id}/status")
+        public ResponseEntity<String> changeUserStatus(@PathVariable("school_id") Long school_id,
 													@RequestParam(defaultValue = "es") String lang,
 													@RequestHeader("Authorization") String authHeader) {
 		try {
@@ -148,9 +149,9 @@ public class SchoolController {
 		}
 	}
 
-	@PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','STUDENT')")
-	@GetMapping("/school-image")
-	public ResponseEntity<String> getSchoolImage(
+        @RequirePermission(module = "schools", action = "r")
+        @GetMapping("/school-image")
+        public ResponseEntity<String> getSchoolImage(
 		@RequestHeader("Authorization") String authHeader,
 		@RequestParam(required = false) Long school_id
 	) {
