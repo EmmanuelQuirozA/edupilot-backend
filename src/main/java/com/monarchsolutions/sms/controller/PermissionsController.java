@@ -1,7 +1,9 @@
 package com.monarchsolutions.sms.controller;
 
 import com.monarchsolutions.sms.annotation.RequirePermission;
+import com.monarchsolutions.sms.dto.permission.ModulePermissionResponse;
 import com.monarchsolutions.sms.entity.Role;
+import com.monarchsolutions.sms.service.PermissionService;
 import com.monarchsolutions.sms.service.RoleService;
 import com.monarchsolutions.sms.util.JwtUtil;
 import java.util.List;
@@ -21,6 +23,9 @@ public class PermissionsController {
     private RoleService roleService;
 
     @Autowired
+    private PermissionService permissionService;
+
+    @Autowired
     private JwtUtil jwtUtil;
 
     @RequirePermission(module = "catalogs", action = "r")
@@ -35,5 +40,27 @@ public class PermissionsController {
         Long tokenUserId = jwtUtil.extractUserId(token);
         List<Role> roles = roleService.getRolesForUser(tokenUserId, search, onlyActive, lang);
         return ResponseEntity.ok(roles);
+    }
+
+    @GetMapping("/module")
+    public ResponseEntity<List<ModulePermissionResponse>> getModulePermissions(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestParam(name = "moduleKey") String moduleKey,
+            @RequestParam(defaultValue = "es") String lang,
+            @RequestParam(defaultValue = "true") boolean onlyActive
+    ) {
+        String token = authHeader.replaceFirst("^Bearer\\s+", "");
+        Long tokenUserId = jwtUtil.extractUserId(token);
+        Long roleId = jwtUtil.extractRoleId(token);
+
+        List<ModulePermissionResponse> modulePermissions = permissionService.getModulePermissionsForUser(
+                tokenUserId,
+                roleId,
+                moduleKey,
+                lang,
+                onlyActive
+        );
+
+        return ResponseEntity.ok(modulePermissions);
     }
 }
