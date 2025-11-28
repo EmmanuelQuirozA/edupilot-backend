@@ -2,8 +2,6 @@ package com.monarchsolutions.sms.controller;
 
 import com.monarchsolutions.sms.dto.common.PageResult;
 import com.monarchsolutions.sms.dto.paymentRequests.UpdatePaymentRequest;
-import com.monarchsolutions.sms.dto.reports.BalanceRechargeResponse;
-import com.monarchsolutions.sms.dto.reports.PaymentsResponse;
 import com.monarchsolutions.sms.dto.student.GetStudentDetails;
 import com.monarchsolutions.sms.service.ReportsService;
 import com.monarchsolutions.sms.service.StudentService;
@@ -16,7 +14,6 @@ import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

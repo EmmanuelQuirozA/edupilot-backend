@@ -1,7 +1,6 @@
 package com.monarchsolutions.sms.controller;
 
 import com.monarchsolutions.sms.dto.common.UserLoginDTO;
-import com.monarchsolutions.sms.dto.user.UserDetails;
 import com.monarchsolutions.sms.dto.user.UserDetailsCache;
 import com.monarchsolutions.sms.service.AuthService;
 import com.monarchsolutions.sms.service.UserService;

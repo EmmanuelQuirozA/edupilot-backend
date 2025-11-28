@@ -7,7 +7,6 @@ import com.monarchsolutions.sms.dto.common.PageResult;
 import com.monarchsolutions.sms.dto.user.CreateUserRequest;
 import com.monarchsolutions.sms.dto.user.UpdatePasswordRequest;
 import com.monarchsolutions.sms.dto.user.UpdateUserRequest;
-import com.monarchsolutions.sms.dto.user.UserBalanceDTO;
 import com.monarchsolutions.sms.dto.user.UserDetails;
 import com.monarchsolutions.sms.dto.user.UsersBalanceDTO;
 import com.monarchsolutions.sms.service.UserService;

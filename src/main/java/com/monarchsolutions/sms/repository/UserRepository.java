@@ -334,7 +334,7 @@ public class UserRepository {
 			// [0] user_id
 			u.setUser_id(((Number) r[0]).longValue());
 			// [2] school_id
-			u.setSchool_id(((Number) r[2]).longValue());
+			if (r[2] != null) {u.setSchool_id(((Number) r[2]).longValue());};
 			// [4] email
 			u.setEmail((String) r[4]);
 			// [5] username
