@@ -7,7 +7,6 @@ import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,6 +25,7 @@ import com.monarchsolutions.sms.dto.coffee.ProcessCoffeeSaleDTO;
 import com.monarchsolutions.sms.dto.coffee.SaleGroupDTO;
 import com.monarchsolutions.sms.dto.coffee.UpdateCoffeeMenuDTO;
 import com.monarchsolutions.sms.dto.common.PageResult;
+import com.monarchsolutions.sms.annotation.RequirePermission;
 import com.monarchsolutions.sms.service.CoffeeService;
 import com.monarchsolutions.sms.util.JwtUtil;
 import org.springframework.util.StringUtils;
@@ -44,7 +44,7 @@ public class CoffeeController {
     this.jwtUtil = jwtUtil;
   }
 
-  @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','STUDENT')")
+  @RequirePermission(module = "coffee", action = "r")
   @GetMapping("/my-purchases")
   public ResponseEntity<List<SaleGroupDTO>> getMyPurchases(
       @RequestHeader("Authorization") String authHeader,
@@ -58,7 +58,7 @@ public class CoffeeController {
   }
 
   // Endpoint for retrieving the list of paymentDetails.
-  @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
+  @RequirePermission(module = "coffee", action = "r")
   @GetMapping("/menu")
   public ResponseEntity<?> getCoffeeMenu(
     @RequestHeader("Authorization") String authHeader,
@@ -97,7 +97,7 @@ public class CoffeeController {
   }
 
   // Endpoint for retrieving the list of paymentDetails.
-  @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','FINANCE','STUDENT')")
+  @RequirePermission(module = "coffee", action = "r")
   @GetMapping("/sales")
   public ResponseEntity<?> getCoffeeSales(
     @RequestHeader("Authorization") String authHeader,
@@ -147,7 +147,7 @@ public class CoffeeController {
   }
 
   // Endpoint to update an existing group.
-  @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
+  @RequirePermission(module = "coffee", action = "u")
   @PutMapping(
     path     = "/update/{menu_id}",
     produces = MediaType.APPLICATION_JSON_VALUE
@@ -206,7 +206,7 @@ public class CoffeeController {
   }
 
   // Endpoint to toggle or change the group's status.
-  @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
+  @RequirePermission(module = "coffee", action = "u")
   @PostMapping("/update/{menu_id}/status")
   public ResponseEntity<String> changeMenuStatus( @RequestHeader("Authorization") String authHeader,
                                                   @PathVariable("menu_id") Long menu_id,
@@ -221,7 +221,7 @@ public class CoffeeController {
     }
   }
 
-  @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','STUDENT')")
+  @RequirePermission(module = "coffee", action = "r")
   @GetMapping("/{menuId}")
   public ResponseEntity<CoffeeMenuDTO> getMenu(
       @RequestHeader("Authorization") String authHeader,
@@ -241,7 +241,7 @@ public class CoffeeController {
    * POST /api/coffee-sales/process?lang=es
    * Body = { userId:123, items:[{menuId:1,quantity:2},…] }
    */
-  @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
+  @RequirePermission(module = "coffee", action = "c")
   @PostMapping(
     path = "/process",
     consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -273,7 +273,7 @@ public class CoffeeController {
     }
   }
 
-  @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
+  @RequirePermission(module = "coffee", action = "c")
   @PostMapping(
     path     = "/create",
     consumes = MediaType.MULTIPART_FORM_DATA_VALUE,

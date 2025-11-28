@@ -15,12 +15,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.monarchsolutions.sms.annotation.RequirePermission;
 import com.monarchsolutions.sms.service.SchoolService;
 import com.monarchsolutions.sms.util.JwtUtil;
 
@@ -47,7 +47,7 @@ public class FilesController {
   @Autowired
   private JwtUtil jwtUtil;
 
-  @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','STUDENT')")
+  @RequirePermission(module = "files", action = "r")
   @GetMapping("/api/protectedfiles/{filename:.+}")
   public ResponseEntity<Resource> serveProtectedFile(
       @PathVariable String filename,
@@ -127,7 +127,7 @@ public class FilesController {
   //   }
   // }
 
-  @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','STUDENT')")
+  @RequirePermission(module = "files", action = "r")
   @GetMapping("/api/school-logo/{school_id}")
   public ResponseEntity<Resource> serveSchoolLogoFile(
       @RequestHeader("Authorization") String authHeader,
@@ -176,7 +176,7 @@ public class FilesController {
     }
   }
 
-  @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','STUDENT')")
+  @RequirePermission(module = "files", action = "r")
   @GetMapping("/api/coffee-menu-image/{filename:.+}")
   public ResponseEntity<Resource> serveCoffeeMenuImage(
       @PathVariable String filename,
@@ -215,7 +215,7 @@ public class FilesController {
     }
   }
 
-  @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','STUDENT')")
+  @RequirePermission(module = "files", action = "r")
   @GetMapping("/api/bulkfile/{filename:.+}")
   public ResponseEntity<Resource> serveBulkFiles(
       @PathVariable String filename,

@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.monarchsolutions.sms.util.JwtUtil;
 import com.monarchsolutions.sms.dto.userLogs.UserLogsListDto;
@@ -13,6 +12,7 @@ import com.monarchsolutions.sms.dto.userLogs.paymentRequest.PaymentRequestLogGro
 import com.monarchsolutions.sms.dto.userLogs.paymentRequest.PaymentRequestLogsDto;
 import com.monarchsolutions.sms.dto.userLogs.payments.PaymentLogGroupDto;
 import com.monarchsolutions.sms.dto.userLogs.payments.PaymentLogsDto;
+import com.monarchsolutions.sms.annotation.RequirePermission;
 import com.monarchsolutions.sms.service.LogsService;
 
 @RestController
@@ -26,7 +26,7 @@ public class LogsController {
     private JwtUtil jwtUtil;
     
     // Endpoint for retrieving the list of usersLogs.
-    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
+    @RequirePermission(module = "logs", action = "r")
     @GetMapping("/list")
     public ResponseEntity<?> getUsersActivityLog(
                                         // @RequestHeader("Authorization") String authHeader,
@@ -43,7 +43,7 @@ public class LogsController {
     }
 
     // Endpoint for retrieving the list of paymentRequestLogs.
-    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','STUDENT')")
+    @RequirePermission(module = "logs", action = "r")
     @GetMapping("/payment-requests/{paymentRequestId}")
     public ResponseEntity<List<PaymentRequestLogGroupDto>> getPaymentRequestLogs(
             @RequestHeader("Authorization") String authHeader,
@@ -65,7 +65,7 @@ public class LogsController {
     }
     
     // Endpoint for retrieving the list of paymentLogs.
-    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','STUDENT')")
+    @RequirePermission(module = "logs", action = "r")
     @GetMapping("/payment/{paymentId}")
     public ResponseEntity<List<PaymentLogGroupDto>> getPaymentLogs(
             @RequestHeader("Authorization") String authHeader,
@@ -87,7 +87,7 @@ public class LogsController {
     }
 
     // Endpoint to retrieve scheduled job logs from stored procedure getScheduledJobLogs
-    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
+    @RequirePermission(module = "logs", action = "r")
     @GetMapping("/scheduled-jobs")
     public ResponseEntity<List<Map<String, Object>>> getScheduledJobLogs(
             @RequestHeader("Authorization") String authHeader,

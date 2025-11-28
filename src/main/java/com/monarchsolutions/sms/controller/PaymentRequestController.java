@@ -10,7 +10,6 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.monarchsolutions.sms.dto.catalogs.ScholarLevelsDto;
@@ -19,6 +18,7 @@ import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRecurrenceDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRequestScheduleDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.StudentPaymentRequestDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.ValidatePaymentRequestExistence;
+import com.monarchsolutions.sms.annotation.RequirePermission;
 import com.monarchsolutions.sms.service.CatalogsService;
 import com.monarchsolutions.sms.service.PaymentRequestSchedulerService;
 import com.monarchsolutions.sms.service.PaymentRequestService;
@@ -42,7 +42,7 @@ public class PaymentRequestController {
     private JwtUtil jwtUtil;
 
     // Endpoint to create a new group
-    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
+    @RequirePermission(module = "payment_requests", action = "c")
     @PostMapping("/create")
     public ResponseEntity<?> createPaymentRequest(
       @RequestHeader("Authorization") String authHeader,
@@ -74,7 +74,7 @@ public class PaymentRequestController {
           return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
+    @RequirePermission(module = "payment_requests", action = "c")
     @PostMapping("/create-schedule")
     public ResponseEntity<?> createPaymentRequestSchedule(
         @RequestHeader("Authorization") String authHeader,
@@ -97,7 +97,7 @@ public class PaymentRequestController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
+    @RequirePermission(module = "payment_requests", action = "r")
     @GetMapping("/schedule/details")
     public ResponseEntity<Map<String, Object>> getPaymentRequestScheduleDetails(
         @RequestHeader("Authorization") String authHeader,
@@ -114,7 +114,7 @@ public class PaymentRequestController {
         return ResponseEntity.ok(details);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
+    @RequirePermission(module = "payment_requests", action = "c")
     @PostMapping("/recurrence")
     public ResponseEntity<String> createPaymentRecurrence(
         @RequestHeader("Authorization") String authHeader,
@@ -127,7 +127,7 @@ public class PaymentRequestController {
         return ResponseEntity.ok(json);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
+    @RequirePermission(module = "payment_requests", action = "r")
     @GetMapping("/validate-existence")
     public ResponseEntity<List<ValidatePaymentRequestExistence>> validatePaymentRequests(
         @RequestHeader("Authorization") String authHeader,
@@ -165,7 +165,7 @@ public class PaymentRequestController {
         return ResponseEntity.ok(results);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','STUDENT')")
+    @RequirePermission(module = "payment_requests", action = "r")
     @GetMapping("/pending")
     public ResponseEntity<BigDecimal> getPendingByStudent(
         @RequestHeader("Authorization") String authHeader,
@@ -178,7 +178,7 @@ public class PaymentRequestController {
         return ResponseEntity.ok(pending);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','STUDENT')")
+    @RequirePermission(module = "payment_requests", action = "r")
     @GetMapping("/student-pending-payments")
     public ResponseEntity<List<StudentPaymentRequestDTO>> list(
         @RequestHeader("Authorization") String authHeader,
@@ -203,7 +203,7 @@ public class PaymentRequestController {
         return ResponseEntity.ok(list);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
+    @RequirePermission(module = "payment_requests", action = "u")
     @PostMapping("/trigger-scheduler")
     public ResponseEntity<?> triggerPaymentRequestScheduler(
         @RequestParam(required = false, name = "reference_date") String referenceDateParam
