@@ -10,7 +10,6 @@ import com.monarchsolutions.sms.util.JwtUtil;
 import com.monarchsolutions.sms.dto.userLogs.UserLogsListDto;
 import com.monarchsolutions.sms.dto.userLogs.paymentRequest.PaymentRequestLogGroupDto;
 import com.monarchsolutions.sms.dto.userLogs.payments.PaymentLogGroupDto;
-import com.monarchsolutions.sms.annotation.RequirePermission;
 import com.monarchsolutions.sms.service.LogsService;
 
 @RestController
@@ -24,7 +23,6 @@ public class LogsController {
     private JwtUtil jwtUtil;
     
     // Endpoint for retrieving the list of usersLogs.
-    @RequirePermission(module = "logs", action = "r")
     @GetMapping("/list")
     public ResponseEntity<?> getUsersActivityLog(
                                         // @RequestHeader("Authorization") String authHeader,
@@ -41,7 +39,6 @@ public class LogsController {
     }
 
     // Endpoint for retrieving the list of paymentRequestLogs.
-    @RequirePermission(module = "logs", action = "r")
     @GetMapping("/payment-requests/{paymentRequestId}")
     public ResponseEntity<List<PaymentRequestLogGroupDto>> getPaymentRequestLogs(
             @RequestHeader("Authorization") String authHeader,
@@ -63,7 +60,6 @@ public class LogsController {
     }
     
     // Endpoint for retrieving the list of paymentLogs.
-    @RequirePermission(module = "logs", action = "r")
     @GetMapping("/payment/{paymentId}")
     public ResponseEntity<List<PaymentLogGroupDto>> getPaymentLogs(
             @RequestHeader("Authorization") String authHeader,
@@ -85,7 +81,6 @@ public class LogsController {
     }
 
     // Endpoint to retrieve scheduled job logs from stored procedure getScheduledJobLogs
-    @RequirePermission(module = "logs", action = "r")
     @GetMapping("/scheduled-jobs")
     public ResponseEntity<List<Map<String, Object>>> getScheduledJobLogs(
             @RequestHeader("Authorization") String authHeader,
