@@ -1,15 +1,18 @@
 package com.monarchsolutions.sms.controller;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.nio.file.Path;
-import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -18,32 +21,23 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.monarchsolutions.sms.dto.payments.CreatePayment;
-import com.monarchsolutions.sms.dto.payments.UpdatePaymentDTO;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.monarchsolutions.sms.annotation.RequirePermission;
 import com.monarchsolutions.sms.dto.payments.ByYearPaymentsDTO;
+import com.monarchsolutions.sms.dto.payments.CreatePayment;
+import com.monarchsolutions.sms.dto.payments.UpdatePaymentDTO;
 import com.monarchsolutions.sms.service.PaymentService;
 import com.monarchsolutions.sms.util.JwtUtil;
 import com.monarchsolutions.sms.validation.AdminGroup;
 import com.monarchsolutions.sms.validation.SchoolAdminGroup;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.UUID;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.validation.ConstraintViolation;
 
@@ -65,7 +59,7 @@ public class PaymentController {
   @Autowired
   private JwtUtil jwtUtil;
   
-  @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
+  @RequirePermission(module = "payments", action = "c")
   @PostMapping(
     path = "/create",
     consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
@@ -150,7 +144,7 @@ public class PaymentController {
         .body(jsonResult);
   };
 
-  @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
+  @RequirePermission(module = "payments", action = "c")
   @PostMapping(
     path     = "/create/bulk",
     consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -211,7 +205,7 @@ public class PaymentController {
   }
 
   // Endpoint to update an existing user.
-  @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
+  @RequirePermission(module = "payments", action = "u")
   @PutMapping(
     path     = "/update/{payment_id}",
     produces = MediaType.APPLICATION_JSON_VALUE
@@ -252,7 +246,7 @@ public class PaymentController {
   }
 
 
-  @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','STUDENT')")
+  @RequirePermission(module = "payments", action = "r")
   @GetMapping("/grouped")
   public ResponseEntity<List<ByYearPaymentsDTO>> getGroupedPayments(
       @RequestHeader("Authorization") String authHeader,
