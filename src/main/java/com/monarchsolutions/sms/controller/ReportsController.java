@@ -18,8 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import com.monarchsolutions.sms.annotation.RequirePermission;
 
 
 @RestController
@@ -36,9 +37,9 @@ public class ReportsController {
 	private JwtUtil jwtUtil;
 	
 	// Endpoint to retrieve the payments pivot report.
-	@PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','STUDENT')")
-	@GetMapping("/payments/report")
-	public ResponseEntity<?> getPaymentsPivotReport(
+        @RequirePermission(module = "finance", action = "r")
+        @GetMapping("/payments/report")
+        public ResponseEntity<?> getPaymentsPivotReport(
 		@RequestHeader("Authorization") String authHeader,
 		@RequestParam(required = false) Long student_id,
 		@RequestParam(required = false) Long payment_id,
@@ -104,9 +105,9 @@ public class ReportsController {
 	}
 
 	// Endpoint for retrieving the list of paymentDetails.
-	@PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN', 'STUDENT')")
-	@GetMapping("/payments")
-	public ResponseEntity<?> getPayments(
+        @RequirePermission(module = "finance", action = "r")
+        @GetMapping("/payments")
+        public ResponseEntity<?> getPayments(
 		@RequestHeader("Authorization") String authHeader,
 		@RequestParam(required = false) Long school_id,
 		@RequestParam(required = false) Long student_id,
@@ -165,9 +166,9 @@ public class ReportsController {
 	// Endpoint for retrieving the list of paymentDetails.
 	
 	// Endpoint to retrieve the payments pivot report.
-	@PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','STUDENT')")
-	@GetMapping("/paymentrequests")
-	public ResponseEntity<?> getPaymentRequests(
+        @RequirePermission(module = "finance", action = "r")
+        @GetMapping("/paymentrequests")
+        public ResponseEntity<?> getPaymentRequests(
 		@RequestHeader("Authorization") String authHeader,
 		@RequestParam(required = false) Long student_id,
 		@RequestParam(required = false) Long school_id,
@@ -252,7 +253,7 @@ public class ReportsController {
                 }
         }
 
-        @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','STUDENT')")
+        @RequirePermission(module = "finance", action = "r")
         @GetMapping("/payment-request-recurrences")
         public ResponseEntity<?> getPaymentRecurrences(
                 @RequestHeader("Authorization") String authHeader,
@@ -316,7 +317,7 @@ public class ReportsController {
         }
 
 
-        @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','STUDENT')")
+        @RequirePermission(module = "finance", action = "r")
         @GetMapping("/payment-request-schedule")
         public ResponseEntity<?> getPaymentRequestSchedule(
                 @RequestHeader("Authorization") String authHeader,
@@ -376,7 +377,7 @@ public class ReportsController {
         }
 
         // Endpoint for retrieving the list of paymentDetails.
-  @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','FINANCE','STUDENT')")
+  @RequirePermission(module = "finance", action = "r")
   @GetMapping("/balance-recharges")
   public ResponseEntity<?> getBalanceRecharges(
     @RequestHeader("Authorization") String authHeader,
@@ -423,9 +424,9 @@ public class ReportsController {
     }
   }
 
-	@PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','STUDENT')")
-	@GetMapping("/paymentrequest/details")
-	public ResponseEntity<?> getPaymentRequestDetails(
+        @RequirePermission(module = "finance", action = "r")
+        @GetMapping("/paymentrequest/details")
+        public ResponseEntity<?> getPaymentRequestDetails(
 		@RequestHeader("Authorization") String authHeader,
 		@RequestParam Long payment_request_id,
 		@RequestParam(defaultValue="es") String lang
@@ -447,9 +448,9 @@ public class ReportsController {
 	}
 
 	// Endpoint to update an existing user.
-	@PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
-	@PutMapping("/payment-request/update/{id}")
-	public ResponseEntity<?> updatePaymentRequest(
+        @RequirePermission(module = "finance", action = "u")
+        @PutMapping("/payment-request/update/{id}")
+        public ResponseEntity<?> updatePaymentRequest(
 		@PathVariable("id") Long paymentRequestId,
 		@RequestHeader("Authorization") String authHeader,
 		@RequestBody UpdatePaymentRequest body,

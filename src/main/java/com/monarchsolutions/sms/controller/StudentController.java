@@ -17,8 +17,9 @@ import jakarta.validation.Validator;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import com.monarchsolutions.sms.annotation.RequirePermission;
 
 import java.util.Set;
 import java.util.ArrayList;
@@ -43,7 +44,7 @@ public class StudentController {
     private ObjectMapper objectMapper;
 
     // Endpoint to create a new user
-    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
+    @RequirePermission(module = "students", action = "c")
     @PostMapping("/create")
     public ResponseEntity<String> createStudent(@RequestBody Object payload,
                                             @RequestHeader("Authorization") String authHeader,
@@ -92,7 +93,7 @@ public class StudentController {
     }
 
     // Endpoint for retrieving the list of students.
-    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
+    @RequirePermission(module = "students", action = "r")
     @GetMapping("")
     public ResponseEntity<?> getStudentsList(
         @RequestHeader("Authorization") String authHeader,
@@ -137,7 +138,7 @@ public class StudentController {
     }
 
     // Endpoint to update an existing user.
-    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
+    @RequirePermission(module = "students", action = "u")
     @PutMapping("/update/{user_id}")
     public ResponseEntity<String> updateStudent(@RequestBody UpdateStudentRequest request,
                                              @RequestHeader("Authorization") String authHeader,
@@ -172,7 +173,7 @@ public class StudentController {
     }
 
     // Endpoint for retrieving the list of related schools for a specific shcool.
-    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','STUDENT')")
+    @RequirePermission(module = "students", action = "r")
     @GetMapping("/student-details/{student_id}")
     public ResponseEntity<?> getStudent(@RequestHeader("Authorization") String authHeader,
                                         @PathVariable(required = true) Long student_id,
@@ -188,7 +189,7 @@ public class StudentController {
     }
 
     // Endpoint for retrieving the list of related schools for a specific shcool.
-    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN','STUDENT')")
+    @RequirePermission(module = "students", action = "r")
     @GetMapping("/read-only")
     public ResponseEntity<?> getStudentDetails(@RequestHeader("Authorization") String authHeader,
                                         @RequestParam(required = false) Long student_id,
@@ -203,7 +204,7 @@ public class StudentController {
         }
     }
 	
-	@PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
+        @RequirePermission(module = "students", action = "r")
     @GetMapping("/validate-exist")
     public ResponseEntity<List<ValidateStudentExist>> validateStudentExists(
         @RequestHeader("Authorization") String authHeader,
