@@ -1,6 +1,5 @@
 package com.monarchsolutions.sms.controller;
 
-import com.monarchsolutions.sms.annotation.RequirePermission;
 import com.monarchsolutions.sms.dto.permission.ModulePermissionResponse;
 import com.monarchsolutions.sms.entity.Role;
 import com.monarchsolutions.sms.service.PermissionService;
@@ -28,7 +27,6 @@ public class PermissionsController {
     @Autowired
     private JwtUtil jwtUtil;
 
-    @RequirePermission(module = "catalogs", action = "r")
     @GetMapping("/roles")
     public ResponseEntity<List<Role>> getRolesForPermissions(
             @RequestHeader("Authorization") String authHeader,

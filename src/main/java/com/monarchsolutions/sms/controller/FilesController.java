@@ -19,8 +19,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.monarchsolutions.sms.annotation.RequirePermission;
 import com.monarchsolutions.sms.service.SchoolService;
 import com.monarchsolutions.sms.util.JwtUtil;
 
@@ -47,7 +45,6 @@ public class FilesController {
   @Autowired
   private JwtUtil jwtUtil;
 
-  @RequirePermission(module = "files", action = "r")
   @GetMapping("/api/protectedfiles/{filename:.+}")
   public ResponseEntity<Resource> serveProtectedFile(
       @PathVariable String filename,
@@ -127,7 +124,6 @@ public class FilesController {
   //   }
   // }
 
-  @RequirePermission(module = "files", action = "r")
   @GetMapping("/api/school-logo/{school_id}")
   public ResponseEntity<Resource> serveSchoolLogoFile(
       @RequestHeader("Authorization") String authHeader,
@@ -176,7 +172,6 @@ public class FilesController {
     }
   }
 
-  @RequirePermission(module = "files", action = "r")
   @GetMapping("/api/coffee-menu-image/{filename:.+}")
   public ResponseEntity<Resource> serveCoffeeMenuImage(
       @PathVariable String filename,
@@ -215,7 +210,6 @@ public class FilesController {
     }
   }
 
-  @RequirePermission(module = "files", action = "r")
   @GetMapping("/api/bulkfile/{filename:.+}")
   public ResponseEntity<Resource> serveBulkFiles(
       @PathVariable String filename,
