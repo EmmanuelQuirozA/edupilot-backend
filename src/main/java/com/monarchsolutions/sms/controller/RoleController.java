@@ -26,13 +26,12 @@ public class RoleController {
     @RequirePermission(module = "roles", action = "r")
     @GetMapping("")
     public ResponseEntity<?> getRoles(@RequestParam(defaultValue = "es") String lang,
-                                      @RequestParam(defaultValue = "1") int role_level,
                                       @RequestParam(defaultValue = "-1") int status_filter,
                                       @RequestHeader("Authorization") String authHeader) {
         try {
             String token = authHeader.substring(7);
             String userRole = jwtUtil.extractUserRole(token);
-            List<RolesListResponse> roles = roleService.getRoles(lang, role_level, status_filter);
+            List<RolesListResponse> roles = roleService.getRoles(lang, status_filter);
             
             // If the authenticated user is SCHOOL_ADMIN, filter out users with role_id 1 or 4.
             if ("SCHOOL_ADMIN".equalsIgnoreCase(userRole)) {

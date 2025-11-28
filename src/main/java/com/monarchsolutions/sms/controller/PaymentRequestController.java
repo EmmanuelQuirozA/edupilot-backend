@@ -1,8 +1,6 @@
 package com.monarchsolutions.sms.controller;
 
 import java.math.BigDecimal;
-import java.sql.Date;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
@@ -12,14 +10,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.monarchsolutions.sms.dto.catalogs.ScholarLevelsDto;
 import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRequestDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRecurrenceDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRequestScheduleDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.StudentPaymentRequestDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.ValidatePaymentRequestExistence;
 import com.monarchsolutions.sms.annotation.RequirePermission;
-import com.monarchsolutions.sms.service.CatalogsService;
 import com.monarchsolutions.sms.service.PaymentRequestSchedulerService;
 import com.monarchsolutions.sms.service.PaymentRequestService;
 import com.monarchsolutions.sms.service.StudentService;

@@ -19,18 +19,16 @@ public class RoleRepository {
     private EntityManager entityManager;
 
     // Get Roles List
-    public List<RolesListResponse> getRoles(String lang, int role_level, int statusFilter){
+    public List<RolesListResponse> getRoles(String lang, int statusFilter){
         // Create the stored procedure query
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("getRoles");
 
         // Register IN parameters
         query.registerStoredProcedureParameter("lang", String.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("role_level", Integer.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("status_filter", Integer.class, ParameterMode.IN);
 
         // Set the parameter values
         query.setParameter("lang", lang);
-        query.setParameter("role_level", role_level);
         query.setParameter("status_filter", statusFilter);
         
         // Execute the stored procedure

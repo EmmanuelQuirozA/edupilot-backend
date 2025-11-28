@@ -19,26 +19,14 @@ public class Role {
     @Column(name = "role_name", nullable = false, length = 255)
     private String roleName;
 
-    @Column(name = "name_en", nullable = false, length = 255)
-    private String nameEn;
+    @Column(name = "role_name_display", nullable = false, length = 255)
+    private String roleNameDisplay;
 
-    @Column(name = "name_es", nullable = false, length = 255)
-    private String nameEs;
-
-    @Column(name = "description_en", length = 255)
-    private String descriptionEn;
-
-    @Column(name = "description_es", length = 255)
-    private String descriptionEs;
+    @Column(name = "role_description_display", nullable = false, length = 255)
+    private String roleDescriptionDisplay;
 
     @Column(name = "enabled")
     private Boolean enabled;
-
-    @Column(name = "school_id")
-    private Long schoolId;
-
-    @Column(name = "role_level")
-    private Integer roleLevel;
 
     public Long getRoleId() {
         return roleId;
@@ -56,36 +44,20 @@ public class Role {
         this.roleName = roleName;
     }
 
-    public String getNameEn() {
-        return nameEn;
+    public String getRoleNameDisplay() {
+        return roleNameDisplay;
     }
 
-    public void setNameEn(String nameEn) {
-        this.nameEn = nameEn;
+    public void setRoleNameDisplay(String roleNameDisplay) {
+        this.roleNameDisplay = roleNameDisplay;
     }
 
-    public String getNameEs() {
-        return nameEs;
+    public String getRoleDescriptionDisplay() {
+        return roleDescriptionDisplay;
     }
 
-    public void setNameEs(String nameEs) {
-        this.nameEs = nameEs;
-    }
-
-    public String getDescriptionEn() {
-        return descriptionEn;
-    }
-
-    public void setDescriptionEn(String descriptionEn) {
-        this.descriptionEn = descriptionEn;
-    }
-
-    public String getDescriptionEs() {
-        return descriptionEs;
-    }
-
-    public void setDescriptionEs(String descriptionEs) {
-        this.descriptionEs = descriptionEs;
+    public void setRoleDescriptionDisplay(String roleDescriptionDisplay) {
+        this.roleDescriptionDisplay = roleDescriptionDisplay;
     }
 
     public Boolean getEnabled() {
@@ -94,21 +66,5 @@ public class Role {
 
     public void setEnabled(Boolean enabled) {
         this.enabled = enabled;
-    }
-
-    public Long getSchoolId() {
-        return schoolId;
-    }
-
-    public void setSchoolId(Long schoolId) {
-        this.schoolId = schoolId;
-    }
-
-    public Integer getRoleLevel() {
-        return roleLevel;
-    }
-
-    public void setRoleLevel(Integer roleLevel) {
-        this.roleLevel = roleLevel;
     }
 }

@@ -9,9 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import com.monarchsolutions.sms.util.JwtUtil;
 import com.monarchsolutions.sms.dto.userLogs.UserLogsListDto;
 import com.monarchsolutions.sms.dto.userLogs.paymentRequest.PaymentRequestLogGroupDto;
-import com.monarchsolutions.sms.dto.userLogs.paymentRequest.PaymentRequestLogsDto;
 import com.monarchsolutions.sms.dto.userLogs.payments.PaymentLogGroupDto;
-import com.monarchsolutions.sms.dto.userLogs.payments.PaymentLogsDto;
 import com.monarchsolutions.sms.annotation.RequirePermission;
 import com.monarchsolutions.sms.service.LogsService;
 

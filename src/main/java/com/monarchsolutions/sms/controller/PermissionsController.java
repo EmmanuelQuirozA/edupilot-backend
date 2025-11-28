@@ -23,15 +23,17 @@ public class PermissionsController {
     @Autowired
     private JwtUtil jwtUtil;
 
-    @RequirePermission(module = "permissions", action = "r")
+    @RequirePermission(module = "catalogs", action = "r")
     @GetMapping("/roles")
     public ResponseEntity<List<Role>> getRolesForPermissions(
             @RequestHeader("Authorization") String authHeader,
             @RequestParam(value = "search", required = false) String search,
-            @RequestParam(value = "onlyActive", defaultValue = "false") boolean onlyActive) {
+            @RequestParam(value = "onlyActive", defaultValue = "false") boolean onlyActive,
+            @RequestParam(defaultValue = "es") String lang
+        ) {
         String token = authHeader.substring(7);
         Long tokenUserId = jwtUtil.extractUserId(token);
-        List<Role> roles = roleService.getRolesForUser(tokenUserId, search, onlyActive);
+        List<Role> roles = roleService.getRolesForUser(tokenUserId, search, onlyActive, lang);
         return ResponseEntity.ok(roles);
     }
 }

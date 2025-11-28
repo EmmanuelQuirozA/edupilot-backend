@@ -6,7 +6,6 @@ public class RolesListResponse {
     private String role_description;
     private String role_status;
     private Boolean enabled;
-    private Integer role_level;
     
     public Long getRole_id() {
         return role_id;
@@ -37,11 +36,5 @@ public class RolesListResponse {
     }
     public void setEnabled(Boolean enabled) {
         this.enabled = enabled;
-    }
-    public Integer getRole_level() {
-        return role_level;
-    }
-    public void setRole_level(Integer role_level) {
-        this.role_level = role_level;
     }
 }

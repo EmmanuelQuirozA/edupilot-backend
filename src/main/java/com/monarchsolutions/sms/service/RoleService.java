@@ -19,12 +19,12 @@ public class RoleService {
     @Autowired
     private RoleEntityRepository roleEntityRepository;
 
-    public List<RolesListResponse> getRoles(String lang, int role_level, int status_filter){
-        return roleRepository.getRoles(lang, role_level, status_filter);
+    public List<RolesListResponse> getRoles(String lang, int status_filter){
+        return roleRepository.getRoles(lang, status_filter);
     }
 
-    public List<Role> getRolesForUser(Long tokenUserId, String searchTerm, boolean onlyActive) {
+    public List<Role> getRolesForUser(Long tokenUserId, String searchTerm, boolean onlyActive, String lang) {
         String sanitizedSearch = (searchTerm == null || searchTerm.isBlank()) ? null : searchTerm;
-        return roleEntityRepository.findRolesForUserSchools(tokenUserId, sanitizedSearch, onlyActive);
+        return roleEntityRepository.findRolesForUserSchools(tokenUserId, sanitizedSearch, onlyActive, lang);
     }
 }
