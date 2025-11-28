@@ -29,7 +29,7 @@ public class ModuleController {
             @RequestParam(defaultValue = "es") String lang,
             @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "true") boolean onlyActive,
-            @RequestParam(name = "key", required = false) String moduleKey
+            @RequestParam(required = false) String moduleKey
     ) {
         String token = authHeader.replaceFirst("^Bearer\\s+", "");
         Long tokenUserId = jwtUtil.extractUserId(token);

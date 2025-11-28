@@ -88,8 +88,8 @@ public class UserRepository {
 			
 			return user;
     } catch (NoResultException ex) {
-        // no row → return null
-        return null;
+			// no row → return null
+			return null;
     }
 	}
 	
@@ -269,7 +269,7 @@ public class UserRepository {
 		List<UserDetails> student = new ArrayList<>();
 
 		for (Object[] data : results) {
-				student.add(mapUser(data));
+			student.add(mapUser(data));
 		}
 		return student;
 	}
@@ -313,41 +313,41 @@ public class UserRepository {
 	}
 
 	public List<UserDetailsCache> getUserBasic(Long token_user_id, Long userId, String lang) {
-    StoredProcedureQuery query = entityManager
-      .createStoredProcedureQuery("getUser");
-    query.registerStoredProcedureParameter("token_user_id", Long.class, ParameterMode.IN);
-    query.registerStoredProcedureParameter("userId",         Long.class, ParameterMode.IN);
-    query.registerStoredProcedureParameter("lang",           String.class, ParameterMode.IN);
+		StoredProcedureQuery query = entityManager
+		.createStoredProcedureQuery("getUser");
+		query.registerStoredProcedureParameter("token_user_id", Long.class, ParameterMode.IN);
+		query.registerStoredProcedureParameter("userId",         Long.class, ParameterMode.IN);
+		query.registerStoredProcedureParameter("lang",           String.class, ParameterMode.IN);
 
-    query.setParameter("token_user_id", token_user_id);
-    query.setParameter("userId",         userId);
-    query.setParameter("lang",           lang);
+		query.setParameter("token_user_id", token_user_id);
+		query.setParameter("userId",         userId);
+		query.setParameter("lang",           lang);
 
-    query.execute();
+		query.execute();
 
-    @SuppressWarnings("unchecked")
-    List<Object[]> rows = query.getResultList();
-    List<UserDetailsCache> out = new ArrayList<>(rows.size());
+		@SuppressWarnings("unchecked")
+		List<Object[]> rows = query.getResultList();
+		List<UserDetailsCache> out = new ArrayList<>(rows.size());
 
-    for (Object[] r : rows) {
-      UserDetailsCache u = new UserDetailsCache();
-      // [0] user_id
-      u.setUser_id(((Number) r[0]).longValue());
-      // [2] school_id
-      u.setSchool_id(((Number) r[2]).longValue());
-      // [4] email
-      u.setEmail((String) r[4]);
-      // [5] username
-      u.setUsername((String) r[5]);
-      // [6] role_name
-      u.setRole_name((String) r[6]);
-      // [7] full_name
-      u.setFull_name((String) r[7]);
-      // [9] commercial_name
-      u.setSchool_name((String) r[9]);
-      // [11] first_name
-      u.setFirst_name((String) r[11]);
-      // [14] birthday
+		for (Object[] r : rows) {
+			UserDetailsCache u = new UserDetailsCache();
+			// [0] user_id
+			u.setUser_id(((Number) r[0]).longValue());
+			// [2] school_id
+			u.setSchool_id(((Number) r[2]).longValue());
+			// [4] email
+			u.setEmail((String) r[4]);
+			// [5] username
+			u.setUsername((String) r[5]);
+			// [6] role_name
+			u.setRole_name((String) r[6]);
+			// [7] full_name
+			u.setFull_name((String) r[7]);
+			// [9] commercial_name
+			u.setSchool_name((String) r[9]);
+			// [11] first_name
+			u.setFirst_name((String) r[11]);
+			// [14] birthday
 			Object raw = r[14];
 			if (raw instanceof java.sql.Date sqlDate) {
 					u.setBirth_date(sqlDate.toLocalDate());
@@ -363,42 +363,42 @@ public class UserRepository {
 			// u.setUsername((String) r[3]);
 			// u.setRole_name((String) r[4]);
 			// u.setFull_name((String) r[5]);
-      out.add(u);
-    }
-    return out;
+			out.add(u);
+		}
+		return out;
 	}
 
 	public List<UserBalanceDTO> findActiveUserBalancesBySchoolId(Long schoolId, String search_criteria) {
-    String sql = """
-      SELECT 
-        u.user_id,
-        CONCAT(p.first_name,' ',p.last_name_father,' ',p.last_name_mother) AS full_name,
-        p.balance
-      FROM users u
-      JOIN persons p ON u.person_id = p.person_id
-      WHERE u.school_id = :schoolId
-        AND u.enabled = 1
-      	AND CONCAT(p.first_name,' ',p.last_name_father,' ',p.last_name_mother)
-          LIKE :search
-			LIMIT 6
-      """;
+		String sql = """
+		SELECT 
+			u.user_id,
+			CONCAT(p.first_name,' ',p.last_name_father,' ',p.last_name_mother) AS full_name,
+			p.balance
+		FROM users u
+		JOIN persons p ON u.person_id = p.person_id
+		WHERE u.school_id = :schoolId
+			AND u.enabled = 1
+			AND CONCAT(p.first_name,' ',p.last_name_father,' ',p.last_name_mother)
+			LIKE :search
+				LIMIT 6
+		""";
 
-    Query q = entityManager.createNativeQuery(sql)
-      .setParameter("schoolId", schoolId)
-      .setParameter("search",
-          "%" + (search_criteria == null ? "" : search_criteria.trim()) + "%");
+		Query q = entityManager.createNativeQuery(sql)
+		.setParameter("schoolId", schoolId)
+		.setParameter("search",
+			"%" + (search_criteria == null ? "" : search_criteria.trim()) + "%");
 
-    @SuppressWarnings("unchecked")
-    List<Object[]> rows = q.getResultList();
-    List<UserBalanceDTO> out = new ArrayList<>(rows.size());
-    for (Object[] r : rows) {
-      Long       userId   = ((Number) r[0]).longValue();
-      String     fullName = (String)   r[1];
-      BigDecimal balance  = (BigDecimal) r[2];
-      out.add(new UserBalanceDTO(userId, fullName, balance));
-    }
-    return out;
-  }
+		@SuppressWarnings("unchecked")
+		List<Object[]> rows = q.getResultList();
+		List<UserBalanceDTO> out = new ArrayList<>(rows.size());
+		for (Object[] r : rows) {
+			Long       userId   = ((Number) r[0]).longValue();
+			String     fullName = (String)   r[1];
+			BigDecimal balance  = (BigDecimal) r[2];
+			out.add(new UserBalanceDTO(userId, fullName, balance));
+		}
+		return out;
+	}
 
 	public List<UsersBalanceDTO>  getUsersBalance(Long token_user_id, String full_name, String lang) {
 		String sql = """
@@ -412,26 +412,26 @@ public class UserRepository {
 				p.balance
 			FROM users u
 
-				/* 1) bring in the caller so we know their school */
-				JOIN users uc
-					ON uc.user_id = :token_user_id
+			/* 1) bring in the caller so we know their school */
+			JOIN users uc
+				ON uc.user_id = :token_user_id
 
-				JOIN persons        p  ON u.person_id = p.person_id
-				JOIN roles          r  ON u.role_id   = r.role_id
-				LEFT JOIN students       s  ON u.user_id   = s.user_id
-				LEFT JOIN schools        sc ON u.school_id = sc.school_id
-				LEFT JOIN `groups`       g  ON s.group_id  = g.group_id
-				LEFT JOIN scholar_levels sl ON g.scholar_level_id = sl.scholar_level_id
+			JOIN persons        p  ON u.person_id = p.person_id
+			JOIN roles          r  ON u.role_id   = r.role_id
+			LEFT JOIN students       s  ON u.user_id   = s.user_id
+			LEFT JOIN schools        sc ON u.school_id = sc.school_id
+			LEFT JOIN `groups`       g  ON s.group_id  = g.group_id
+			LEFT JOIN scholar_levels sl ON g.scholar_level_id = sl.scholar_level_id
 
-			WHERE u.enabled = 1
-				AND CONCAT(p.first_name, ' ', p.last_name_father, ' ', p.last_name_mother)
-						LIKE CONCAT('%', :full_name, '%')
+		WHERE u.enabled = 1
+			AND CONCAT(p.first_name, ' ', p.last_name_father, ' ', p.last_name_mother)
+					LIKE CONCAT('%', :full_name, '%')
 
-				/* 2) only users in the same or a related school as the caller */
-				AND (
-						sc.school_id         = uc.school_id
-					OR sc.related_school_id = uc.school_id
-				);
+			/* 2) only users in the same or a related school as the caller */
+			AND (
+					sc.school_id         = uc.school_id
+				OR sc.related_school_id = uc.school_id
+			);
 		""";
 
 		Query q = entityManager.createNativeQuery(sql);
@@ -440,42 +440,42 @@ public class UserRepository {
 		q.setParameter("lang",      			lang);
 		q.setParameter("full_name", 			full_name == null ? "" : full_name.trim());
 
-    @SuppressWarnings("unchecked")
-    List<Object[]> rows = q.getResultList();
+		@SuppressWarnings("unchecked")
+		List<Object[]> rows = q.getResultList();
 
-    List<UsersBalanceDTO> list = new ArrayList<>(rows.size());
-    for (Object[] r : rows) {
-      UsersBalanceDTO dto = new UsersBalanceDTO();
-      dto.setUser_id( ((Number) r[0]).longValue());
-      dto.setFull_name((String) r[1]);
-      dto.setRole_name((String) r[2]);
-      dto.setGeneration(((String) r[3]));
-      dto.setScholar_level_name((String) r[4]);
-      dto.setGrade_group((String) r[5]);
-      dto.setBalance((BigDecimal) r[6]);
-      list.add(dto);
-    }
-    return list;
+		List<UsersBalanceDTO> list = new ArrayList<>(rows.size());
+		for (Object[] r : rows) {
+			UsersBalanceDTO dto = new UsersBalanceDTO();
+			dto.setUser_id( ((Number) r[0]).longValue());
+			dto.setFull_name((String) r[1]);
+			dto.setRole_name((String) r[2]);
+			dto.setGeneration(((String) r[3]));
+			dto.setScholar_level_name((String) r[4]);
+			dto.setGrade_group((String) r[5]);
+			dto.setBalance((BigDecimal) r[6]);
+			list.add(dto);
+		}
+		return list;
 	}
 
 
 	/** Fetch the stored (hashed) password for a given user ID. */
 	public String findPasswordHashById(Long userId) {
 		Object result = entityManager.createNativeQuery(
-				"SELECT password FROM users WHERE user_id = :uid"
-			)
-			.setParameter("uid", userId)
-			.getSingleResult();
+			"SELECT password FROM users WHERE user_id = :uid"
+		)
+		.setParameter("uid", userId)
+		.getSingleResult();
 		return result == null ? null : result.toString();
 	}
 
 	/** Overwrite the password field with the new bcrypt hash. */
 	public void updatePasswordHash(Long userId, String newHash) {
 		entityManager.createNativeQuery(
-				"UPDATE users SET password = :pw WHERE user_id = :uid"
-			)
-			.setParameter("pw", newHash)
-			.setParameter("uid", userId)
-			.executeUpdate();
+			"UPDATE users SET password = :pw WHERE user_id = :uid"
+		)
+		.setParameter("pw", newHash)
+		.setParameter("uid", userId)
+		.executeUpdate();
 	}
 }
