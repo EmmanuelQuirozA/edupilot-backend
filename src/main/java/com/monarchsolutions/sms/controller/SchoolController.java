@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import com.monarchsolutions.sms.dto.school.CreateSchoolRequest;
 import com.monarchsolutions.sms.dto.school.UpdateSchoolRequest;
 import com.monarchsolutions.sms.dto.school.SchoolsList;
+import com.monarchsolutions.sms.dto.school.GetSchoolsResponse;
 import com.monarchsolutions.sms.service.SchoolService;
 import com.monarchsolutions.sms.util.JwtUtil;
 
@@ -25,7 +26,42 @@ public class SchoolController {
 	private SchoolService schoolService;
 
 	@Autowired
-	private JwtUtil jwtUtil;
+        private JwtUtil jwtUtil;
+
+        @RequirePermission(module = "schools", action = "r")
+        @GetMapping("/paged")
+        public ResponseEntity<?> getSchools(
+                        @RequestHeader("Authorization") String authHeader,
+                        @RequestParam(required = false) Long  school_id,
+                        @RequestParam(defaultValue = "es")  String lang,
+                        @RequestParam(defaultValue = "-1") Integer status_filter,
+                        @RequestParam(defaultValue = "0")   Integer offset,
+                        @RequestParam(defaultValue = "10")  Integer limit,
+                        @RequestParam(defaultValue = "0")   boolean export_all,
+                        @RequestParam(required = false)      String order_by,
+                        @RequestParam(required = false)      String order_dir
+        ) {
+                try {
+                        String token = authHeader.substring(7);
+                        Long   userId = jwtUtil.extractUserId(token);
+
+                        GetSchoolsResponse response = schoolService.getSchools(
+                                        userId,
+                                        school_id,
+                                        lang,
+                                        status_filter,
+                                        offset,
+                                        limit,
+                                        export_all,
+                                        order_by,
+                                        order_dir
+                        );
+
+                        return ResponseEntity.ok(response);
+                } catch (Exception e) {
+                        return ResponseEntity.badRequest().body(e.getMessage());
+                }
+        }
 
 	// Endpoint to create a new school
         @RequirePermission(module = "schools", action = "c")

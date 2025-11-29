@@ -4,18 +4,25 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.monarchsolutions.sms.dto.school.SchoolsList;
 import com.monarchsolutions.sms.dto.school.CreateSchoolRequest;
 import com.monarchsolutions.sms.dto.school.UpdateSchoolRequest;
+import com.monarchsolutions.sms.dto.school.GetSchoolsResponse;
+import com.monarchsolutions.sms.dto.school.SchoolSummary;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.ParameterMode;
 import jakarta.persistence.StoredProcedureQuery;
 
+import java.sql.CallableStatement;
+import java.sql.ResultSet;
+import java.sql.Types;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.hibernate.Session;
 
 @Repository
 public class SchoolRepository {
@@ -23,7 +30,70 @@ public class SchoolRepository {
 	private EntityManager entityManager;
 	
 	@Autowired
-	private ObjectMapper objectMapper;
+        private ObjectMapper objectMapper;
+
+        public GetSchoolsResponse getSchools(
+                        Long p_token_user_id,
+                        Long p_school_id,
+                        String lang,
+                        Integer p_status_filter,
+                        Integer p_offset,
+                        Integer p_limit,
+                        boolean p_export_all,
+                        String p_order_by,
+                        String p_order_dir
+        ) {
+                var response = new GetSchoolsResponse();
+                var schools  = new ArrayList<SchoolSummary>();
+                var total    = new AtomicInteger(0);
+
+                entityManager.unwrap(Session.class).doWork(connection -> {
+                        try (CallableStatement stmt = connection.prepareCall("{CALL getSchools(?,?,?,?,?,?,?,?,?)}")) {
+                                stmt.setObject(1, p_token_user_id, Types.INTEGER);
+                                stmt.setObject(2, p_school_id, Types.INTEGER);
+                                stmt.setString(3, lang);
+                                stmt.setObject(4, p_status_filter, Types.INTEGER);
+                                stmt.setObject(5, p_offset, Types.INTEGER);
+                                stmt.setObject(6, p_limit, Types.INTEGER);
+                                stmt.setBoolean(7, p_export_all);
+                                stmt.setString(8, p_order_by);
+                                stmt.setString(9, p_order_dir);
+
+                                boolean hasResults = stmt.execute();
+
+                                if (hasResults) {
+                                        try (ResultSet rs = stmt.getResultSet()) {
+                                                while (rs.next()) {
+                                                        var school = new SchoolSummary();
+                                                        school.setSchool_id(rs.getObject("school_id", Long.class));
+                                                        school.setRelated_school_id(rs.getObject("related_school_id", Long.class));
+                                                        school.setDescription(rs.getString("description"));
+                                                        school.setCommercial_name(rs.getString("commercial_name"));
+                                                        var enabled = rs.getObject("enabled");
+                                                        school.setEnabled(enabled != null ? rs.getBoolean("enabled") : null);
+                                                        school.setSchool_status(rs.getString("school_status"));
+                                                        school.setImage(rs.getString("image"));
+                                                        school.setPlan_name(rs.getString("plan_name"));
+                                                        school.setIs_parent_school(rs.getInt("is_parent_school") == 1);
+                                                        schools.add(school);
+                                                }
+                                        }
+                                }
+
+                                if (stmt.getMoreResults()) {
+                                        try (ResultSet countRs = stmt.getResultSet()) {
+                                                if (countRs.next()) {
+                                                        total.set(countRs.getInt("total_count"));
+                                                }
+                                        }
+                                }
+                        }
+                });
+
+                response.setSchools(schools);
+                response.setTotal_count(total.get());
+                return response;
+        }
 
 	// Get Schools List
 	public List<SchoolsList> getSchoolsList(Long token_user_id, Long school_id, String lang, int statusFilter) {

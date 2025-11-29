@@ -2,6 +2,7 @@ package com.monarchsolutions.sms.service;
 
 import com.monarchsolutions.sms.dto.school.SchoolsList;
 import com.monarchsolutions.sms.dto.school.UpdateSchoolRequest;
+import com.monarchsolutions.sms.dto.school.GetSchoolsResponse;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.monarchsolutions.sms.dto.school.CreateSchoolRequest;
@@ -34,12 +35,36 @@ public class SchoolService {
 	@Autowired
 	private SchoolRepository schoolRepository;
 
-	@Autowired
+        @Autowired
   private ObjectMapper objectMapper;
 
-	public List<SchoolsList> getSchoolsList(Long token_user_id, Long school_id, String lang, int statusFilter) {
-		return schoolRepository.getSchoolsList(token_user_id, school_id, lang, statusFilter);
-	}
+        public GetSchoolsResponse getSchools(
+                        Long   p_token_user_id,
+                        Long   p_school_id,
+                        String lang,
+                        Integer p_status_filter,
+                        Integer p_offset,
+                        Integer p_limit,
+                        boolean p_export_all,
+                        String p_order_by,
+                        String p_order_dir
+        ) {
+                return schoolRepository.getSchools(
+                        p_token_user_id,
+                        p_school_id,
+                        lang,
+                        p_status_filter,
+                        p_offset,
+                        p_limit,
+                        p_export_all,
+                        p_order_by,
+                        p_order_dir
+                );
+        }
+
+        public List<SchoolsList> getSchoolsList(Long token_user_id, Long school_id, String lang, int statusFilter) {
+                return schoolRepository.getSchoolsList(token_user_id, school_id, lang, statusFilter);
+        }
 
 	public List<SchoolsList> getRelatedSchoolList(Long user_school_id, Long school_id, String lang) {
 		return schoolRepository.getRelatedSchoolList(user_school_id, school_id, lang);
