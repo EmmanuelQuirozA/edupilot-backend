@@ -2,6 +2,7 @@ package com.monarchsolutions.sms.repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.monarchsolutions.sms.dto.school.SchoolsList;
+import com.monarchsolutions.sms.dto.common.PageResult;
 import com.monarchsolutions.sms.dto.school.CreateSchoolRequest;
 import com.monarchsolutions.sms.dto.school.UpdateSchoolRequest;
 import com.monarchsolutions.sms.dto.school.GetSchoolsResponse;
@@ -13,12 +14,19 @@ import jakarta.persistence.ParameterMode;
 import jakarta.persistence.StoredProcedureQuery;
 
 import java.sql.CallableStatement;
+import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.sql.Types;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -30,70 +38,136 @@ public class SchoolRepository {
 	private EntityManager entityManager;
 	
 	@Autowired
-        private ObjectMapper objectMapper;
+	private ObjectMapper objectMapper;
+	@Autowired
+	private DataSource dataSource;
+    
+	public PageResult<Map<String,Object>> getSchools(
+		Long tokenSchoolId,
+		Long schoolId,
+		String lang,
+		Integer statusFilter,
+		Integer page,
+		Integer size,
+		boolean exportAll,
+		String order_by,
+		String order_dir
+	) throws SQLException {	
+		String call = "{CALL getSchools(?,?,?,?,?,?,?,?,?)}";
+		List<Map<String,Object>> content = new ArrayList<>();
+		long totalCount = 0;
 
-        public GetSchoolsResponse getSchools(
-                        Long p_token_user_id,
-                        Long p_school_id,
-                        String lang,
-                        Integer p_status_filter,
-                        Integer p_offset,
-                        Integer p_limit,
-                        boolean p_export_all,
-                        String p_order_by,
-                        String p_order_dir
-        ) {
-                var response = new GetSchoolsResponse();
-                var schools  = new ArrayList<SchoolSummary>();
-                var total    = new AtomicInteger(0);
+		try (Connection conn = dataSource.getConnection();
+		CallableStatement stmt = conn.prepareCall(call)) {
 
-                entityManager.unwrap(Session.class).doWork(connection -> {
-                        try (CallableStatement stmt = connection.prepareCall("{CALL getSchools(?,?,?,?,?,?,?,?,?)}")) {
-                                stmt.setObject(1, p_token_user_id, Types.INTEGER);
-                                stmt.setObject(2, p_school_id, Types.INTEGER);
-                                stmt.setString(3, lang);
-                                stmt.setObject(4, p_status_filter, Types.INTEGER);
-                                stmt.setObject(5, p_offset, Types.INTEGER);
-                                stmt.setObject(6, p_limit, Types.INTEGER);
-                                stmt.setBoolean(7, p_export_all);
-                                stmt.setString(8, p_order_by);
-                                stmt.setString(9, p_order_dir);
+			int idx = 1;
+			// 1) the IDs
+			if (tokenSchoolId != null) { stmt.setInt(idx++, tokenSchoolId.intValue()); } else { stmt.setNull(idx++, Types.INTEGER); }				
+			if (schoolId != null) { stmt.setInt(idx++, schoolId.intValue()); } else { stmt.setNull(idx++, Types.INTEGER); }
 
-                                boolean hasResults = stmt.execute();
+			// 2) the filters
+			stmt.setString(idx++, lang);
 
-                                if (hasResults) {
-                                        try (ResultSet rs = stmt.getResultSet()) {
-                                                while (rs.next()) {
-                                                        var school = new SchoolSummary();
-                                                        school.setSchool_id(rs.getObject("school_id", Long.class));
-                                                        school.setRelated_school_id(rs.getObject("related_school_id", Long.class));
-                                                        school.setDescription(rs.getString("description"));
-                                                        school.setCommercial_name(rs.getString("commercial_name"));
-                                                        var enabled = rs.getObject("enabled");
-                                                        school.setEnabled(enabled != null ? rs.getBoolean("enabled") : null);
-                                                        school.setSchool_status(rs.getString("school_status"));
-                                                        school.setImage(rs.getString("image"));
-                                                        school.setPlan_name(rs.getString("plan_name"));
-                                                        school.setIs_parent_school(rs.getInt("is_parent_school") == 1);
-                                                        schools.add(school);
-                                                }
-                                        }
-                                }
+			if (statusFilter != null) {
+					stmt.setInt(idx++, statusFilter);
+			} else {
+					stmt.setNull(idx++, Types.BOOLEAN);
+			}
 
-                                if (stmt.getMoreResults()) {
-                                        try (ResultSet countRs = stmt.getResultSet()) {
-                                                if (countRs.next()) {
-                                                        total.set(countRs.getInt("total_count"));
-                                                }
-                                        }
-                                }
-                        }
-                });
+			int offsetParam = page;     // rename 'page' var to 'offsetParam'
+			int limitParam  = size;     // rename 'size' var to 'limitParam'
+			// 15. offset
+			if (exportAll) {
+				stmt.setNull(idx++, Types.INTEGER);
+				stmt.setNull(idx++, Types.INTEGER);
+			} else {
+				stmt.setInt(idx++, offsetParam);
+				stmt.setInt(idx++, limitParam);
+			}
+			// 17. export_all
+			stmt.setBoolean(idx++, exportAll);
+			stmt.setString(idx++, order_by);
+			stmt.setString(idx++, order_dir);
+			
+			// -- execute & read page result --
+			boolean hasRs = stmt.execute();
+			if (hasRs) {
+				try (ResultSet rs = stmt.getResultSet()) {
+					ResultSetMetaData md = rs.getMetaData();
+					int cols = md.getColumnCount();
+					while (rs.next()) {
+						Map<String,Object> row = new LinkedHashMap<>();
+						for (int c = 1; c <= cols; c++) {
+							row.put(md.getColumnLabel(c), rs.getObject(c));
+						}
+						content.add(row);
+					}
+				}
+			}
 
-                response.setSchools(schools);
-                response.setTotal_count(total.get());
-                return response;
-        }
+			// -- advance to the second resultset: total count --
+			if (stmt.getMoreResults()) {
+				try (ResultSet rs2 = stmt.getResultSet()) {
+					if (rs2.next()) {
+						totalCount = rs2.getLong(1);
+					}
+				}
+			}
+		}
+
+		return new PageResult<>(content, totalCount, page, size);
+
+		// var response = new GetSchoolsResponse();
+		// var schools  = new ArrayList<SchoolSummary>();
+		// var total    = new AtomicInteger(0);
+
+		// 	entityManager.unwrap(Session.class).doWork(connection -> {
+		// 	try (CallableStatement stmt = connection.prepareCall("{CALL getSchools(?,?,?,?,?,?,?,?,?)}")) {
+		// 		stmt.setObject(1, p_token_user_id, Types.INTEGER);
+		// 		stmt.setObject(2, p_school_id, Types.INTEGER);
+		// 		stmt.setString(3, lang);
+		// 		stmt.setObject(4, p_status_filter, Types.INTEGER);
+		// 		stmt.setObject(5, p_offset, Types.INTEGER);
+		// 		stmt.setObject(6, p_limit, Types.INTEGER);
+		// 		stmt.setBoolean(7, p_export_all);
+		// 		stmt.setString(8, p_order_by);
+		// 		stmt.setString(9, p_order_dir);
+
+		// 		boolean hasResults = stmt.execute();
+
+		// 		if (hasResults) {
+		// 			try (ResultSet rs = stmt.getResultSet()) {
+		// 				while (rs.next()) {
+		// 					var school = new SchoolSummary();
+		// 					school.setSchool_id(rs.getObject("school_id", Long.class));
+		// 					school.setRelated_school_id(rs.getObject("related_school_id", Long.class));
+		// 					school.setDescription(rs.getString("description"));
+		// 					school.setCommercial_name(rs.getString("commercial_name"));
+		// 					var enabled = rs.getObject("enabled");
+		// 					school.setEnabled(enabled != null ? rs.getBoolean("enabled") : null);
+		// 					school.setSchool_status(rs.getString("school_status"));
+		// 					school.setImage(rs.getString("image"));
+		// 					school.setPlan_name(rs.getString("plan_name"));
+		// 					school.setIs_parent_school(rs.getInt("is_parent_school") == 1);
+		// 					schools.add(school);
+		// 				}
+		// 			}
+		// 		}
+
+		// 		if (stmt.getMoreResults()) {
+		// 			try (ResultSet countRs = stmt.getResultSet()) {
+		// 				if (countRs.next()) {
+		// 					total.set(countRs.getInt("total_count"));
+		// 				}
+		// 			}
+		// 		}
+		// 	}
+		// });
+
+		// response.setSchools(schools);
+		// response.setTotal_count(total.get());
+		// return response;
+	}
 
 	// Get Schools List
 	public List<SchoolsList> getSchoolsList(Long token_user_id, Long school_id, String lang, int statusFilter) {

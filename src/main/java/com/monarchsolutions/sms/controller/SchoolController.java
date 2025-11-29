@@ -3,6 +3,8 @@ package com.monarchsolutions.sms.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+
+import com.monarchsolutions.sms.dto.common.PageResult;
 import com.monarchsolutions.sms.dto.school.CreateSchoolRequest;
 import com.monarchsolutions.sms.dto.school.UpdateSchoolRequest;
 import com.monarchsolutions.sms.dto.school.SchoolsList;
@@ -18,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.monarchsolutions.sms.annotation.RequirePermission;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/schools")
@@ -26,47 +29,47 @@ public class SchoolController {
 	private SchoolService schoolService;
 
 	@Autowired
-        private JwtUtil jwtUtil;
+		private JwtUtil jwtUtil;
 
-        @RequirePermission(module = "schools", action = "r")
-        @GetMapping("/paged")
-        public ResponseEntity<?> getSchools(
-                        @RequestHeader("Authorization") String authHeader,
-                        @RequestParam(required = false) Long  school_id,
-                        @RequestParam(defaultValue = "es")  String lang,
-                        @RequestParam(defaultValue = "-1") Integer status_filter,
-                        @RequestParam(defaultValue = "0")   Integer offset,
-                        @RequestParam(defaultValue = "10")  Integer limit,
-                        @RequestParam(defaultValue = "0")   boolean export_all,
-                        @RequestParam(required = false)      String order_by,
-                        @RequestParam(required = false)      String order_dir
-        ) {
-                try {
-                        String token = authHeader.substring(7);
-                        Long   userId = jwtUtil.extractUserId(token);
+		@RequirePermission(module = "schools", action = "r")
+		@GetMapping("/paged")
+		public ResponseEntity<?> getSchools(
+			@RequestHeader("Authorization") String authHeader,
+			@RequestParam(required = false) Long  school_id,
+			@RequestParam(defaultValue = "es")  String lang,
+			@RequestParam(defaultValue = "-1") Integer status_filter,
+			@RequestParam(defaultValue = "0")   Integer offset,
+			@RequestParam(defaultValue = "10")  Integer limit,
+			@RequestParam(defaultValue = "0")   boolean export_all,
+			@RequestParam(required = false)      String order_by,
+			@RequestParam(required = false)      String order_dir
+		) {
+			try {
+				String token = authHeader.substring(7);
+				Long   userId = jwtUtil.extractUserId(token);
 
-                        GetSchoolsResponse response = schoolService.getSchools(
-                                        userId,
-                                        school_id,
-                                        lang,
-                                        status_filter,
-                                        offset,
-                                        limit,
-                                        export_all,
-                                        order_by,
-                                        order_dir
-                        );
+				PageResult<Map<String,Object>> page = schoolService.getSchools(
+					userId,
+					school_id,
+					lang,
+					status_filter,
+					offset,
+					limit,
+					export_all,
+					order_by,
+					order_dir
+				);
 
-                        return ResponseEntity.ok(response);
-                } catch (Exception e) {
-                        return ResponseEntity.badRequest().body(e.getMessage());
-                }
-        }
+				return ResponseEntity.ok(page);
+			} catch (Exception e) {
+				return ResponseEntity.badRequest().body(e.getMessage());
+			}
+		}
 
 	// Endpoint to create a new school
-        @RequirePermission(module = "schools", action = "c")
-        @PostMapping("/create")
-        public ResponseEntity<String> createSchool(@RequestBody CreateSchoolRequest request) {
+	@RequirePermission(module = "schools", action = "c")
+	@PostMapping("/create")
+	public ResponseEntity<String> createSchool(@RequestBody CreateSchoolRequest request) {
 		try {
 			// Call the service method (which will pass the JSON data to the SP)
 			String jsonResponse = schoolService.createSchool(request);
@@ -77,12 +80,12 @@ public class SchoolController {
 	}
 
 	// Endpoint for retrieving the list of schools.
-        @RequirePermission(module = "schools", action = "r")
-        @GetMapping("/list")
-        public ResponseEntity<?> getSchoolsList(@RequestHeader("Authorization") String authHeader,
-											@RequestParam(required = false) Long school_id,
-											@RequestParam(defaultValue = "es") String lang,
-											@RequestParam(defaultValue = "-1") int status_filter) {
+	@RequirePermission(module = "schools", action = "r")
+	@GetMapping("/list")
+	public ResponseEntity<?> getSchoolsList(@RequestHeader("Authorization") String authHeader,
+										@RequestParam(required = false) Long school_id,
+										@RequestParam(defaultValue = "es") String lang,
+										@RequestParam(defaultValue = "-1") int status_filter) {
 		try {
 			String token = authHeader.substring(7);
 			// Long token_user_id = jwtUtil.extractUserId(token);
@@ -96,9 +99,9 @@ public class SchoolController {
 	}
 
 	// Endpoint for retrieving the list of related schools for a specific shcool.
-        @RequirePermission(module = "schools", action = "r")
-        @GetMapping("/listRelated")
-        public ResponseEntity<?> getRelatedSchoolList(@RequestHeader("Authorization") String authHeader,
+	@RequirePermission(module = "schools", action = "r")
+	@GetMapping("/listRelated")
+	public ResponseEntity<?> getRelatedSchoolList(@RequestHeader("Authorization") String authHeader,
 											@RequestParam(required = false) Long school_id,
 											@RequestParam(defaultValue = "es") String lang) {
 		try {
@@ -112,17 +115,18 @@ public class SchoolController {
 	}
 	
 	// Endpoint to update an existing school.
-        @RequirePermission(module = "schools", action = "u")
-        @PutMapping(
-                path     = "/update/{school_id}",
+	@RequirePermission(module = "schools", action = "u")
+	@PutMapping(
+				path     = "/update/{school_id}",
 		produces = MediaType.APPLICATION_JSON_VALUE
 	)
+
 	public ResponseEntity<?> updateSchool(
-			@RequestHeader("Authorization") String authHeader,
-			@PathVariable("school_id")         Long   schoolId,
-			@RequestParam(defaultValue="es")   String lang,
-			@RequestPart(value="request", required = false) UpdateSchoolRequest request,
-			@RequestPart(value="image", required=false) MultipartFile image
+		@RequestHeader("Authorization") String authHeader,
+		@PathVariable("school_id")         Long   schoolId,
+		@RequestParam(defaultValue="es")   String lang,
+		@RequestPart(value="request", required = false) UpdateSchoolRequest request,
+		@RequestPart(value="image", required=false) MultipartFile image
 	) {
 		try {
 			// 1) Validate image if present (PNG only)
@@ -168,11 +172,11 @@ public class SchoolController {
 
 
 	// Endpoint to toggle or change the user's status.
-        @RequirePermission(module = "schools", action = "u")
-        @PostMapping("/update/{school_id}/status")
-        public ResponseEntity<String> changeUserStatus(@PathVariable("school_id") Long school_id,
-													@RequestParam(defaultValue = "es") String lang,
-													@RequestHeader("Authorization") String authHeader) {
+	@RequirePermission(module = "schools", action = "u")
+	@PostMapping("/update/{school_id}/status")
+	public ResponseEntity<String> changeUserStatus(@PathVariable("school_id") Long school_id,
+												@RequestParam(defaultValue = "es") String lang,
+												@RequestHeader("Authorization") String authHeader) {
 		try {
 			String token = authHeader.substring(7);
 			Long tokenSchoolId = jwtUtil.extractSchoolId(token);
@@ -184,9 +188,9 @@ public class SchoolController {
 		}
 	}
 
-        @RequirePermission(module = "schools", action = "r")
-        @GetMapping("/school-image")
-        public ResponseEntity<String> getSchoolImage(
+	@RequirePermission(module = "schools", action = "r")
+	@GetMapping("/school-image")
+		public ResponseEntity<String> getSchoolImage(
 		@RequestHeader("Authorization") String authHeader,
 		@RequestParam(required = false) Long school_id
 	) {

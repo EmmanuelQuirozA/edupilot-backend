@@ -49,89 +49,89 @@ public class StudentRepository {
 
 	// Get Students List
 	public PageResult<Map<String,Object>> getStudentsList(
-			Long tokenSchoolId,  
-			Long student_id,
-			String register_id,
-			String full_name,
-			String payment_reference,
-			String generation,
-			String grade_group,
-			Boolean enabled,
-	String lang,
-	int page,
-	int size,
-	Boolean exportAll,
-	String order_by,
-	String order_dir
+		Long tokenSchoolId,  
+		Long student_id,
+		String register_id,
+		String full_name,
+		String payment_reference,
+		String generation,
+		String grade_group,
+		Boolean enabled,
+		String lang,
+		int page,
+		int size,
+		Boolean exportAll,
+		String order_by,
+		String order_dir
 	) throws SQLException {
-	String call = "{CALL getStudentsList(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}";
-	List<Map<String,Object>> content = new ArrayList<>();
-	long totalCount = 0;
+		String call = "{CALL getStudentsList(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}";
+		List<Map<String,Object>> content = new ArrayList<>();
+		long totalCount = 0;
 
-	try (Connection conn = dataSource.getConnection();
-	CallableStatement stmt = conn.prepareCall(call)) {
+		try (Connection conn = dataSource.getConnection();
+		CallableStatement stmt = conn.prepareCall(call)) {
 
-					int idx = 1;
-					// 1) the IDs
-					if (tokenSchoolId != null) { stmt.setInt(idx++, tokenSchoolId.intValue()); } else { stmt.setNull(idx++, Types.INTEGER); }				
-					if (student_id != null) { stmt.setInt(idx++, student_id.intValue()); } else { stmt.setNull(idx++, Types.INTEGER); }
+			int idx = 1;
+			// 1) the IDs
+			if (tokenSchoolId != null) { stmt.setInt(idx++, tokenSchoolId.intValue()); } else { stmt.setNull(idx++, Types.INTEGER); }				
+			if (student_id != null) { stmt.setInt(idx++, student_id.intValue()); } else { stmt.setNull(idx++, Types.INTEGER); }
 
-					// 2) the filters
-					stmt.setString(idx++, register_id);
-					stmt.setString(idx++, full_name);
-					stmt.setString(idx++, payment_reference);
-					stmt.setString(idx++, generation);
-					stmt.setString(idx++, grade_group);
-					if (enabled != null) {
-							stmt.setBoolean(idx++, enabled);
-					} else {
-							stmt.setNull(idx++, Types.BOOLEAN);
+			// 2) the filters
+			stmt.setString(idx++, register_id);
+			stmt.setString(idx++, full_name);
+			stmt.setString(idx++, payment_reference);
+			stmt.setString(idx++, generation);
+			stmt.setString(idx++, grade_group);
+			if (enabled != null) {
+					stmt.setBoolean(idx++, enabled);
+			} else {
+					stmt.setNull(idx++, Types.BOOLEAN);
+			}
+
+			stmt.setString(idx++, lang);
+
+			int offsetParam = page;     // rename 'page' var to 'offsetParam'
+			int limitParam  = size;     // rename 'size' var to 'limitParam'
+			// 15. offset
+			if (exportAll) {
+				stmt.setNull(idx++, Types.INTEGER);
+				stmt.setNull(idx++, Types.INTEGER);
+			} else {
+				stmt.setInt(idx++, offsetParam);
+				stmt.setInt(idx++, limitParam);
+			}
+			// 17. export_all
+			stmt.setBoolean(idx++, exportAll);
+			stmt.setString(idx++, order_by);
+			stmt.setString(idx++, order_dir);
+			
+			// -- execute & read page result --
+			boolean hasRs = stmt.execute();
+			if (hasRs) {
+				try (ResultSet rs = stmt.getResultSet()) {
+					ResultSetMetaData md = rs.getMetaData();
+					int cols = md.getColumnCount();
+					while (rs.next()) {
+						Map<String,Object> row = new LinkedHashMap<>();
+						for (int c = 1; c <= cols; c++) {
+							row.put(md.getColumnLabel(c), rs.getObject(c));
+						}
+						content.add(row);
 					}
+				}
+			}
 
-					stmt.setString(idx++, lang);
-
-		int offsetParam = page;     // rename 'page' var to 'offsetParam'
-		int limitParam  = size;     // rename 'size' var to 'limitParam'
-		// 15. offset
-		if (exportAll) {
-			stmt.setNull(idx++, Types.INTEGER);
-			stmt.setNull(idx++, Types.INTEGER);
-		} else {
-			stmt.setInt(idx++, offsetParam);
-			stmt.setInt(idx++, limitParam);
-		}
-		// 17. export_all
-		stmt.setBoolean(idx++, exportAll);
-		stmt.setString(idx++, order_by);
-		stmt.setString(idx++, order_dir);
-		
-		// -- execute & read page result --
-		boolean hasRs = stmt.execute();
-		if (hasRs) {
-			try (ResultSet rs = stmt.getResultSet()) {
-				ResultSetMetaData md = rs.getMetaData();
-				int cols = md.getColumnCount();
-				while (rs.next()) {
-					Map<String,Object> row = new LinkedHashMap<>();
-					for (int c = 1; c <= cols; c++) {
-						row.put(md.getColumnLabel(c), rs.getObject(c));
+			// -- advance to the second resultset: total count --
+			if (stmt.getMoreResults()) {
+				try (ResultSet rs2 = stmt.getResultSet()) {
+					if (rs2.next()) {
+						totalCount = rs2.getLong(1);
 					}
-					content.add(row);
 				}
 			}
 		}
 
-					// -- advance to the second resultset: total count --
-					if (stmt.getMoreResults()) {
-							try (ResultSet rs2 = stmt.getResultSet()) {
-									if (rs2.next()) {
-											totalCount = rs2.getLong(1);
-									}
-							}
-					}
-			}
-
-			return new PageResult<>(content, totalCount, page, size);
+		return new PageResult<>(content, totalCount, page, size);
 	}
 	
 	public String updateStudent(Long userSchoolId, Long user_id, String lang, Long responsible_user_id, UpdateStudentRequest request) throws Exception {
