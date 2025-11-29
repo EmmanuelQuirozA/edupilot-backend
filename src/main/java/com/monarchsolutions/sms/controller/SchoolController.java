@@ -8,7 +8,6 @@ import com.monarchsolutions.sms.dto.common.PageResult;
 import com.monarchsolutions.sms.dto.school.CreateSchoolRequest;
 import com.monarchsolutions.sms.dto.school.UpdateSchoolRequest;
 import com.monarchsolutions.sms.dto.school.SchoolsList;
-import com.monarchsolutions.sms.dto.school.GetSchoolsResponse;
 import com.monarchsolutions.sms.service.SchoolService;
 import com.monarchsolutions.sms.util.JwtUtil;
 

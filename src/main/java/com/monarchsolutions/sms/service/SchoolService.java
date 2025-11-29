@@ -2,7 +2,6 @@ package com.monarchsolutions.sms.service;
 
 import com.monarchsolutions.sms.dto.school.SchoolsList;
 import com.monarchsolutions.sms.dto.school.UpdateSchoolRequest;
-import com.monarchsolutions.sms.dto.school.GetSchoolsResponse;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.monarchsolutions.sms.dto.common.PageResult;
