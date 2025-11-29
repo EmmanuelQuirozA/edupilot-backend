@@ -7,4 +7,5 @@ public interface ModuleAccessProjection {
     Long getModuleAccessControlId();
     Long getSchoolId();
     Boolean getEnabled();
+    Long getSortOrder();
 }

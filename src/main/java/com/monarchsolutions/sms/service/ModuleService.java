@@ -42,6 +42,7 @@ public class ModuleService {
                     response.setModuleAccessControlId(projection.getModuleAccessControlId());
                     response.setSchoolId(projection.getSchoolId());
                     response.setEnabled(projection.getEnabled());
+                    response.setSortOrder(projection.getSortOrder());
                     return response;
                 })
                 .toList();

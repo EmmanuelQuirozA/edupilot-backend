@@ -8,6 +8,7 @@ public class ModulePermissionResponse {
     private Long moduleAccessControlId;
     private Long schoolId;
     private Boolean enabled;
+    private Long sortOrder;
 
     private Long roleId;
     private String roleName;
@@ -64,6 +65,14 @@ public class ModulePermissionResponse {
 
     public void setEnabled(Boolean enabled) {
         this.enabled = enabled;
+    }
+    
+    public Long getSortOrder() {
+        return sortOrder;
+    }
+
+    public void setSortOrder(Long sortOrder) {
+        this.sortOrder = sortOrder;
     }
 
     public Long getRoleId() {

@@ -7,6 +7,7 @@ public interface ModulePermissionProjection {
     Long getModuleAccessControlId();
     Long getSchoolId();
     Boolean getEnabled();
+    Long sortOrder();
 
     Long getRoleId();
     String getRoleName();

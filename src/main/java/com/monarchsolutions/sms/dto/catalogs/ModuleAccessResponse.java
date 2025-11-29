@@ -7,6 +7,7 @@ public class ModuleAccessResponse {
     private Long moduleAccessControlId;
     private Long schoolId;
     private Boolean enabled;
+    private Long sortOrder;
 
     public Long getModuleId() {
         return moduleId;
@@ -54,5 +55,12 @@ public class ModuleAccessResponse {
 
     public void setEnabled(Boolean enabled) {
         this.enabled = enabled;
+    }
+    public Long getSortOrder() {
+        return sortOrder;
+    }
+
+    public void setSortOrder(Long sortOrder) {
+        this.sortOrder = sortOrder;
     }
 }
