@@ -28,42 +28,44 @@ public class SchoolController {
 	private SchoolService schoolService;
 
 	@Autowired
-		private JwtUtil jwtUtil;
+	private JwtUtil jwtUtil;
 
-		@RequirePermission(module = "schools", action = "r")
-		@GetMapping("/paged")
-		public ResponseEntity<?> getSchools(
-			@RequestHeader("Authorization") String authHeader,
-			@RequestParam(required = false) Long  school_id,
-			@RequestParam(defaultValue = "es")  String lang,
-			@RequestParam(defaultValue = "-1") Integer status_filter,
-			@RequestParam(defaultValue = "0")   Integer offset,
-			@RequestParam(defaultValue = "10")  Integer limit,
-			@RequestParam(defaultValue = "0")   boolean export_all,
-			@RequestParam(required = false)      String order_by,
-			@RequestParam(required = false)      String order_dir
-		) {
-			try {
-				String token = authHeader.substring(7);
-				Long   userId = jwtUtil.extractUserId(token);
+	@RequirePermission(module = "schools", action = "r")
+	@GetMapping("/paged")
+	public ResponseEntity<?> getSchools(
+		@RequestHeader("Authorization") 	String authHeader,
+		@RequestParam(required = false) 	Long  school_id,
+		@RequestParam(defaultValue = "es")  String lang,
+		@RequestParam(defaultValue = "-1") 	Integer status_filter,
+		@RequestParam(required = false)  	String school_name,
+		@RequestParam(defaultValue = "0")   Integer offset,
+		@RequestParam(defaultValue = "10")  Integer limit,
+		@RequestParam(defaultValue = "0")   boolean export_all,
+		@RequestParam(required = false)     String order_by,
+		@RequestParam(required = false)     String order_dir
+	) {
+		try {
+			String token = authHeader.substring(7);
+			Long   userId = jwtUtil.extractUserId(token);
 
-				PageResult<Map<String,Object>> page = schoolService.getSchools(
-					userId,
-					school_id,
-					lang,
-					status_filter,
-					offset,
-					limit,
-					export_all,
-					order_by,
-					order_dir
-				);
+			PageResult<Map<String,Object>> page = schoolService.getSchools(
+				userId,
+				school_id,
+				lang,
+				status_filter,
+				school_name,
+				offset,
+				limit,
+				export_all,
+				order_by,
+				order_dir
+			);
 
-				return ResponseEntity.ok(page);
-			} catch (Exception e) {
-				return ResponseEntity.badRequest().body(e.getMessage());
-			}
+			return ResponseEntity.ok(page);
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
 		}
+	}
 
 	// Endpoint to create a new school
 	@RequirePermission(module = "schools", action = "c")
