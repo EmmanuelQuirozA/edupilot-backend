@@ -324,10 +324,78 @@ public class SchoolRepository {
 		return null;
 		}
 		// MySQL may return String
-		if (single instanceof String n) {
-		return n;
-		}
-		throw new IllegalStateException("Unexpected type for image: " + single.getClass());
-	}
+                if (single instanceof String n) {
+                return n;
+                }
+                throw new IllegalStateException("Unexpected type for image: " + single.getClass());
+        }
+
+        public Map<String, Object> getSchoolDetails(Long tokenUserId, Long schoolId, String lang) throws SQLException {
+                Map<String, Object> response = new LinkedHashMap<>();
+
+                try (Connection conn = dataSource.getConnection();
+                     CallableStatement stmt = conn.prepareCall("{CALL getSchoolDetails(?,?,?)}")) {
+
+                        if (tokenUserId != null) {
+                                stmt.setInt(1, tokenUserId.intValue());
+                        } else {
+                                stmt.setNull(1, Types.INTEGER);
+                        }
+
+                        stmt.setInt(2, schoolId.intValue());
+                        stmt.setString(3, lang);
+
+                        boolean hasResults = stmt.execute();
+                        while (true) {
+                                if (hasResults) {
+                                        try (ResultSet rs = stmt.getResultSet()) {
+                                                ResultSetMetaData md = rs.getMetaData();
+                                                int cols = md.getColumnCount();
+                                                List<Map<String, Object>> rows = new ArrayList<>();
+                                                String key = null;
+
+                                                while (rs.next()) {
+                                                        Map<String, Object> row = new LinkedHashMap<>();
+                                                        for (int i = 1; i <= cols; i++) {
+                                                                String label = md.getColumnLabel(i);
+                                                                Object value = rs.getObject(i);
+
+                                                                if ("result_set".equalsIgnoreCase(label) && value != null) {
+                                                                        key = value.toString();
+                                                                } else {
+                                                                        row.put(label, value);
+                                                                }
+                                                        }
+                                                        rows.add(row);
+                                                }
+
+                                                if (key == null) {
+                                                        key = "result_set_" + response.size();
+                                                }
+
+                                                Object valueToStore = rows.size() == 1 ? rows.get(0) : rows;
+                                                if (response.containsKey(key)) {
+                                                        int suffix = 1;
+                                                        while (response.containsKey(key + "_" + suffix)) {
+                                                                suffix++;
+                                                        }
+                                                        response.put(key + "_" + suffix, valueToStore);
+                                                } else {
+                                                        response.put(key, valueToStore);
+                                                }
+                                        }
+                                } else {
+                                        int updateCount = stmt.getUpdateCount();
+                                        if (updateCount == -1) {
+                                                break;
+                                        }
+                                }
+
+                                hasResults = stmt.getMoreResults();
+                        }
+                }
+
+                return response;
+        }
 
 }
