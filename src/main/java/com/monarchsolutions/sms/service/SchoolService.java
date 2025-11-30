@@ -71,9 +71,13 @@ public class SchoolService {
 			return schoolRepository.getSchoolsList(token_user_id, school_id, lang, statusFilter);
 	}
 
-	public List<SchoolsList> getRelatedSchoolList(Long user_school_id, Long school_id, String lang) {
-		return schoolRepository.getRelatedSchoolList(user_school_id, school_id, lang);
-	}
+        public List<SchoolsList> getRelatedSchoolList(Long user_school_id, Long school_id, String lang) {
+                return schoolRepository.getRelatedSchoolList(user_school_id, school_id, lang);
+        }
+
+        public Map<String, Object> getSchoolDetails(Long tokenUserId, Long schoolId, String lang) throws Exception {
+                return schoolRepository.getSchoolDetails(tokenUserId, schoolId, lang);
+        }
 
 	public String createSchool(CreateSchoolRequest request) throws Exception {
 		// Call the repository method that converts the request to JSON and executes the stored procedure

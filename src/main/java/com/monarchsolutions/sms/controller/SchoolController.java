@@ -82,27 +82,44 @@ public class SchoolController {
 
 	// Endpoint for retrieving the list of schools.
 	@RequirePermission(module = "schools", action = "r")
-	@GetMapping("/list")
-	public ResponseEntity<?> getSchoolsList(@RequestHeader("Authorization") String authHeader,
-										@RequestParam(required = false) Long school_id,
-										@RequestParam(defaultValue = "es") String lang,
-										@RequestParam(defaultValue = "-1") int status_filter) {
-		try {
-			String token = authHeader.substring(7);
-			// Long token_user_id = jwtUtil.extractUserId(token);
-			Long token_school_id = jwtUtil.extractSchoolId(token);
-			List<SchoolsList> schools = schoolService.getSchoolsList(token_school_id, school_id, lang, status_filter);
-			System.out.println(token_school_id);
-			return ResponseEntity.ok(schools);
-		} catch (Exception e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
-		}
-	}
+        @GetMapping("/list")
+        public ResponseEntity<?> getSchoolsList(@RequestHeader("Authorization") String authHeader,
+                                                                                @RequestParam(required = false) Long school_id,
+                                                                                @RequestParam(defaultValue = "es") String lang,
+                                                                                @RequestParam(defaultValue = "-1") int status_filter) {
+                try {
+                        String token = authHeader.substring(7);
+                        // Long token_user_id = jwtUtil.extractUserId(token);
+                        Long token_school_id = jwtUtil.extractSchoolId(token);
+                        List<SchoolsList> schools = schoolService.getSchoolsList(token_school_id, school_id, lang, status_filter);
+                        System.out.println(token_school_id);
+                        return ResponseEntity.ok(schools);
+                } catch (Exception e) {
+                        return ResponseEntity.badRequest().body(e.getMessage());
+                }
+        }
 
-	// Endpoint for retrieving the list of related schools for a specific shcool.
-	@RequirePermission(module = "schools", action = "r")
-	@GetMapping("/listRelated")
-	public ResponseEntity<?> getRelatedSchoolList(@RequestHeader("Authorization") String authHeader,
+        @RequirePermission(module = "schools", action = "r")
+        @GetMapping("/details")
+        public ResponseEntity<?> getSchoolDetails(
+                        @RequestHeader("Authorization") String authHeader,
+                        @RequestParam("school_id") Long schoolId,
+                        @RequestParam(defaultValue = "es") String lang
+        ) {
+                try {
+                        String token = authHeader.substring(7);
+                        Long tokenUserId = jwtUtil.extractUserId(token);
+                        Map<String, Object> details = schoolService.getSchoolDetails(tokenUserId, schoolId, lang);
+                        return ResponseEntity.ok(details);
+                } catch (Exception e) {
+                        return ResponseEntity.badRequest().body(e.getMessage());
+                }
+        }
+
+        // Endpoint for retrieving the list of related schools for a specific shcool.
+        @RequirePermission(module = "schools", action = "r")
+        @GetMapping("/listRelated")
+        public ResponseEntity<?> getRelatedSchoolList(@RequestHeader("Authorization") String authHeader,
 											@RequestParam(required = false) Long school_id,
 											@RequestParam(defaultValue = "es") String lang) {
 		try {
