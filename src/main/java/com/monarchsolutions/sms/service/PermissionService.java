@@ -4,11 +4,14 @@ import com.monarchsolutions.sms.entity.Module;
 import com.monarchsolutions.sms.entity.Permission;
 import com.monarchsolutions.sms.dto.permission.ModulePermissionResponse;
 import com.monarchsolutions.sms.repository.ModuleRepository;
+import com.monarchsolutions.sms.repository.PermissionProcedureRepository;
 import com.monarchsolutions.sms.repository.PermissionRepository;
 import com.monarchsolutions.sms.repository.ModulePermissionProjection;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.List;
+import java.util.Map;
+import java.sql.SQLException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,10 +20,16 @@ public class PermissionService {
 
     private final PermissionRepository permissionRepository;
     private final ModuleRepository moduleRepository;
+    private final PermissionProcedureRepository permissionProcedureRepository;
 
-    public PermissionService(PermissionRepository permissionRepository, ModuleRepository moduleRepository) {
+    public PermissionService(
+            PermissionRepository permissionRepository,
+            ModuleRepository moduleRepository,
+            PermissionProcedureRepository permissionProcedureRepository
+    ) {
         this.permissionRepository = permissionRepository;
         this.moduleRepository = moduleRepository;
+        this.permissionProcedureRepository = permissionProcedureRepository;
     }
 
     /**
@@ -100,5 +109,20 @@ public class PermissionService {
                     return response;
                 })
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> getModuleAccessList(
+            Long tokenUserId,
+            Long roleId,
+            Long schoolId,
+            String lang
+    ) throws SQLException {
+        return permissionProcedureRepository.getModuleAccessList(tokenUserId, roleId, schoolId, lang);
+    }
+
+    @Transactional
+    public Map<String, Object> createPermission(Long tokenUserId, Object payload, String lang) throws Exception {
+        return permissionProcedureRepository.createPermission(tokenUserId, payload, lang);
     }
 }

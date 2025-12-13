@@ -9,9 +9,12 @@ import com.monarchsolutions.sms.validation.AdminGroup;
 import com.monarchsolutions.sms.validation.SchoolAdminGroup;
 
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -69,5 +72,38 @@ public class PermissionsController {
         );
 
         return ResponseEntity.ok(modulePermissions);
+    }
+
+    @GetMapping("/module-access")
+    public ResponseEntity<List<Map<String, Object>>> getModuleAccessList(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestParam(value = "roleId", required = false) Long roleId,
+            @RequestParam(value = "schoolId", required = false) Long schoolId,
+            @RequestParam(defaultValue = "es") String lang
+    ) throws Exception {
+        String token = authHeader.replaceFirst("^Bearer\\s+", "");
+        Long tokenUserId = jwtUtil.extractUserId(token);
+
+        List<Map<String, Object>> permissions = permissionService.getModuleAccessList(
+                tokenUserId,
+                roleId,
+                schoolId,
+                lang
+        );
+
+        return ResponseEntity.ok(permissions);
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<Map<String, Object>> createPermission(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestBody Map<String, Object> payload,
+            @RequestParam(defaultValue = "es") String lang
+    ) throws Exception {
+        String token = authHeader.replaceFirst("^Bearer\\s+", "");
+        Long tokenUserId = jwtUtil.extractUserId(token);
+
+        Map<String, Object> response = permissionService.createPermission(tokenUserId, payload, lang);
+        return ResponseEntity.ok(response);
     }
 }
