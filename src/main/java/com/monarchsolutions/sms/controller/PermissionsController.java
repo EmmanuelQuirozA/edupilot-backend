@@ -55,20 +55,12 @@ public class PermissionsController {
     ) {
         String token = authHeader.replaceFirst("^Bearer\\s+", "");
         Long tokenUserId = jwtUtil.extractUserId(token);
-        Long roleId = jwtUtil.extractRoleId(token);
-        Long tokenSchoolId = jwtUtil.extractSchoolId(token);
-        String role = jwtUtil.extractUserRole(token);
-        Boolean isAdmin = "ADMIN".equalsIgnoreCase(role) ? true : false;
-
 
         List<ModulePermissionResponse> modulePermissions = permissionService.getModulePermissionsForUser(
                 tokenUserId,
-                roleId,
-                tokenSchoolId,
                 moduleKey,
                 lang,
-                onlyActive,
-                isAdmin
+                onlyActive
         );
 
         return ResponseEntity.ok(modulePermissions);

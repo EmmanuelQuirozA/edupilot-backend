@@ -69,25 +69,19 @@ public class PermissionService {
     @Transactional(readOnly = true)
     public List<ModulePermissionResponse> getModulePermissionsForUser(
             Long tokenUserId,
-            Long roleId,
-            Long tokenSchoolId,
             String moduleKey,
             String lang,
-            boolean onlyActive,
-            boolean isAdmin
+            boolean onlyActive
     ) {
-        if (tokenUserId == null || roleId == null || moduleKey == null || moduleKey.isBlank()) {
+        if (tokenUserId == null || moduleKey == null || moduleKey.isBlank()) {
             return List.of();
         }
 
         List<ModulePermissionProjection> projections = permissionRepository.findModulePermissionsForRole(
                 tokenUserId,
-                roleId,
-                tokenSchoolId,
                 moduleKey,
                 lang,
-                onlyActive,
-                isAdmin
+                onlyActive
         );
 
         return projections.stream()
