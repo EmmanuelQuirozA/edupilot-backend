@@ -30,7 +30,7 @@ public class JwtUtil {
     // Initialize the secure key using the Keys utility
     @PostConstruct
     public void init() {
-        System.out.println("JWT Secret from properties: " + jwtSecret);
+        // System.out.println("JWT Secret from properties: " + jwtSecret);
         key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(jwtSecret));
     }
 

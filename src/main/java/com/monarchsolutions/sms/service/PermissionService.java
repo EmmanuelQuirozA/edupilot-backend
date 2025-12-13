@@ -61,9 +61,11 @@ public class PermissionService {
     public List<ModulePermissionResponse> getModulePermissionsForUser(
             Long tokenUserId,
             Long roleId,
+            Long tokenSchoolId,
             String moduleKey,
             String lang,
-            boolean onlyActive
+            boolean onlyActive,
+            boolean isAdmin
     ) {
         if (tokenUserId == null || roleId == null || moduleKey == null || moduleKey.isBlank()) {
             return List.of();
@@ -72,9 +74,11 @@ public class PermissionService {
         List<ModulePermissionProjection> projections = permissionRepository.findModulePermissionsForRole(
                 tokenUserId,
                 roleId,
+                tokenSchoolId,
                 moduleKey,
                 lang,
-                onlyActive
+                onlyActive,
+                isAdmin
         );
 
         return projections.stream()

@@ -253,7 +253,7 @@ public class CoffeeRepository {
 	) throws Exception {
 		// Convert the request DTO to a JSON string
 		String dataJson = objectMapper.writeValueAsString(request);
-		System.out.println(dataJson);
+		// System.out.println(dataJson);
 		
 		// Create the stored procedure query
 		StoredProcedureQuery query = em.createStoredProcedureQuery("updateCoffeeMenu");

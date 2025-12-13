@@ -50,7 +50,7 @@ public class PaymentController {
   @Autowired
   private JwtUtil jwtUtil;
   
-  @RequirePermission(module = "payments", action = "c")
+  @RequirePermission(module = "finance", action = "c")
   @PostMapping(
     path = "/create",
     consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
@@ -62,7 +62,7 @@ public class PaymentController {
       @RequestPart(value = "receipt", required = false) MultipartFile receipt,
       @RequestParam(defaultValue = "es") String lang
   ) throws IOException {
-    System.out.println(request);
+    // System.out.println(request);
 
     // 1) Normalize “YYYY-MM” → “YYYY-MM-01”
     String pm = request.getPayment_month();
@@ -135,7 +135,7 @@ public class PaymentController {
         .body(jsonResult);
   };
 
-  @RequirePermission(module = "payments", action = "c")
+  @RequirePermission(module = "finance", action = "c")
   @PostMapping(
     path     = "/create/bulk",
     consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -196,7 +196,7 @@ public class PaymentController {
   }
 
   // Endpoint to update an existing user.
-  @RequirePermission(module = "payments", action = "u")
+  @RequirePermission(module = "finance", action = "u")
   @PutMapping(
     path     = "/update/{payment_id}",
     produces = MediaType.APPLICATION_JSON_VALUE
@@ -237,7 +237,7 @@ public class PaymentController {
   }
 
 
-  @RequirePermission(module = "payments", action = "r")
+  @RequirePermission(module = "finance", action = "r")
   @GetMapping("/grouped")
   public ResponseEntity<List<ByYearPaymentsDTO>> getGroupedPayments(
       @RequestHeader("Authorization") String authHeader,

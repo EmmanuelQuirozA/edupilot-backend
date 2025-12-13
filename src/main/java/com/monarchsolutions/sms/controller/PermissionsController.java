@@ -5,6 +5,9 @@ import com.monarchsolutions.sms.entity.Role;
 import com.monarchsolutions.sms.service.PermissionService;
 import com.monarchsolutions.sms.service.RoleService;
 import com.monarchsolutions.sms.util.JwtUtil;
+import com.monarchsolutions.sms.validation.AdminGroup;
+import com.monarchsolutions.sms.validation.SchoolAdminGroup;
+
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -50,13 +53,19 @@ public class PermissionsController {
         String token = authHeader.replaceFirst("^Bearer\\s+", "");
         Long tokenUserId = jwtUtil.extractUserId(token);
         Long roleId = jwtUtil.extractRoleId(token);
+        Long tokenSchoolId = jwtUtil.extractSchoolId(token);
+        String role = jwtUtil.extractUserRole(token);
+        Boolean isAdmin = "ADMIN".equalsIgnoreCase(role) ? true : false;
+
 
         List<ModulePermissionResponse> modulePermissions = permissionService.getModulePermissionsForUser(
                 tokenUserId,
                 roleId,
+                tokenSchoolId,
                 moduleKey,
                 lang,
-                onlyActive
+                onlyActive,
+                isAdmin
         );
 
         return ResponseEntity.ok(modulePermissions);

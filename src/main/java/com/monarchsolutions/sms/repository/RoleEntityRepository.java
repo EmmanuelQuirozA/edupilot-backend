@@ -13,7 +13,7 @@ public interface RoleEntityRepository extends JpaRepository<Role, Long> {
     @Query(value = """
             SELECT 
               r.role_id,
-              r.role_name,
+              -- r.role_name,
               CASE WHEN :lang='en' THEN r.name_en ELSE r.name_es END AS role_name_display,
               CASE WHEN :lang='en' THEN r.description_en ELSE r.description_es END AS role_description_display,
               r.enabled

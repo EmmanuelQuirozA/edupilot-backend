@@ -40,14 +40,14 @@ Example 403 response:
   "timestamp": "2024-01-01T12:00:00Z",
   "status": 403,
   "error": "Forbidden",
-  "message": "Role 3 lacks 'u' permission on module 'payments'"
+  "message": "Role 3 lacks 'u' permission on module 'finace'"
 }
 ```
 
 ## End-to-end flow demo
-* Endpoint: `@RequirePermission(module = "payments", action = "u")`
+* Endpoint: `@RequirePermission(module = "finace", action = "u")`
 * Token: contains `"roleId": 3`
-* Database: permissions row for role **3** and module **payments** has `u = 0`
+* Database: permissions row for role **3** and module **finace** has `u = 0`
 
 Result: interceptor answers with **403 Forbidden** and the JSON body shown above.
 

@@ -21,7 +21,7 @@ public interface PermissionRepository extends JpaRepository<Permission, Long> {
               mac.school_id AS schoolId,
               mac.enabled AS enabled,
               r.role_id AS roleId,
-              r.role_name AS roleName,
+              -- r.role_name AS roleName,
               CASE WHEN :lang='en' THEN r.name_en ELSE r.name_es END AS roleNameDisplay,
               p.c AS createAllowed,
               p.r AS readAllowed,
@@ -31,34 +31,39 @@ public interface PermissionRepository extends JpaRepository<Permission, Long> {
             JOIN modules m ON p.module_id = m.module_id
             JOIN roles r ON r.role_id = p.role_id
             JOIN module_access_control mac ON m.module_id = mac.module_id
-            WHERE mac.school_id IN (
-                SELECT school_id
-                FROM (
-                    (SELECT u.school_id AS school_id
-                    FROM users u
-                    WHERE u.user_id = :tokenUserId
-                    LIMIT 1)
+            WHERE (
+              :isAdmin = TRUE AND mac.school_id IS NULL
+              OR mac.school_id IN (
+                      SELECT school_id
+                      FROM (
+                          (SELECT u.school_id AS school_id
+                          FROM users u
+                          WHERE u.user_id = :tokenUserId
+                          LIMIT 1)
 
-                    UNION ALL
+                          UNION ALL
 
-                    (SELECT s.related_school_id AS school_id
-                    FROM users u
-                    JOIN schools s ON u.school_id = s.school_id
-                    WHERE u.user_id = :tokenUserId
-                    LIMIT 1)
-                ) AS user_schools
-                WHERE school_id IS NOT NULL
+                          (SELECT s.related_school_id AS school_id
+                          FROM users u
+                          JOIN schools s ON u.school_id = s.school_id
+                          WHERE u.user_id = :tokenUserId
+                          LIMIT 1)
+                      ) AS user_schools
+                      WHERE school_id IS NOT NULL
+              )
             )
               AND m.key = :moduleKey
               AND r.role_id = :roleId
               AND (:onlyActive = FALSE OR mac.enabled = TRUE)
-            ORDER BY mac.enabled DESC, m.module_id ASC
+            ORDER BY mac.enabled DESC, m.module_id ASC LIMIT 1
             """, nativeQuery = true)
     List<ModulePermissionProjection> findModulePermissionsForRole(
             @Param("tokenUserId") Long tokenUserId,
             @Param("roleId") Long roleId,
+            @Param("tokenSchoolId") Long tokenSchoolId,
             @Param("moduleKey") String moduleKey,
             @Param("lang") String lang,
-            @Param("onlyActive") boolean onlyActive
+            @Param("onlyActive") boolean onlyActive,
+            @Param("isAdmin") boolean isAdmin
     );
 }
