@@ -92,17 +92,21 @@ public class PermissionService {
                     response.setModuleKey(projection.getModuleKey());
                     response.setModuleAccessControlId(projection.getModuleAccessControlId());
                     response.setSchoolId(projection.getSchoolId());
-                    response.setEnabled(projection.getEnabled());
+                    response.setEnabled(byteToBoolean(projection.getEnabled()));
                     response.setRoleId(projection.getRoleId());
                     response.setRoleName(projection.getRoleName());
                     response.setRoleNameDisplay(projection.getRoleNameDisplay());
-                    response.setCreateAllowed(projection.getCreateAllowed());
-                    response.setReadAllowed(projection.getReadAllowed());
-                    response.setUpdateAllowed(projection.getUpdateAllowed());
-                    response.setDeleteAllowed(projection.getDeleteAllowed());
+                    response.setCreateAllowed(byteToBoolean(projection.getCreateAllowed()));
+                    response.setReadAllowed(byteToBoolean(projection.getReadAllowed()));
+                    response.setUpdateAllowed(byteToBoolean(projection.getUpdateAllowed()));
+                    response.setDeleteAllowed(byteToBoolean(projection.getDeleteAllowed()));
                     return response;
                 })
                 .toList();
+    }
+
+    private Boolean byteToBoolean(Byte value) {
+        return value != null && value != 0;
     }
 
     @Transactional(readOnly = true)

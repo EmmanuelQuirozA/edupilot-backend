@@ -6,15 +6,15 @@ public interface ModulePermissionProjection {
     String getModuleKey();
     Long getModuleAccessControlId();
     Long getSchoolId();
-    Boolean getEnabled();
+    Byte getEnabled();
     Long sortOrder();
 
     Long getRoleId();
     String getRoleName();
     String getRoleNameDisplay();
 
-    Boolean getCreateAllowed();
-    Boolean getReadAllowed();
-    Boolean getUpdateAllowed();
-    Boolean getDeleteAllowed();
+    Byte getCreateAllowed();
+    Byte getReadAllowed();
+    Byte getUpdateAllowed();
+    Byte getDeleteAllowed();
 }
