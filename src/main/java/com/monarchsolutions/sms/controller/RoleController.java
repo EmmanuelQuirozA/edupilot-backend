@@ -27,15 +27,8 @@ public class RoleController {
                                       @RequestHeader("Authorization") String authHeader) {
         try {
             String token = authHeader.substring(7);
-            String userRole = jwtUtil.extractUserRole(token);
-            List<RolesListResponse> roles = roleService.getRoles(lang, status_filter);
-            
-            // If the authenticated user is SCHOOL_ADMIN, filter out users with role_id 1 or 4.
-            if ("SCHOOL_ADMIN".equalsIgnoreCase(userRole)) {
-                roles = roles.stream()
-                            .filter(r -> r.getRole_id() != 1 && r.getRole_id() != 4 )
-                            .collect(Collectors.toList());
-            }
+			Long   token_user_id = jwtUtil.extractUserId(token);
+            List<RolesListResponse> roles = roleService.getRoles(token_user_id, lang, status_filter);
 
             return ResponseEntity.ok(roles);
         } catch (Exception e) {
