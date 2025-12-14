@@ -24,9 +24,9 @@ public class PermissionProcedureRepository {
     @Autowired
     private ObjectMapper objectMapper;
 
-    public List<Map<String, Object>> getModuleAccessList(Long tokenUserId, Long roleId, Long schoolId, String lang)
+    public List<Map<String, Object>> getModuleAccessList(Long tokenUserId, Long roleId, Long schoolId, String moduleKey, String lang)
             throws SQLException {
-        String call = "{CALL getModuleAccessList(?,?,?,?)}";
+        String call = "{CALL getModuleAccessList(?,?,?,?,?)}";
         List<Map<String, Object>> permissions = new ArrayList<>();
 
         try (Connection conn = dataSource.getConnection(); CallableStatement stmt = conn.prepareCall(call)) {
@@ -49,6 +49,7 @@ public class PermissionProcedureRepository {
                 stmt.setNull(idx++, Types.INTEGER);
             }
 
+            stmt.setString(idx++, moduleKey);
             stmt.setString(idx, lang);
 
             boolean hasResultSet = stmt.execute();

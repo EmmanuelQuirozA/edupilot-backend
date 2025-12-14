@@ -5,8 +5,6 @@ import com.monarchsolutions.sms.entity.Role;
 import com.monarchsolutions.sms.service.PermissionService;
 import com.monarchsolutions.sms.service.RoleService;
 import com.monarchsolutions.sms.util.JwtUtil;
-import com.monarchsolutions.sms.validation.AdminGroup;
-import com.monarchsolutions.sms.validation.SchoolAdminGroup;
 
 import java.util.List;
 import java.util.Map;
@@ -72,15 +70,26 @@ public class PermissionsController {
             @RequestHeader("Authorization") String authHeader,
             @RequestParam(value = "roleId", required = false) Long roleId,
             @RequestParam(value = "schoolId", required = false) Long schoolId,
+            @RequestParam(value = "moduleKey", required = false) String moduleKey,
             @RequestParam(defaultValue = "es") String lang
     ) throws Exception {
         String token = authHeader.replaceFirst("^Bearer\\s+", "");
         Long tokenUserId = jwtUtil.extractUserId(token);
+        Long userRoleId = jwtUtil.extractRoleId(token);
+
+        Long toUseRoleId = null;
+
+        if (roleId != null) {
+                toUseRoleId=roleId;        
+        } else {
+                toUseRoleId=userRoleId;
+        }
 
         List<Map<String, Object>> permissions = permissionService.getModuleAccessList(
                 tokenUserId,
-                roleId,
+                toUseRoleId,
                 schoolId,
+                moduleKey,
                 lang
         );
 

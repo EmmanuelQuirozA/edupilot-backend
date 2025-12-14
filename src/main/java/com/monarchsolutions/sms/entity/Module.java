@@ -25,6 +25,9 @@ public class Module {
     @Column(name = "name_es", nullable = false, length = 100)
     private String nameEs;
 
+    @Column(name = "icon", nullable = false, length = 100)
+    private String icon;
+
     public Long getModuleId() {
         return moduleId;
     }
@@ -55,5 +58,13 @@ public class Module {
 
     public void setNameEs(String nameEs) {
         this.nameEs = nameEs;
+    }
+
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
     }
 }

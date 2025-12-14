@@ -5,4 +5,5 @@ public interface PlanModuleDto {
     String getModuleName();
     String getModuleKey();
     String getModuleDescription();
+    String getIcon();
 }

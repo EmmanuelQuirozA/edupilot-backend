@@ -114,9 +114,10 @@ public class PermissionService {
             Long tokenUserId,
             Long roleId,
             Long schoolId,
+            String moduleKey,
             String lang
     ) throws SQLException {
-        return permissionProcedureRepository.getModuleAccessList(tokenUserId, roleId, schoolId, lang);
+        return permissionProcedureRepository.getModuleAccessList(tokenUserId, roleId, schoolId, moduleKey, lang);
     }
 
     @Transactional

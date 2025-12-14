@@ -36,7 +36,8 @@ public interface PermissionRepository extends JpaRepository<Permission, Long> {
             1 AS createAllowed,
             1 AS readAllowed,
             1 AS updateAllowed,
-            1 AS deleteAllowed
+            1 AS deleteAllowed,
+            m.icon
         FROM users u
         JOIN modules m
             ON m.`key` COLLATE utf8mb4_unicode_ci
@@ -72,7 +73,8 @@ public interface PermissionRepository extends JpaRepository<Permission, Long> {
             p.c AS createAllowed,
             p.r AS readAllowed,
             p.u AS updateAllowed,
-            p.d AS deleteAllowed
+            p.d AS deleteAllowed,
+            m.icon
         FROM permissions p
         JOIN modules m ON p.module_id = m.module_id
         JOIN roles r ON r.role_id = p.role_id

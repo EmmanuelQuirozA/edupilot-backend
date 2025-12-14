@@ -20,7 +20,8 @@ public interface PlanModulesRepository extends JpaRepository<Module, Long> {
             CASE 
                 WHEN :lang = 'en' THEN m.description_en 
                 ELSE m.description_es 
-            END AS moduleDescription
+            END AS moduleDescription,
+            m.icon
         FROM school_plans sp
         JOIN plan_modules pm ON sp.plan_id = pm.plan_id
         JOIN modules m ON pm.module_id = m.module_id
