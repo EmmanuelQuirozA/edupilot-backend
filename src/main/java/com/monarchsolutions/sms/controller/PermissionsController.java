@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -96,6 +97,20 @@ public class PermissionsController {
         Long tokenUserId = jwtUtil.extractUserId(token);
 
         Map<String, Object> response = permissionService.createPermission(tokenUserId, payload, lang);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<Map<String, Object>> updatePermission(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestParam("permissionId") Long permissionId,
+            @RequestBody Map<String, Object> payload,
+            @RequestParam(defaultValue = "es") String lang
+    ) throws Exception {
+        String token = authHeader.replaceFirst("^Bearer\\s+", "");
+        Long tokenUserId = jwtUtil.extractUserId(token);
+
+        Map<String, Object> response = permissionService.updatePermission(tokenUserId, permissionId, payload, lang);
         return ResponseEntity.ok(response);
     }
 }
