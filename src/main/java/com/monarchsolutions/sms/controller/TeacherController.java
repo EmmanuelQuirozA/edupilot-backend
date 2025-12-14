@@ -12,8 +12,6 @@ import com.monarchsolutions.sms.dto.common.PageResult;
 import com.monarchsolutions.sms.dto.teachers.CreateTeacherRequest;
 import com.monarchsolutions.sms.service.TeacherService;
 import com.monarchsolutions.sms.util.JwtUtil;
-import com.monarchsolutions.sms.validation.AdminGroup;
-import com.monarchsolutions.sms.validation.SchoolAdminGroup;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
@@ -87,10 +85,6 @@ public class TeacherController {
 			// Extract the token (remove "Bearer " prefix)
 			String token = authHeader.substring(7);
 			Long responsible_user_id = jwtUtil.extractUserId(token);
-			String role = jwtUtil.extractUserRole(token);
-			// Decide the validation group based on the role.
-			Class<?> validationGroup = "SCHOOL_ADMIN".equalsIgnoreCase(role) ? SchoolAdminGroup.class : AdminGroup.class;
-			
 			List<CreateTeacherRequest> requests = new ArrayList<>();
 			
 			// Check if payload is an array or a single object.
@@ -100,17 +94,6 @@ public class TeacherController {
 			} else {
 				CreateTeacherRequest singleRequest = objectMapper.convertValue(payload, CreateTeacherRequest.class);
 				requests.add(singleRequest);
-			}
-			
-			// Validate each request using the chosen validation group.
-			for (CreateTeacherRequest req : requests) {
-				Set<ConstraintViolation<CreateTeacherRequest>> violations = validator.validate(req, validationGroup);
-				if (!violations.isEmpty()) {
-					String errorMessage = violations.stream()
-							.map(ConstraintViolation::getMessage)
-							.collect(Collectors.joining("; "));
-					return ResponseEntity.badRequest().body(errorMessage);
-				}
 			}
 			
 			Long tokenSchoolId = jwtUtil.extractSchoolId(token);

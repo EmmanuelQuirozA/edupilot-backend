@@ -11,9 +11,6 @@ import com.monarchsolutions.sms.dto.user.UserDetails;
 import com.monarchsolutions.sms.dto.user.UsersBalanceDTO;
 import com.monarchsolutions.sms.service.UserService;
 import com.monarchsolutions.sms.util.JwtUtil;
-import com.monarchsolutions.sms.validation.AdminGroup;
-import com.monarchsolutions.sms.validation.SchoolAdminGroup;
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
@@ -48,10 +44,6 @@ public class UserController {
 			// Extract the token (remove "Bearer " prefix)
 			String token = authHeader.substring(7);
 			Long responsible_user_id = jwtUtil.extractUserId(token);
-			String role = jwtUtil.extractUserRole(token);
-			// Decide the validation group based on the role.
-			Class<?> validationGroup = "SCHOOL_ADMIN".equalsIgnoreCase(role) ? SchoolAdminGroup.class : AdminGroup.class;
-			
 			List<CreateUserRequest> requests = new ArrayList<>();
 			
 			// Check if payload is an array or a single object.
@@ -61,17 +53,6 @@ public class UserController {
 			} else {
 				CreateUserRequest singleRequest = objectMapper.convertValue(payload, CreateUserRequest.class);
 				requests.add(singleRequest);
-			}
-			
-			// Validate each request using the chosen validation group.
-			for (CreateUserRequest req : requests) {
-				Set<ConstraintViolation<CreateUserRequest>> violations = validator.validate(req, validationGroup);
-				if (!violations.isEmpty()) {
-					String errorMessage = violations.stream()
-							.map(ConstraintViolation::getMessage)
-							.collect(Collectors.joining("; "));
-					return ResponseEntity.badRequest().body(errorMessage);
-				}
 			}
 			
 			Long tokenSchoolId = jwtUtil.extractSchoolId(token);
@@ -94,18 +75,6 @@ public class UserController {
 			request.setUser_id(user_id);
 			// Extract the token (remove "Bearer " prefix)
 			String token = authHeader.substring(7);
-			String role = jwtUtil.extractUserRole(token);
-			// Decide the validation group based on the role.
-			Class<?> validationGroup = "SCHOOL_ADMIN".equalsIgnoreCase(role) ? SchoolAdminGroup.class : AdminGroup.class;
-			
-			// Validate the payload using the chosen validation group.
-			Set<ConstraintViolation<UpdateUserRequest>> violations = validator.validate(request, validationGroup);
-			if (!violations.isEmpty()) {
-				String errorMessage = violations.stream()
-						.map(ConstraintViolation::getMessage)
-						.collect(Collectors.joining("; "));
-				return ResponseEntity.badRequest().body(errorMessage);
-			}
 			
 			// Extract data from the token.
 			Long tokenSchoolId = jwtUtil.extractSchoolId(token);

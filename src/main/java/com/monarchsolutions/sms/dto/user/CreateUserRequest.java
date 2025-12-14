@@ -1,31 +1,16 @@
 package com.monarchsolutions.sms.dto.user;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
 
-import com.monarchsolutions.sms.validation.AdminGroup;
-import com.monarchsolutions.sms.validation.SchoolAdminGroup;
-
 public class CreateUserRequest {
 
-    @NotNull(message = "School is required", groups = {SchoolAdminGroup.class})
-    @Min(value = 1, message = "School ID must be greater than 0", groups = {SchoolAdminGroup.class})
     private Long school_id;
     
     // Fields that are required for both roles:
-    @NotNull(message = "Role is required", groups = {AdminGroup.class, SchoolAdminGroup.class})
-    @Min(value = 1, message = "Role must be greater than 0", groups = {AdminGroup.class, SchoolAdminGroup.class})
     private Long role_id;
 
-    @NotNull(message = "Name is required", groups = {AdminGroup.class, SchoolAdminGroup.class})
-    @NotBlank(message = "Name is required", groups = {AdminGroup.class, SchoolAdminGroup.class})
     private String first_name; 
 
-    @NotNull(message = "Father's last name is required", groups = {AdminGroup.class, SchoolAdminGroup.class})
-    @NotBlank(message = "Father's last name is required", groups = {AdminGroup.class, SchoolAdminGroup.class})
     private String last_name_father; 
     private String last_name_mother;
     private LocalDate birth_date;
@@ -41,14 +26,8 @@ public class CreateUserRequest {
     private String state;
     private String personal_email;
     private String image;
-    @NotNull(message = "Email is required", groups = {AdminGroup.class, SchoolAdminGroup.class})
-    @NotBlank(message = "Email is required", groups = {AdminGroup.class, SchoolAdminGroup.class})
     private String email; 
-    @NotNull(message = "Username is required", groups = {AdminGroup.class, SchoolAdminGroup.class})
-    @NotBlank(message = "Username is required", groups = {AdminGroup.class, SchoolAdminGroup.class})
     private String username;
-    @NotNull(message = "Password is required", groups = {AdminGroup.class, SchoolAdminGroup.class})
-    @NotBlank(message = "Password is required", groups = {AdminGroup.class, SchoolAdminGroup.class})
     private String password;
     
     public String getFirst_name() {

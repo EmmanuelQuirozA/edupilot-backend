@@ -10,8 +10,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.monarchsolutions.sms.service.StudentService;
 import com.monarchsolutions.sms.util.JwtUtil;
-import com.monarchsolutions.sms.validation.AdminGroup;
-import com.monarchsolutions.sms.validation.SchoolAdminGroup;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 
@@ -53,10 +51,6 @@ public class StudentController {
             // Extract the token (remove "Bearer " prefix)
             String token = authHeader.substring(7);
             Long responsible_user_id = jwtUtil.extractUserId(token);
-            String role = jwtUtil.extractUserRole(token);
-            // Decide the validation group based on the role.
-            Class<?> validationGroup = "SCHOOL_ADMIN".equalsIgnoreCase(role) ? SchoolAdminGroup.class : AdminGroup.class;
-            
             List<CreateStudentRequest> requests = new ArrayList<>();
             
             // Check if payload is an array or a single object.
@@ -66,17 +60,6 @@ public class StudentController {
             } else {
                 CreateStudentRequest singleRequest = objectMapper.convertValue(payload, CreateStudentRequest.class);
                 requests.add(singleRequest);
-            }
-            
-            // Validate each request using the chosen validation group.
-            for (CreateStudentRequest req : requests) {
-                Set<ConstraintViolation<CreateStudentRequest>> violations = validator.validate(req, validationGroup);
-                if (!violations.isEmpty()) {
-                    String errorMessage = violations.stream()
-                            .map(ConstraintViolation::getMessage)
-                            .collect(Collectors.joining("; "));
-                    return ResponseEntity.badRequest().body(errorMessage);
-                }
             }
             
             Long tokenSchoolId = jwtUtil.extractSchoolId(token);
@@ -148,19 +131,6 @@ public class StudentController {
             request.setUser_id(user_id);
             // Extract the token (remove "Bearer " prefix)
             String token = authHeader.substring(7);
-            String role = jwtUtil.extractUserRole(token);
-            // Decide the validation group based on the role.
-            Class<?> validationGroup = "SCHOOL_ADMIN".equalsIgnoreCase(role) ? SchoolAdminGroup.class : AdminGroup.class;
-            
-            // Validate the payload using the chosen validation group.
-            Set<ConstraintViolation<UpdateStudentRequest>> violations = validator.validate(request, validationGroup);
-            if (!violations.isEmpty()) {
-                String errorMessage = violations.stream()
-                        .map(ConstraintViolation::getMessage)
-                        .collect(Collectors.joining("; "));
-                return ResponseEntity.badRequest().body(errorMessage);
-            }
-
             // Extract schoolId from the token (if available)
             Long tokenSchoolId = jwtUtil.extractSchoolId(token);
             Long responsible_user_id = jwtUtil.extractUserId(token);

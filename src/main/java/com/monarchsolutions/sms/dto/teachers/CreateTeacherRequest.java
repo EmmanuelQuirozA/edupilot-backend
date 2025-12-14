@@ -1,25 +1,14 @@
 package com.monarchsolutions.sms.dto.teachers;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
 
-import com.monarchsolutions.sms.validation.AdminGroup;
-import com.monarchsolutions.sms.validation.SchoolAdminGroup;
 
 public class CreateTeacherRequest {
 
-    @NotNull(message = "School is required", groups = {SchoolAdminGroup.class})
-    @Min(value = 1, message = "School ID must be greater than 0", groups = {SchoolAdminGroup.class})
     private Long school_id;
 
-    @NotNull(message = "Name is required", groups = {AdminGroup.class, SchoolAdminGroup.class})
-    @NotBlank(message = "Name is required", groups = {AdminGroup.class, SchoolAdminGroup.class})
     private String first_name; 
 
-    @NotNull(message = "Father's last name is required", groups = {AdminGroup.class, SchoolAdminGroup.class})
-    @NotBlank(message = "Father's last name is required", groups = {AdminGroup.class, SchoolAdminGroup.class})
     private String last_name_father; 
     private String last_name_mother;
     private LocalDate birth_date;
@@ -35,14 +24,8 @@ public class CreateTeacherRequest {
     private String state;
     private String personal_email;
     private String image;
-    @NotNull(message = "Email is required", groups = {AdminGroup.class, SchoolAdminGroup.class})
-    @NotBlank(message = "Email is required", groups = {AdminGroup.class, SchoolAdminGroup.class})
     private String email; 
-    @NotNull(message = "Username is required", groups = {AdminGroup.class, SchoolAdminGroup.class})
-    @NotBlank(message = "Username is required", groups = {AdminGroup.class, SchoolAdminGroup.class})
     private String username;
-    @NotNull(message = "Password is required", groups = {AdminGroup.class, SchoolAdminGroup.class})
-    @NotBlank(message = "Password is required", groups = {AdminGroup.class, SchoolAdminGroup.class})
     private String password;
     
     public String getFirst_name() {

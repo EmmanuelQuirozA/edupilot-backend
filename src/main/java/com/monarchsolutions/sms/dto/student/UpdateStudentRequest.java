@@ -1,20 +1,11 @@
 package com.monarchsolutions.sms.dto.student;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import com.monarchsolutions.sms.validation.AdminGroup;
-import com.monarchsolutions.sms.validation.SchoolAdminGroup;
-
 public class UpdateStudentRequest {
     private Long user_id;
 
-    @NotNull(message = "School is required", groups = {SchoolAdminGroup.class, SchoolAdminGroup.class})
-    @Min(value = 1, message = "School ID must be greater than 0", groups = {SchoolAdminGroup.class, SchoolAdminGroup.class})
     private Long school_id;
 
     private Long group_id;
@@ -22,12 +13,8 @@ public class UpdateStudentRequest {
     private String register_id;
     private String payment_reference;
 
-    @NotNull(message = "Name is required", groups = {AdminGroup.class, SchoolAdminGroup.class})
-    @NotBlank(message = "Name is required", groups = {AdminGroup.class, SchoolAdminGroup.class})
     private String first_name; 
 
-    @NotNull(message = "Father's last name is required", groups = {AdminGroup.class, SchoolAdminGroup.class})
-    @NotBlank(message = "Father's last name is required", groups = {AdminGroup.class, SchoolAdminGroup.class})
     private String last_name_father; 
     private String last_name_mother;
     private LocalDate birth_date;
