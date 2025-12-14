@@ -11,7 +11,6 @@ import com.monarchsolutions.sms.dto.user.UserDetails;
 import com.monarchsolutions.sms.dto.user.UsersBalanceDTO;
 import com.monarchsolutions.sms.service.UserService;
 import com.monarchsolutions.sms.util.JwtUtil;
-import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,9 +27,6 @@ public class UserController {
 
 	@Autowired
 	private JwtUtil jwtUtil;
-	
-	@Autowired
-	private Validator validator;
 	
 	@Autowired
 	private ObjectMapper objectMapper;

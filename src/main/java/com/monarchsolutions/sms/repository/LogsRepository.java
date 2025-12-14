@@ -1,9 +1,7 @@
 package com.monarchsolutions.sms.repository;
 
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 
-import com.monarchsolutions.sms.dto.common.PageResult;
 import com.monarchsolutions.sms.dto.userLogs.UserLogsListDto;
 import com.monarchsolutions.sms.dto.userLogs.paymentRequest.PaymentRequestLogsDto;
 import com.monarchsolutions.sms.dto.userLogs.payments.PaymentLogsDto;
@@ -15,21 +13,12 @@ import jakarta.persistence.ParameterMode;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.StoredProcedureQuery;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.sql.*;
-import java.time.LocalDateTime;
 import java.util.*;
-
-import javax.sql.DataSource;
 
 @Repository
 public class LogsRepository {
-
-        @Autowired
-        private DataSource dataSource;
-
         @PersistenceContext
         private EntityManager entityManager;
 

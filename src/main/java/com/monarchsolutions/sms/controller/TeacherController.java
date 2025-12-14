@@ -13,11 +13,7 @@ import com.monarchsolutions.sms.dto.teachers.CreateTeacherRequest;
 import com.monarchsolutions.sms.service.TeacherService;
 import com.monarchsolutions.sms.util.JwtUtil;
 
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validator;
-
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/teachers")
@@ -25,9 +21,6 @@ public class TeacherController {
   
   @Autowired
   private TeacherService teacherService;
-	
-	@Autowired
-	private Validator validator;
 	
 	@Autowired
 	private ObjectMapper objectMapper;

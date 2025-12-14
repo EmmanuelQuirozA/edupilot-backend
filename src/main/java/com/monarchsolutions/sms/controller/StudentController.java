@@ -10,8 +10,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.monarchsolutions.sms.service.StudentService;
 import com.monarchsolutions.sms.util.JwtUtil;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validator;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,11 +17,9 @@ import org.springframework.web.bind.annotation.*;
 
 import com.monarchsolutions.sms.annotation.RequirePermission;
 
-import java.util.Set;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/students")
@@ -34,9 +30,6 @@ public class StudentController {
 
     @Autowired
     private JwtUtil jwtUtil;
-    
-    @Autowired
-    private Validator validator;
     
     @Autowired
     private ObjectMapper objectMapper;

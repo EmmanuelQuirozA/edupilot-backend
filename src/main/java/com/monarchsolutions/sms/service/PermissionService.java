@@ -61,15 +61,28 @@ public class PermissionService {
 
         String normalizedAction = action.toLowerCase(Locale.ROOT);
         return switch (normalizedAction) {
-            case "c" -> byteToBoolean((Byte) permission.get("createAllowed"));
-            case "r" -> byteToBoolean((Byte) permission.get("readAllowed"));
-            case "u" -> byteToBoolean((Byte) permission.get("updateAllowed"));
-            case "d" -> byteToBoolean((Byte) permission.get("deleteAllowed"));
+            case "c" -> mapToBoolean(permission.get("createAllowed"));
+            case "r" -> mapToBoolean(permission.get("readAllowed"));
+            case "u" -> mapToBoolean(permission.get("updateAllowed"));
+            case "d" -> mapToBoolean(permission.get("deleteAllowed"));
             default -> false;
         };
     }
-    private Boolean byteToBoolean(Byte value) {
-        return value != null && value != 0;
+
+    private boolean mapToBoolean(Object value) {
+        if (value == null) {
+            return false;
+        }
+
+        if (value instanceof Boolean boolValue) {
+            return boolValue;
+        }
+
+        if (value instanceof Number numberValue) {
+            return numberValue.intValue() != 0;
+        }
+
+        return false;
     }
 
     @Transactional(readOnly = true)

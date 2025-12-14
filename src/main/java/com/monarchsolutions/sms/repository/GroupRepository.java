@@ -12,7 +12,6 @@ import jakarta.persistence.Query;
 import jakarta.persistence.ParameterMode;
 import jakarta.persistence.StoredProcedureQuery;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
