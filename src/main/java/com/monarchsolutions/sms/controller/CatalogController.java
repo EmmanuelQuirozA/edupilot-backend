@@ -4,6 +4,7 @@ import com.monarchsolutions.sms.dto.catalogs.PaymentConceptsDto;
 import com.monarchsolutions.sms.dto.catalogs.PaymentStatusesDto;
 import com.monarchsolutions.sms.dto.catalogs.PaymentThroughDto;
 import com.monarchsolutions.sms.dto.catalogs.PeriodOfTimeDto;
+import com.monarchsolutions.sms.dto.catalogs.PlanModuleDto;
 import com.monarchsolutions.sms.dto.catalogs.ScholarLevelsDto;
 import com.monarchsolutions.sms.service.CatalogsService;
 import com.monarchsolutions.sms.util.JwtUtil;
@@ -53,5 +54,15 @@ public class CatalogController {
       String token    = authHeader.replaceFirst("^Bearer\\s+", "");
       Long   token_user_id = jwtUtil.extractUserId(token);
       return ResponseEntity.ok(CatalogsService.getPeriodOfTime(lang, token_user_id));
+  }
+
+  @GetMapping("/plan-modules")
+  public ResponseEntity<List<PlanModuleDto>> planModules(
+          @RequestHeader("Authorization") String authHeader,
+          @RequestParam(name = "school_id", required = false) Long schoolId,
+          @RequestParam(defaultValue = "es") String lang) {
+      String token = authHeader.replaceFirst("^Bearer\\s+", "");
+      Long tokenUserId = jwtUtil.extractUserId(token);
+      return ResponseEntity.ok(CatalogsService.getPlanModules(lang, tokenUserId, schoolId));
   }
 }
