@@ -19,8 +19,8 @@ public class RoleService {
     @Autowired
     private RoleEntityRepository roleEntityRepository;
 
-    public List<RolesListResponse> getRoles(Long token_user_id, String lang, int status_filter){
-        return roleRepository.getRoles(token_user_id, lang, status_filter);
+    public List<RolesListResponse> getRoles(Long token_user_id, Long school_id, String lang, int status_filter){
+        return roleRepository.getRoles(token_user_id, school_id, lang, status_filter);
     }
 
     public List<Role> getRolesForUser(Long tokenUserId, String searchTerm, boolean onlyActive, String lang) {

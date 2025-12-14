@@ -24,11 +24,12 @@ public class RoleController {
     @GetMapping("")
     public ResponseEntity<?> getRoles(@RequestParam(defaultValue = "es") String lang,
                                       @RequestParam(defaultValue = "-1") int status_filter,
+                                      @RequestParam(required = false) Long school_id,
                                       @RequestHeader("Authorization") String authHeader) {
         try {
             String token = authHeader.substring(7);
 			Long   token_user_id = jwtUtil.extractUserId(token);
-            List<RolesListResponse> roles = roleService.getRoles(token_user_id, lang, status_filter);
+            List<RolesListResponse> roles = roleService.getRoles(token_user_id, school_id, lang, status_filter);
 
             return ResponseEntity.ok(roles);
         } catch (Exception e) {
