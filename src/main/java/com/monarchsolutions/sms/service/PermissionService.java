@@ -123,4 +123,10 @@ public class PermissionService {
     public Map<String, Object> createPermission(Long tokenUserId, Object payload, String lang) throws Exception {
         return permissionProcedureRepository.createPermission(tokenUserId, payload, lang);
     }
+
+    @Transactional
+    public Map<String, Object> updatePermission(Long tokenUserId, Long permissionId, Object payload, String lang)
+            throws Exception {
+        return permissionProcedureRepository.updatePermission(tokenUserId, permissionId, payload, lang);
+    }
 }
