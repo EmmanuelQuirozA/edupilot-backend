@@ -16,6 +16,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRequestDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRecurrenceDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRequestScheduleDTO;
+import com.monarchsolutions.sms.dto.paymentRequests.PendingPaymentSummaryDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.StudentPaymentRequestDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.ValidatePaymentRequestExistence;
 
@@ -256,176 +257,124 @@ public class PaymentRequestRepository {
 	}
 
 
-  public BigDecimal getPendingByStudent(Long token_user_id, Long studentId) {
-    if (studentId!=null) {
-      var sql = """
-        SELECT 
-          IFNULL(SUM(pr.amount),0) AS pending_total,
-          CASE ,
-            WHEN pr.payment_status_id != 3 THEN ,
-                CASE ,
-                    WHEN (SELECT COUNT(*) FROM payments p3 WHERE p3.payment_request_id = pr.payment_request_id AND p3.created_at > pr.pay_by AND p3.payment_status_id <> 4) > 0 THEN ,
-                        CASE ,
-                            WHEN pr.fee_type = "$" THEN pr.late_fee * FLOOR(DATEDIFF((SELECT MAX(created_at) FROM payments p3 WHERE p3.payment_request_id = pr.payment_request_id AND p3.created_at > pr.pay_by AND p3.payment_status_id <> 4), pr.pay_by) / pr.late_fee_frequency) ,
-                            WHEN pr.fee_type = "%" THEN (pr.amount * pr.late_fee / 100) * FLOOR(DATEDIFF((SELECT MAX(created_at) FROM payments p3 WHERE p3.payment_request_id = pr.payment_request_id AND p3.created_at > pr.pay_by AND p3.payment_status_id <> 4), pr.pay_by) / pr.late_fee_frequency) ,
-                            ELSE 0 ,
-                        END ,
-                    WHEN CURRENT_DATE > pr.pay_by THEN ,
-                        CASE ,
-                            WHEN pr.fee_type = "$" THEN pr.late_fee * FLOOR(DATEDIFF(CURRENT_DATE, pr.pay_by) / pr.late_fee_frequency) ,
-                            WHEN pr.fee_type = "%" THEN (pr.amount * pr.late_fee / 100) * FLOOR(DATEDIFF(CURRENT_DATE, pr.pay_by) / pr.late_fee_frequency) ,
-                            ELSE 0 ,
-                        END ,
-                    ELSE 0 ,
-                END ,
-            ELSE 0 ,
-          END AS late_fee_total
+  public PendingPaymentSummaryDTO getPendingByStudent(Long token_user_id, Long studentId) {
+    String studentFilter = studentId != null ? "AND pr.student_id = :studentId" : "";
 
-        FROM payment_requests pr
-        JOIN students st 
-          ON pr.student_id = st.student_id
-        -- get the student's user & school
-        JOIN users u_st 
-          ON st.user_id = u_st.user_id
-        -- get the caller's user, role & school
-        JOIN users u_call 
-          ON u_call.user_id = :token_user_id
-        JOIN roles r_call 
-          ON u_call.role_id = r_call.role_id
-        -- find if caller's school is related to the student's school
-        LEFT JOIN schools s_rel 
-          ON s_rel.related_school_id = u_call.school_id
-        AND s_rel.school_id         = u_st.school_id
-        WHERE pr.payment_status_id NOT IN (3,4,7,8)
-          AND pr.student_id          = :studentId
-          AND (
-              -- STUDENT may only see their own balance
-              ( r_call.name_en = 'Student' 
-                AND u_call.user_id = u_st.user_id
-              )
-              OR
-              -- OTHERS must share the same school or be in a related school
-              ( r_call.name_en <> 'Student'
-                AND ( u_call.school_id = u_st.school_id
-                    OR s_rel.related_school_id IS NOT NULL
-                    )
-              )
-          );
-        """;
+    var sql = """
+      SELECT
+        IFNULL(SUM(pr.amount), 0) AS pending_total,
 
-      Object single = entityManager
-        .createNativeQuery(sql)
-        .setParameter("studentId", studentId)
-        .setParameter("token_user_id", token_user_id)
-        .getSingleResult();
-
-      if (single == null) {
-        return BigDecimal.ZERO;
-      }
-      // MySQL may return BigDecimal or BigInteger
-      if (single instanceof Number n) {
-        return new BigDecimal(n.toString());
-      }
-      throw new IllegalStateException("Unexpected type for sum: " + single.getClass());
-    } else {
-      var sql = """
-        SELECT 
-          IFNULL(SUM(pr.amount), 0) AS pending_total,
-
-          /* ===== TOTAL DE RECARGOS ===== */
-          IFNULL(SUM(
-            CASE
-              WHEN pr.payment_status_id != 3 THEN
+        IFNULL(SUM(
+          CASE
+            WHEN pr.payment_status_id != 3 THEN
+              CASE
+                WHEN (
+                  SELECT COUNT(*)
+                  FROM payments p3
+                  WHERE p3.payment_request_id = pr.payment_request_id
+                    AND p3.created_at > pr.pay_by
+                    AND p3.payment_status_id <> 4
+                ) > 0 THEN
                   CASE
-                      WHEN (SELECT COUNT(*) 
-                            FROM payments p3 
-                            WHERE p3.payment_request_id = pr.payment_request_id 
-                              AND p3.created_at > pr.pay_by 
-                              AND p3.payment_status_id <> 4) > 0 THEN
-                          CASE
-                              WHEN pr.fee_type = "$" THEN 
-                                  pr.late_fee * FLOOR(
-                                      DATEDIFF(
-                                          (SELECT MAX(created_at) 
-                                          FROM payments p3 
-                                          WHERE p3.payment_request_id = pr.payment_request_id 
-                                            AND p3.created_at > pr.pay_by 
-                                            AND p3.payment_status_id <> 4),
-                                          pr.pay_by
-                                      ) / pr.late_fee_frequency
-                                  )
-                              WHEN pr.fee_type = "%" THEN 
-                                  (pr.amount * pr.late_fee / 100) * FLOOR(
-                                      DATEDIFF(
-                                          (SELECT MAX(created_at) 
-                                          FROM payments p3 
-                                          WHERE p3.payment_request_id = pr.payment_request_id 
-                                            AND p3.created_at > pr.pay_by 
-                                            AND p3.payment_status_id <> 4),
-                                          pr.pay_by
-                                      ) / pr.late_fee_frequency
-                                  )
-                              ELSE 0
-                          END
-                      WHEN CURRENT_DATE > pr.pay_by THEN
-                          CASE
-                              WHEN pr.fee_type = "$" THEN 
-                                  pr.late_fee * FLOOR(
-                                      DATEDIFF(CURRENT_DATE, pr.pay_by) / pr.late_fee_frequency
-                                  )
-                              WHEN pr.fee_type = "%" THEN 
-                                  (pr.amount * pr.late_fee / 100) * FLOOR(
-                                      DATEDIFF(CURRENT_DATE, pr.pay_by) / pr.late_fee_frequency
-                                  )
-                              ELSE 0
-                          END
-                      ELSE 0
+                    WHEN pr.fee_type = "$" THEN
+                      pr.late_fee * FLOOR(
+                        DATEDIFF(
+                          (SELECT MAX(created_at)
+                           FROM payments p3
+                           WHERE p3.payment_request_id = pr.payment_request_id
+                             AND p3.created_at > pr.pay_by
+                             AND p3.payment_status_id <> 4),
+                          pr.pay_by
+                        ) / pr.late_fee_frequency
+                      )
+                    WHEN pr.fee_type = "%" THEN
+                      (pr.amount * pr.late_fee / 100) * FLOOR(
+                        DATEDIFF(
+                          (SELECT MAX(created_at)
+                           FROM payments p3
+                           WHERE p3.payment_request_id = pr.payment_request_id
+                             AND p3.created_at > pr.pay_by
+                             AND p3.payment_status_id <> 4),
+                          pr.pay_by
+                        ) / pr.late_fee_frequency
+                      )
+                    ELSE 0
                   END
-              ELSE 0
-            END
-          ), 0) AS late_fee_total
+                WHEN CURRENT_DATE > pr.pay_by THEN
+                  CASE
+                    WHEN pr.fee_type = "$" THEN
+                      pr.late_fee * FLOOR(DATEDIFF(CURRENT_DATE, pr.pay_by) / pr.late_fee_frequency)
+                    WHEN pr.fee_type = "%" THEN
+                      (pr.amount * pr.late_fee / 100) * FLOOR(DATEDIFF(CURRENT_DATE, pr.pay_by) / pr.late_fee_frequency)
+                    ELSE 0
+                  END
+                ELSE 0
+              END
+            ELSE 0
+          END
+        ), 0) AS late_fee_total
 
-        FROM payment_requests pr
-        JOIN students st 
-          ON pr.student_id = st.student_id
-        JOIN users u_st 
-          ON st.user_id = u_st.user_id
-        JOIN users u_call 
-          ON u_call.user_id = :token_user_id
-        JOIN roles r_call 
-          ON u_call.role_id = r_call.role_id
-        LEFT JOIN schools s_rel 
-          ON s_rel.related_school_id = u_call.school_id
+      FROM payment_requests pr
+      JOIN students st
+        ON pr.student_id = st.student_id
+      JOIN users u_st
+        ON st.user_id = u_st.user_id
+      JOIN users u_call
+        ON u_call.user_id = :token_user_id
+      JOIN roles r_call
+        ON u_call.role_id = r_call.role_id
+      LEFT JOIN schools s_rel
+        ON s_rel.related_school_id = u_call.school_id
         AND s_rel.school_id         = u_st.school_id
-        WHERE pr.payment_status_id NOT IN (3,4,7,8)
-          AND (
-              ( r_call.name_en = 'Student' 
-                AND u_call.user_id = u_st.user_id
-              )
-              OR
-              ( r_call.name_en <> 'Student'
-                AND ( u_call.school_id = u_st.school_id
-                    OR s_rel.related_school_id IS NOT NULL
-                    )
-              )
-          );
-        """;
+      WHERE pr.payment_status_id NOT IN (3,4,7,8)
+        """ + studentFilter + """
+        AND (
+            ( r_call.name_en = 'Student'
+              AND u_call.user_id = u_st.user_id
+            )
+            OR
+            ( r_call.name_en <> 'Student'
+              AND ( u_call.school_id = u_st.school_id
+                  OR s_rel.related_school_id IS NOT NULL
+                  )
+            )
+        );
+      """;
 
-      Object single = entityManager
-        .createNativeQuery(sql)
-        .setParameter("token_user_id", token_user_id)
-        .getSingleResult();
+    var query = entityManager
+      .createNativeQuery(sql)
+      .setParameter("token_user_id", token_user_id);
 
-      if (single == null) {
-        return BigDecimal.ZERO;
-      }
-      // MySQL may return BigDecimal or BigInteger
-      if (single instanceof Number n) {
-        return new BigDecimal(n.toString());
-      }
-      throw new IllegalStateException("Unexpected type for sum: " + single.getClass());
-
+    if (studentId != null) {
+      query.setParameter("studentId", studentId);
     }
+
+    Object single = query.getSingleResult();
+
+    if (single == null) {
+      return new PendingPaymentSummaryDTO(BigDecimal.ZERO, BigDecimal.ZERO);
+    }
+
+    if (single instanceof Object[] data && data.length >= 2) {
+      BigDecimal pendingTotal = extractBigDecimal(data[0]);
+      BigDecimal lateFeeTotal = extractBigDecimal(data[1]);
+      return new PendingPaymentSummaryDTO(pendingTotal, lateFeeTotal);
+    }
+
+    throw new IllegalStateException("Unexpected result for pending payments: " + single.getClass());
+  }
+
+  private BigDecimal extractBigDecimal(Object value) {
+    if (value == null) {
+      return BigDecimal.ZERO;
+    }
+    if (value instanceof BigDecimal bd) {
+      return bd;
+    }
+    if (value instanceof Number n) {
+      return new BigDecimal(n.toString());
+    }
+    throw new IllegalStateException("Unexpected numeric type: " + value.getClass());
   }
     
   @Transactional(Transactional.TxType.REQUIRED)

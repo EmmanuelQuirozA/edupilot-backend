@@ -1,6 +1,5 @@
 package com.monarchsolutions.sms.service;
 
-import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRequestDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRecurrenceDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRequestScheduleDTO;
+import com.monarchsolutions.sms.dto.paymentRequests.PendingPaymentSummaryDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.StudentPaymentRequestDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.ValidatePaymentRequestExistence;
 import com.monarchsolutions.sms.repository.PaymentRequestRepository;
@@ -75,7 +75,7 @@ public class PaymentRequestService {
   }
 
 
-  public BigDecimal getPendingByStudent(Long token_user_id, Long studentId) {
+  public PendingPaymentSummaryDTO getPendingByStudent(Long token_user_id, Long studentId) {
     return paymentRequestRepository.getPendingByStudent(token_user_id, studentId);
   }
 
