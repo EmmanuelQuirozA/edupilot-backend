@@ -1,6 +1,5 @@
 package com.monarchsolutions.sms.controller;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
@@ -13,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRequestDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRecurrenceDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRequestScheduleDTO;
+import com.monarchsolutions.sms.dto.paymentRequests.PendingPaymentSummaryDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.StudentPaymentRequestDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.ValidatePaymentRequestExistence;
 import com.monarchsolutions.sms.annotation.RequirePermission;
@@ -162,14 +162,14 @@ public class PaymentRequestController {
     }
 
     @GetMapping("/pending")
-    public ResponseEntity<BigDecimal> getPendingByStudent(
+    public ResponseEntity<PendingPaymentSummaryDTO> getPendingByStudent(
         @RequestHeader("Authorization") String authHeader,
         @RequestParam(required = false) Long   studentId
     ) {
         // 2) Extract the token and get userId
         String token = authHeader.substring(7);
         Long token_user_id = jwtUtil.extractUserId(token);
-        BigDecimal pending = paymentRequestService.getPendingByStudent(token_user_id,studentId);
+        PendingPaymentSummaryDTO pending = paymentRequestService.getPendingByStudent(token_user_id,studentId);
         return ResponseEntity.ok(pending);
     }
 
