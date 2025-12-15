@@ -260,7 +260,27 @@ public class PaymentRequestRepository {
     if (studentId!=null) {
       var sql = """
         SELECT 
-        IFNULL(SUM(pr.amount),0) AS pending_total
+          IFNULL(SUM(pr.amount),0) AS pending_total,
+          CASE ,
+            WHEN pr.payment_status_id != 3 THEN ,
+                CASE ,
+                    WHEN (SELECT COUNT(*) FROM payments p3 WHERE p3.payment_request_id = pr.payment_request_id AND p3.created_at > pr.pay_by AND p3.payment_status_id <> 4) > 0 THEN ,
+                        CASE ,
+                            WHEN pr.fee_type = "$" THEN pr.late_fee * FLOOR(DATEDIFF((SELECT MAX(created_at) FROM payments p3 WHERE p3.payment_request_id = pr.payment_request_id AND p3.created_at > pr.pay_by AND p3.payment_status_id <> 4), pr.pay_by) / pr.late_fee_frequency) ,
+                            WHEN pr.fee_type = "%" THEN (pr.amount * pr.late_fee / 100) * FLOOR(DATEDIFF((SELECT MAX(created_at) FROM payments p3 WHERE p3.payment_request_id = pr.payment_request_id AND p3.created_at > pr.pay_by AND p3.payment_status_id <> 4), pr.pay_by) / pr.late_fee_frequency) ,
+                            ELSE 0 ,
+                        END ,
+                    WHEN CURRENT_DATE > pr.pay_by THEN ,
+                        CASE ,
+                            WHEN pr.fee_type = "$" THEN pr.late_fee * FLOOR(DATEDIFF(CURRENT_DATE, pr.pay_by) / pr.late_fee_frequency) ,
+                            WHEN pr.fee_type = "%" THEN (pr.amount * pr.late_fee / 100) * FLOOR(DATEDIFF(CURRENT_DATE, pr.pay_by) / pr.late_fee_frequency) ,
+                            ELSE 0 ,
+                        END ,
+                    ELSE 0 ,
+                END ,
+            ELSE 0 ,
+          END AS late_fee_total
+
         FROM payment_requests pr
         JOIN students st 
           ON pr.student_id = st.student_id
@@ -310,30 +330,79 @@ public class PaymentRequestRepository {
     } else {
       var sql = """
         SELECT 
-        IFNULL(SUM(pr.amount),0) AS pending_total
+          IFNULL(SUM(pr.amount), 0) AS pending_total,
+
+          /* ===== TOTAL DE RECARGOS ===== */
+          IFNULL(SUM(
+            CASE
+              WHEN pr.payment_status_id != 3 THEN
+                  CASE
+                      WHEN (SELECT COUNT(*) 
+                            FROM payments p3 
+                            WHERE p3.payment_request_id = pr.payment_request_id 
+                              AND p3.created_at > pr.pay_by 
+                              AND p3.payment_status_id <> 4) > 0 THEN
+                          CASE
+                              WHEN pr.fee_type = "$" THEN 
+                                  pr.late_fee * FLOOR(
+                                      DATEDIFF(
+                                          (SELECT MAX(created_at) 
+                                          FROM payments p3 
+                                          WHERE p3.payment_request_id = pr.payment_request_id 
+                                            AND p3.created_at > pr.pay_by 
+                                            AND p3.payment_status_id <> 4),
+                                          pr.pay_by
+                                      ) / pr.late_fee_frequency
+                                  )
+                              WHEN pr.fee_type = "%" THEN 
+                                  (pr.amount * pr.late_fee / 100) * FLOOR(
+                                      DATEDIFF(
+                                          (SELECT MAX(created_at) 
+                                          FROM payments p3 
+                                          WHERE p3.payment_request_id = pr.payment_request_id 
+                                            AND p3.created_at > pr.pay_by 
+                                            AND p3.payment_status_id <> 4),
+                                          pr.pay_by
+                                      ) / pr.late_fee_frequency
+                                  )
+                              ELSE 0
+                          END
+                      WHEN CURRENT_DATE > pr.pay_by THEN
+                          CASE
+                              WHEN pr.fee_type = "$" THEN 
+                                  pr.late_fee * FLOOR(
+                                      DATEDIFF(CURRENT_DATE, pr.pay_by) / pr.late_fee_frequency
+                                  )
+                              WHEN pr.fee_type = "%" THEN 
+                                  (pr.amount * pr.late_fee / 100) * FLOOR(
+                                      DATEDIFF(CURRENT_DATE, pr.pay_by) / pr.late_fee_frequency
+                                  )
+                              ELSE 0
+                          END
+                      ELSE 0
+                  END
+              ELSE 0
+            END
+          ), 0) AS late_fee_total
+
         FROM payment_requests pr
         JOIN students st 
           ON pr.student_id = st.student_id
-        -- get the student's user & school
         JOIN users u_st 
           ON st.user_id = u_st.user_id
-        -- get the caller's user, role & school
         JOIN users u_call 
           ON u_call.user_id = :token_user_id
         JOIN roles r_call 
           ON u_call.role_id = r_call.role_id
-        -- find if caller's school is related to the student's school
         LEFT JOIN schools s_rel 
           ON s_rel.related_school_id = u_call.school_id
         AND s_rel.school_id         = u_st.school_id
         WHERE pr.payment_status_id NOT IN (3,4,7,8)
           AND (
-              -- STUDENT may only see their own balance
               ( r_call.name_en = 'Student' 
                 AND u_call.user_id = u_st.user_id
               )
               OR
-              -- OTHERS must share the same school or be in a related school
               ( r_call.name_en <> 'Student'
                 AND ( u_call.school_id = u_st.school_id
                     OR s_rel.related_school_id IS NOT NULL

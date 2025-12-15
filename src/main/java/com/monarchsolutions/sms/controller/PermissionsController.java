@@ -1,5 +1,6 @@
 package com.monarchsolutions.sms.controller;
 
+import com.monarchsolutions.sms.annotation.RequirePermission;
 import com.monarchsolutions.sms.entity.Role;
 import com.monarchsolutions.sms.service.PermissionService;
 import com.monarchsolutions.sms.service.RoleService;
@@ -31,6 +32,7 @@ public class PermissionsController {
     @Autowired
     private JwtUtil jwtUtil;
 
+	@RequirePermission(module = "roles", action = "r")
     @GetMapping("/roles")
     public ResponseEntity<List<Role>> getRolesForPermissions(
             @RequestHeader("Authorization") String authHeader,
@@ -92,6 +94,7 @@ public class PermissionsController {
         return ResponseEntity.ok(permissions);
     }
 
+	@RequirePermission(module = "roles", action = "c")
     @PostMapping("/create")
     public ResponseEntity<Map<String, Object>> createPermission(
             @RequestHeader("Authorization") String authHeader,
@@ -105,6 +108,7 @@ public class PermissionsController {
         return ResponseEntity.ok(response);
     }
 
+	@RequirePermission(module = "roles", action = "u")
     @PutMapping("/update")
     public ResponseEntity<Map<String, Object>> updatePermission(
             @RequestHeader("Authorization") String authHeader,

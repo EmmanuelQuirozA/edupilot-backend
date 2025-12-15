@@ -74,16 +74,17 @@ public class UserRepository {
 			user.setEmail(data[3] != null ? (String) data[3] : null);
 			user.setUsername(data[4] != null ? (String) data[4] : null);
 			user.setPassword(data[5] != null ? (String) data[5] : null);
-			user.setRoleName(data[6] != null ? (String) data[6] : null);
-			user.setFullName(data[7] != null ? (String) data[7] : null);
-			user.setAddress(data[8] != null ? (String) data[8] : null);
-			user.setCommercialName(data[9] != null ? (String) data[9] : null);
-			user.setBusinessName(data[10] != null ? (String) data[10] : null);
-			user.setPersonalEmail(data[11] != null ? (String) data[11] : null);
-			user.setEnabledUser(data[12] != null ? (Boolean) data[12] : null);
-			user.setEnabledRole(data[13] != null ? (Boolean) data[13] : null);
-			user.setEnabledSchool(data[14] != null ? (Boolean) data[14] : null);
-			user.setUsernameOrEmail(data[15] != null ? (String) data[15] : null);
+			user.setRoleNameDisplay	(data[6] != null ? (String) 	data[6] : null);
+			user.setRoleName		(data[7] != null ? (String) 	data[7] : null);
+			user.setFullName		(data[8] != null ? (String) 	data[8] : null);
+			user.setAddress			(data[9] != null ? (String) 	data[9] : null);
+			user.setCommercialName	(data[10] != null ? (String) 	data[10] : null);
+			user.setBusinessName	(data[11] != null ? (String) 	data[11] : null);
+			user.setPersonalEmail	(data[12] != null ? (String) 	data[12] : null);
+			user.setEnabledUser		(data[13] != null ? (Boolean) 	data[13] : null);
+			user.setEnabledRole		(data[14] != null ? (Boolean) 	data[14] : null);
+			user.setEnabledSchool	(data[15] != null ? (Boolean) 	data[15] : null);
+			user.setUsernameOrEmail	(data[16] != null ? (String) 	data[16] : null);
 			
 			return user;
     } catch (NoResultException ex) {

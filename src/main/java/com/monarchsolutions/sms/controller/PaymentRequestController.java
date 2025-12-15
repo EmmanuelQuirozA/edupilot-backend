@@ -38,7 +38,7 @@ public class PaymentRequestController {
     private JwtUtil jwtUtil;
 
     // Endpoint to create a new group
-    @RequirePermission(module = "payment_requests", action = "c")
+    @RequirePermission(module = "requests", action = "c")
     @PostMapping("/create")
     public ResponseEntity<?> createPaymentRequest(
       @RequestHeader("Authorization") String authHeader,
@@ -70,7 +70,7 @@ public class PaymentRequestController {
           return ResponseEntity.ok(response);
     }
 
-    @RequirePermission(module = "payment_requests", action = "c")
+    @RequirePermission(module = "requests", action = "c")
     @PostMapping("/create-schedule")
     public ResponseEntity<?> createPaymentRequestSchedule(
         @RequestHeader("Authorization") String authHeader,
@@ -93,7 +93,7 @@ public class PaymentRequestController {
         return ResponseEntity.ok(response);
     }
 
-    @RequirePermission(module = "payment_requests", action = "r")
+    @RequirePermission(module = "requests", action = "r")
     @GetMapping("/schedule/details")
     public ResponseEntity<Map<String, Object>> getPaymentRequestScheduleDetails(
         @RequestHeader("Authorization") String authHeader,
@@ -110,7 +110,7 @@ public class PaymentRequestController {
         return ResponseEntity.ok(details);
     }
 
-    @RequirePermission(module = "payment_requests", action = "c")
+    @RequirePermission(module = "requests", action = "c")
     @PostMapping("/recurrence")
     public ResponseEntity<String> createPaymentRecurrence(
         @RequestHeader("Authorization") String authHeader,
@@ -123,7 +123,7 @@ public class PaymentRequestController {
         return ResponseEntity.ok(json);
     }
 
-    @RequirePermission(module = "payment_requests", action = "r")
+    @RequirePermission(module = "requests", action = "r")
     @GetMapping("/validate-existence")
     public ResponseEntity<List<ValidatePaymentRequestExistence>> validatePaymentRequests(
         @RequestHeader("Authorization") String authHeader,
@@ -161,7 +161,6 @@ public class PaymentRequestController {
         return ResponseEntity.ok(results);
     }
 
-    @RequirePermission(module = "payment_requests", action = "r")
     @GetMapping("/pending")
     public ResponseEntity<BigDecimal> getPendingByStudent(
         @RequestHeader("Authorization") String authHeader,
@@ -174,7 +173,6 @@ public class PaymentRequestController {
         return ResponseEntity.ok(pending);
     }
 
-    @RequirePermission(module = "payment_requests", action = "r")
     @GetMapping("/student-pending-payments")
     public ResponseEntity<List<StudentPaymentRequestDTO>> list(
         @RequestHeader("Authorization") String authHeader,
@@ -199,7 +197,7 @@ public class PaymentRequestController {
         return ResponseEntity.ok(list);
     }
 
-    @RequirePermission(module = "payment_requests", action = "u")
+    @RequirePermission(module = "requests", action = "u")
     @PostMapping("/trigger-scheduler")
     public ResponseEntity<?> triggerPaymentRequestScheduler(
         @RequestParam(required = false, name = "reference_date") String referenceDateParam

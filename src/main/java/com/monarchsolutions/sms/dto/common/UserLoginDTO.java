@@ -8,6 +8,7 @@ public class UserLoginDTO {
     private String username;
     private String password;
     private String roleName;
+    private String roleNameDisplay;
     private String fullName;
     private String address;
     private String commercialName;
@@ -61,6 +62,12 @@ public class UserLoginDTO {
     }
     public void setRoleName(String roleName) {
         this.roleName = roleName;
+    }
+    public String getRoleNameDisplay() {
+        return roleNameDisplay;
+    }
+    public void setRoleNameDisplay(String roleNameDisplay) {
+        this.roleNameDisplay = roleName;
     }
     public String getFullName() {
         return fullName;
