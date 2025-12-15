@@ -96,6 +96,14 @@ public class PermissionService {
         return permissionProcedureRepository.getModuleAccessList(tokenUserId, roleId, schoolId, moduleKey, lang);
     }
 
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> getMenuAccessList(
+            Long tokenUserId,
+            String lang
+    ) throws SQLException {
+        return permissionProcedureRepository.getMenuAccessList(tokenUserId, lang);
+    }
+
     @Transactional
     public Map<String, Object> createPermission(Long tokenUserId, Object payload, String lang) throws Exception {
         return permissionProcedureRepository.createPermission(tokenUserId, payload, lang);

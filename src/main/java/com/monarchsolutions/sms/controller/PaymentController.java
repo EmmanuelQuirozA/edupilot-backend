@@ -50,7 +50,7 @@ public class PaymentController {
   @Autowired
   private JwtUtil jwtUtil;
   
-  @RequirePermission(module = "finance", action = "c")
+  @RequirePermission(module = "payments", action = "c")
   @PostMapping(
     path = "/create",
     consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
@@ -135,7 +135,7 @@ public class PaymentController {
         .body(jsonResult);
   };
 
-  @RequirePermission(module = "finance", action = "c")
+  @RequirePermission(module = "payments", action = "c")
   @PostMapping(
     path     = "/create/bulk",
     consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -196,7 +196,7 @@ public class PaymentController {
   }
 
   // Endpoint to update an existing user.
-  @RequirePermission(module = "finance", action = "u")
+  @RequirePermission(module = "payments", action = "u")
   @PutMapping(
     path     = "/update/{payment_id}",
     produces = MediaType.APPLICATION_JSON_VALUE
@@ -237,7 +237,7 @@ public class PaymentController {
   }
 
 
-  @RequirePermission(module = "finance", action = "r")
+  @RequirePermission(module = "payments", action = "r")
   @GetMapping("/grouped")
   public ResponseEntity<List<ByYearPaymentsDTO>> getGroupedPayments(
       @RequestHeader("Authorization") String authHeader,

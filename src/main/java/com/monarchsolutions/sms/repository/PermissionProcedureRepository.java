@@ -71,6 +71,39 @@ public class PermissionProcedureRepository {
         return permissions;
     }
 
+    public List<Map<String, Object>> getMenuAccessList(Long tokenUserId, String lang)
+            throws SQLException {
+        String call = "{CALL getSidebarModulesByToken(?,?)}";
+        List<Map<String, Object>> menuItems = new ArrayList<>();
+
+        try (Connection conn = dataSource.getConnection(); CallableStatement stmt = conn.prepareCall(call)) {
+            int idx = 1;
+            if (tokenUserId != null) {
+                stmt.setInt(idx++, tokenUserId.intValue());
+            } else {
+                stmt.setNull(idx++, Types.INTEGER);
+            }
+            stmt.setString(idx, lang);
+
+            boolean hasResultSet = stmt.execute();
+            if (hasResultSet) {
+                try (ResultSet rs = stmt.getResultSet()) {
+                    ResultSetMetaData metaData = rs.getMetaData();
+                    int columnCount = metaData.getColumnCount();
+                    while (rs.next()) {
+                        Map<String, Object> row = new LinkedHashMap<>();
+                        for (int c = 1; c <= columnCount; c++) {
+                            row.put(metaData.getColumnLabel(c), rs.getObject(c));
+                        }
+                        menuItems.add(row);
+                    }
+                }
+            }
+        }
+
+        return menuItems;
+    }
+
     public Map<String, Object> createPermission(Long tokenUserId, Object payload, String lang) throws Exception {
         String call = "{CALL createPermission(?,?,?)}";
         Map<String, Object> response = new LinkedHashMap<>();

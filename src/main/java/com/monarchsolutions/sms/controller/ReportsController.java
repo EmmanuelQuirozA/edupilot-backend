@@ -34,7 +34,7 @@ public class ReportsController {
 	private JwtUtil jwtUtil;
 	
 	// Endpoint to retrieve the payments pivot report.
-        @RequirePermission(module = "finance", action = "r")
+        @RequirePermission(module = "payments", action = "r")
         @GetMapping("/payments/report")
         public ResponseEntity<?> getPaymentsPivotReport(
 		@RequestHeader("Authorization") String authHeader,
@@ -102,7 +102,7 @@ public class ReportsController {
 	}
 
 	// Endpoint for retrieving the list of paymentDetails.
-        @RequirePermission(module = "finance", action = "r")
+        @RequirePermission(module = "payments", action = "r")
         @GetMapping("/payments")
         public ResponseEntity<?> getPayments(
 		@RequestHeader("Authorization") String authHeader,
@@ -163,7 +163,7 @@ public class ReportsController {
 	// Endpoint for retrieving the list of paymentDetails.
 	
 	// Endpoint to retrieve the payments pivot report.
-        @RequirePermission(module = "finance", action = "r")
+        @RequirePermission(module = "requests", action = "r")
         @GetMapping("/paymentrequests")
         public ResponseEntity<?> getPaymentRequests(
 		@RequestHeader("Authorization") String authHeader,
@@ -250,7 +250,7 @@ public class ReportsController {
                 }
         }
 
-        @RequirePermission(module = "finance", action = "r")
+        @RequirePermission(module = "requests", action = "r")
         @GetMapping("/payment-request-recurrences")
         public ResponseEntity<?> getPaymentRecurrences(
                 @RequestHeader("Authorization") String authHeader,
@@ -314,7 +314,7 @@ public class ReportsController {
         }
 
 
-        @RequirePermission(module = "finance", action = "r")
+        @RequirePermission(module = "requests", action = "r")
         @GetMapping("/payment-request-schedule")
         public ResponseEntity<?> getPaymentRequestSchedule(
                 @RequestHeader("Authorization") String authHeader,
@@ -374,7 +374,7 @@ public class ReportsController {
         }
 
         // Endpoint for retrieving the list of paymentDetails.
-  @RequirePermission(module = "finance", action = "r")
+  @RequirePermission(module = "balance", action = "r")
   @GetMapping("/balance-recharges")
   public ResponseEntity<?> getBalanceRecharges(
     @RequestHeader("Authorization") String authHeader,
@@ -421,7 +421,7 @@ public class ReportsController {
     }
   }
 
-        @RequirePermission(module = "finance", action = "r")
+        @RequirePermission(module = "requests", action = "r")
         @GetMapping("/paymentrequest/details")
         public ResponseEntity<?> getPaymentRequestDetails(
 		@RequestHeader("Authorization") String authHeader,
@@ -445,7 +445,7 @@ public class ReportsController {
 	}
 
 	// Endpoint to update an existing user.
-        @RequirePermission(module = "finance", action = "u")
+        @RequirePermission(module = "requests", action = "u")
         @PutMapping("/payment-request/update/{id}")
         public ResponseEntity<?> updatePaymentRequest(
 		@PathVariable("id") Long paymentRequestId,

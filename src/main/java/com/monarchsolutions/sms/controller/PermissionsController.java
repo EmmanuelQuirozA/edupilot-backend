@@ -75,6 +75,23 @@ public class PermissionsController {
         return ResponseEntity.ok(permissions);
     }
 
+    @GetMapping("/menu-access")
+    public ResponseEntity<List<Map<String, Object>>> getMenuAccessList(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestParam(value = "roleId", required = false) Long roleId,
+            @RequestParam(defaultValue = "es") String lang
+    ) throws Exception {
+        String token = authHeader.replaceFirst("^Bearer\\s+", "");
+        Long tokenUserId = jwtUtil.extractUserId(token);
+
+        List<Map<String, Object>> permissions = permissionService.getMenuAccessList(
+                tokenUserId,
+                lang
+        );
+
+        return ResponseEntity.ok(permissions);
+    }
+
     @PostMapping("/create")
     public ResponseEntity<Map<String, Object>> createPermission(
             @RequestHeader("Authorization") String authHeader,
