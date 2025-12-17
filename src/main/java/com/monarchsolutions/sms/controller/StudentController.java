@@ -152,7 +152,6 @@ public class StudentController {
     }
 
     // Endpoint for retrieving the list of related schools for a specific shcool.
-    @RequirePermission(module = "students", action = "r")
     @GetMapping("/read-only")
     public ResponseEntity<?> getStudentDetails(@RequestHeader("Authorization") String authHeader,
                                         @RequestParam(required = false) Long student_id,

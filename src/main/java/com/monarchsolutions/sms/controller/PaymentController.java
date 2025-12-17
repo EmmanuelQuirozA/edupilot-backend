@@ -237,7 +237,7 @@ public class PaymentController {
   }
 
 
-  @RequirePermission(module = "payments", action = "r")
+  // @RequirePermission(module = "payments", action = "r")
   @GetMapping("/grouped")
   public ResponseEntity<List<ByYearPaymentsDTO>> getGroupedPayments(
       @RequestHeader("Authorization") String authHeader,

@@ -118,6 +118,53 @@ public class ReportsService {
     }
 
 
+
+    @Transactional(readOnly = true)
+    public PageResult<Map<String,Object>> getPaymentsStudents(
+        Long token_user_id,
+        Long school_id,
+        Long student_id,
+        Long payment_id,
+        Long payment_request_id,
+        String student_full_name,
+        String payment_reference,
+        String generation,
+        String grade_group,
+        String pt_name,
+        String scholar_level_name,
+        LocalDate payment_month,
+        Date payment_created_at,
+        String lang,
+        int page,
+        int size,
+        Boolean exportAll,
+        String order_by,
+        String order_dir
+    ) throws Exception {
+        return reportsRepository.getPayments(
+            token_user_id,
+            school_id,
+            student_id,
+            payment_id,
+            payment_request_id,
+            student_full_name,
+            payment_reference,
+            generation,
+            grade_group,
+            pt_name,
+            scholar_level_name,
+            payment_month,
+            payment_created_at,
+            lang,
+            page,
+            size,
+            exportAll,
+            order_by,
+            order_dir
+        );
+    }
+
+
     @Transactional(readOnly = true)
     public PageResult<Map<String,Object>> getPaymentRecurrences(
         Long tokenUserId,

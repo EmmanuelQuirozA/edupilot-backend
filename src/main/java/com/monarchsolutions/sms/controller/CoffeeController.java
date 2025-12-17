@@ -44,7 +44,7 @@ public class CoffeeController {
     this.jwtUtil = jwtUtil;
   }
 
-  @RequirePermission(module = "coffee", action = "r")
+  // @RequirePermission(module = "coffee", action = "r")
   @GetMapping("/my-purchases")
   public ResponseEntity<List<SaleGroupDTO>> getMyPurchases(
       @RequestHeader("Authorization") String authHeader,

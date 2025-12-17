@@ -28,7 +28,7 @@ public class BalanceController {
   }
 
 
-  @RequirePermission(module = "balances", action = "c")
+  @RequirePermission(module = "balance", action = "c")
   @PostMapping("/recharge")
   public ResponseEntity<String> recharge(
       @RequestHeader("Authorization") String authHeader,
@@ -51,7 +51,7 @@ public class BalanceController {
   }
 
   // Endpoint for retrieving the list of paymentDetails.
-  @RequirePermission(module = "balances", action = "r")
+  @RequirePermission(module = "balance", action = "r")
   @GetMapping("/account-activity")
   public ResponseEntity<?> getBalanceRecharges(
     @RequestHeader("Authorization") String authHeader,
@@ -92,7 +92,7 @@ public class BalanceController {
     }
   }
 
-  @RequirePermission(module = "balances", action = "r")
+  // @RequirePermission(module = "balance", action = "r")
   @GetMapping("/account-activity-grouped")
   public ResponseEntity<List<YearlyActivityDto>> getAccountActivityGroup(
       @RequestHeader("Authorization") String authHeader,
