@@ -51,6 +51,18 @@ public class PermissionInterceptor implements HandlerInterceptor {
             return false;
         }
 
+        if (isStudentAccessingPivotReport(handlerMethod, token)) {
+            return true;
+        }
+
+        if (isStudentAccessingPayments(handlerMethod, token)) {
+            return true;
+        }
+
+        if (isStudentAccessingPaymentRequests(handlerMethod, token)) {
+            return true;
+        }
+
         Long roleId = jwtUtil.extractRoleId(token);
         if (roleId == null) {
             writeError(response, HttpStatus.UNAUTHORIZED, "Token does not contain role_id");
@@ -73,6 +85,33 @@ public class PermissionInterceptor implements HandlerInterceptor {
             return methodAnn;
         }
         return handlerMethod.getBeanType().getAnnotation(RequirePermission.class);
+    }
+
+    private boolean isStudentAccessingPivotReport(HandlerMethod handlerMethod, String token) {
+        String methodName = handlerMethod.getMethod().getName();
+        if (!"getPaymentsPivotReport".equals(methodName)) {
+            return false;
+        }
+        String role = jwtUtil.extractUserRole(token);
+        return "STUDENT".equalsIgnoreCase(role);
+    }
+
+    private boolean isStudentAccessingPayments(HandlerMethod handlerMethod, String token) {
+        String methodName = handlerMethod.getMethod().getName();
+        if (!"getPayments".equals(methodName)) {
+            return false;
+        }
+        String role = jwtUtil.extractUserRole(token);
+        return "STUDENT".equalsIgnoreCase(role);
+    }
+
+    private boolean isStudentAccessingPaymentRequests(HandlerMethod handlerMethod, String token) {
+        String methodName = handlerMethod.getMethod().getName();
+        if (!"getPaymentRequests".equals(methodName)) {
+            return false;
+        }
+        String role = jwtUtil.extractUserRole(token);
+        return "STUDENT".equalsIgnoreCase(role);
     }
 
     private String resolveToken(HttpServletRequest request) {
