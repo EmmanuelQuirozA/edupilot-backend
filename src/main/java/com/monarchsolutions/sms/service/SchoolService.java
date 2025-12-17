@@ -141,4 +141,8 @@ public class SchoolService {
 		return schoolRepository.getSchoolImage(token_user_id, school_id);
 	}
 
+	public String getUserSchool(Long token_user_id) {
+		return schoolRepository.getUserSchool(token_user_id);
+	}
+
 }

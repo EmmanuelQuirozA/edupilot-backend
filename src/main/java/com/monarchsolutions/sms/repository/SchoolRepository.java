@@ -330,6 +330,31 @@ public class SchoolRepository {
 		throw new IllegalStateException("Unexpected type for image: " + single.getClass());
 	}
 
+	public String getUserSchool(Long token_user_id) {
+		var sql = """
+			SELECT s.image,
+				s.commercial_name
+			FROM schools s
+			JOIN users u
+				ON u.school_id = s.school_id
+				WHERE u.user_id =:token_user_id;
+		""";
+
+		Object single = entityManager
+		.createNativeQuery(sql)
+		.setParameter("token_user_id", token_user_id)
+		.getSingleResult();
+
+		if (single == null) {
+		return null;
+		}
+		// MySQL may return String
+		if (single instanceof String n) {
+		return n;
+		}
+		throw new IllegalStateException("Unexpected type for image: " + single.getClass());
+	}
+
 	public Map<String, Object> getSchoolDetails(Long tokenUserId, Long schoolId, String lang) throws SQLException {
 		Map<String, Object> response = new LinkedHashMap<>();
 

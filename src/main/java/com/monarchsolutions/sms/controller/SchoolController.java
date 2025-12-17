@@ -208,7 +208,7 @@ public class SchoolController {
 
 	@RequirePermission(module = "schools", action = "r")
 	@GetMapping("/school-image")
-		public ResponseEntity<String> getSchoolImage(
+	public ResponseEntity<String> getSchoolImage(
 		@RequestHeader("Authorization") String authHeader,
 		@RequestParam(required = false) Long school_id
 	) {
@@ -217,6 +217,15 @@ public class SchoolController {
 		Long token_user_id = jwtUtil.extractUserId(token);
 		String school_image = schoolService.getSchoolImage(token_user_id, school_id);
 		return ResponseEntity.ok(school_image);
+	}
+
+	@GetMapping("/user-school")
+	public ResponseEntity<String> getuserSchool(@RequestHeader("Authorization") String authHeader) {
+		// 2) Extract the token and get userId
+		String token = authHeader.substring(7);
+		Long token_user_id = jwtUtil.extractUserId(token);
+		String school = schoolService.getUserSchool(token_user_id);
+		return ResponseEntity.ok(school);
 	}
 	
 }
