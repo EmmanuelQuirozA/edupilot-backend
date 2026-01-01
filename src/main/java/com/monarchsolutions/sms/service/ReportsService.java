@@ -6,6 +6,7 @@ import com.monarchsolutions.sms.dto.reports.PaymentRequestDetailsResponseV2;
 import com.monarchsolutions.sms.dto.reports.PaymentRequestDetailsResponseV2.BreakdownEntry;
 import com.monarchsolutions.sms.dto.reports.PaymentRequestDetailsResponseV2.PaymentDetail;
 import com.monarchsolutions.sms.dto.reports.PaymentRequestDetailsResponseV2.PaymentInfoSummary;
+import com.monarchsolutions.sms.dto.reports.MonthlyIncomeProgressResponse;
 import com.monarchsolutions.sms.repository.ReportsRepository;
 
 import java.math.BigDecimal;
@@ -115,6 +116,12 @@ public class ReportsService {
             order_by,
             order_dir
         );
+    }
+
+
+    @Transactional(readOnly = true)
+    public MonthlyIncomeProgressResponse getMonthlyIncomeProgress(Long tokenUserId) throws SQLException {
+        return reportsRepository.getMonthlyIncomeProgress(tokenUserId);
     }
 
 
