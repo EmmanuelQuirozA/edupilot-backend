@@ -13,6 +13,7 @@ import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRequestDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRecurrenceDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRequestScheduleDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.PendingPaymentSummaryDTO;
+import com.monarchsolutions.sms.dto.paymentRequests.PendingPaymentTotalsDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.StudentPaymentRequestDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.ValidatePaymentRequestExistence;
 import com.monarchsolutions.sms.annotation.RequirePermission;
@@ -171,6 +172,16 @@ public class PaymentRequestController {
         Long token_user_id = jwtUtil.extractUserId(token);
         PendingPaymentSummaryDTO pending = paymentRequestService.getPendingByStudent(token_user_id,studentId);
         return ResponseEntity.ok(pending);
+    }
+
+    @GetMapping("/pending-totals")
+    public ResponseEntity<PendingPaymentTotalsDTO> getPendingTotals(
+        @RequestHeader("Authorization") String authHeader
+    ) {
+        String token = authHeader.substring(7);
+        Long tokenUserId = jwtUtil.extractUserId(token);
+        PendingPaymentTotalsDTO totals = paymentRequestService.getPendingTotals(tokenUserId);
+        return ResponseEntity.ok(totals);
     }
 
     @GetMapping("/student-pending-payments")
