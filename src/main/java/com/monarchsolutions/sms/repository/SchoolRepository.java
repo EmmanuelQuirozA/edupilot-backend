@@ -1,5 +1,6 @@
 package com.monarchsolutions.sms.repository;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.monarchsolutions.sms.dto.school.SchoolsList;
 import com.monarchsolutions.sms.dto.common.PageResult;
@@ -348,9 +349,21 @@ public class SchoolRepository {
 		if (single == null) {
 		return null;
 		}
+
+		if (single instanceof Object[] row) {
+			Map<String, Object> response = new LinkedHashMap<>();
+			response.put("image", row.length > 0 ? row[0] : null);
+			response.put("commercial_name", row.length > 1 ? row[1] : null);
+			try {
+				return objectMapper.writeValueAsString(response);
+			} catch (JsonProcessingException e) {
+				throw new IllegalStateException("Error serializing user school data", e);
+			}
+		}
+
 		// MySQL may return String
 		if (single instanceof String n) {
-		return n;
+			return n;
 		}
 		throw new IllegalStateException("Unexpected type for image: " + single.getClass());
 	}

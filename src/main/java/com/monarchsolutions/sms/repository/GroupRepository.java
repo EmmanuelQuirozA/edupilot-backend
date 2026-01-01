@@ -143,28 +143,66 @@ public class GroupRepository {
 
 	public List<GetClassesCatalog>  getClassesCatalog(Long token_user_id, Long school_id, String lang) {
 		String sql = """
-			SELECT
-                g.group_id,
-                g.generation,
-				CASE WHEN :lang = 'en' THEN sl.name_en ELSE sl.name_es END AS scholar_level_name,
-                CONCAT(g.grade,'-',g.`group`) AS grade_group
-			FROM `groups` g
+        SELECT
+            g.group_id,
+            g.generation,
+            CASE WHEN :lang = 'en' THEN sl.name_en ELSE sl.name_es END AS scholar_level_name,
+            CONCAT(g.grade,'-',g.`group`) AS grade_group
+        FROM `groups` g
 
-				/* 1) bring in the caller so we know their school */
-				JOIN users uc
-					ON uc.user_id = :token_user_id
-                    
-				LEFT JOIN schools        sc ON g.school_id = sc.school_id
-				LEFT JOIN scholar_levels sl ON g.scholar_level_id = sl.scholar_level_id
+        /* 1) caller */
+        JOIN users uc
+            ON uc.user_id = :token_user_id
 
-			WHERE g.enabled = 1
-                AND g.school_id = :school_id
+        LEFT JOIN schools sc 
+            ON g.school_id = sc.school_id
+        LEFT JOIN scholar_levels sl 
+            ON g.scholar_level_id = sl.scholar_level_id
 
-				/* 2) only users in the same or a related school as the caller */
-				OR (
-						sc.school_id         = uc.school_id
-					OR sc.related_school_id = uc.school_id
-				);
+        WHERE 
+            g.enabled = 1
+            AND
+            (
+                /* ===============================
+                CASE 1: school_id enviado
+                =============================== */
+                (
+                    :school_id IS NOT NULL
+                    AND g.school_id = :school_id
+                    AND (
+                        sc.school_id = uc.school_id
+                        OR sc.related_school_id = uc.school_id
+                        OR uc.school_id IS NULL
+                    )
+                )
+
+                /* ===============================
+                CASE 2: school_id enviado pero SIN acceso
+                → fallback a escuela del usuario
+                =============================== */
+                OR (
+                    :school_id IS NOT NULL
+                    AND NOT (
+                        g.school_id = :school_id
+                        AND (
+                            sc.school_id = uc.school_id
+                            OR sc.related_school_id = uc.school_id
+                        )
+                    )
+                    AND g.school_id = uc.school_id
+                )
+
+                /* ===============================
+                CASE 3: school_id NO enviado
+                =============================== */
+                OR (
+                    :school_id IS NULL
+                    AND (
+                        sc.school_id = uc.school_id
+                        OR sc.related_school_id = uc.school_id
+                    )
+                )
+            );
 		""";
 
 		Query q = entityManager.createNativeQuery(sql);

@@ -55,6 +55,10 @@ public class PermissionInterceptor implements HandlerInterceptor {
             return true;
         }
 
+        if (isStudentAccessingPaymentRequestDetails(handlerMethod, token)) {
+            return true;
+        }
+
         if (isStudentAccessingPayments(handlerMethod, token)) {
             return true;
         }
@@ -90,6 +94,15 @@ public class PermissionInterceptor implements HandlerInterceptor {
     private boolean isStudentAccessingPivotReport(HandlerMethod handlerMethod, String token) {
         String methodName = handlerMethod.getMethod().getName();
         if (!"getPaymentsPivotReport".equals(methodName)) {
+            return false;
+        }
+        String role = jwtUtil.extractUserRole(token);
+        return "STUDENT".equalsIgnoreCase(role);
+    }
+
+    private boolean isStudentAccessingPaymentRequestDetails(HandlerMethod handlerMethod, String token) {
+        String methodName = handlerMethod.getMethod().getName();
+        if (!"getPaymentRequestDetails".equals(methodName)) {
             return false;
         }
         String role = jwtUtil.extractUserRole(token);
