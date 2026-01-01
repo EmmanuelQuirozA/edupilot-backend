@@ -1,8 +1,9 @@
 package com.monarchsolutions.sms.repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.monarchsolutions.sms.dto.reports.PaymentRequestListResponse;
 import com.monarchsolutions.sms.dto.reports.PaymentRequestDetailsResponseV2;
+import com.monarchsolutions.sms.dto.reports.PaymentRequestListResponse;
+import com.monarchsolutions.sms.dto.reports.MonthlyIncomeProgressResponse;
 import com.monarchsolutions.sms.dto.common.PageResult;
 
 import jakarta.persistence.EntityManager;
@@ -652,6 +653,134 @@ public class ReportsRepository {
 		}
 
 		return new PageResult<>(content, totalCount, page, size);
+	}
+
+	public MonthlyIncomeProgressResponse getMonthlyIncomeProgress(Long tokenUserId) throws SQLException {
+		if (tokenUserId == null) {
+			throw new IllegalArgumentException("tokenUserId cannot be null");
+		}
+
+		String sql =
+			"SELECT\n" +
+			"  IFNULL((\n" +
+			"    SELECT SUM(p.amount)\n" +
+			"    FROM payments p\n" +
+			"    JOIN students st ON p.student_id = st.student_id\n" +
+			"    JOIN users u_st  ON st.user_id   = u_st.user_id\n" +
+			"    JOIN schools sc  ON u_st.school_id = sc.school_id\n" +
+			"    WHERE p.payment_status_id <> 4\n" +
+			"      AND sc.school_id IN (\n" +
+			"        SELECT school_id FROM (\n" +
+			"          SELECT u.school_id AS school_id\n" +
+			"          FROM users u\n" +
+			"          WHERE u.user_id = ?\n" +
+			"          UNION ALL\n" +
+			"          SELECT s.school_id AS school_id\n" +
+			"          FROM users u\n" +
+			"          JOIN schools s ON s.related_school_id = u.school_id\n" +
+			"          WHERE u.user_id = ?\n" +
+			"        ) x\n" +
+			"        WHERE school_id IS NOT NULL\n" +
+			"      )\n" +
+			"      AND p.created_at >= DATE_FORMAT(CURRENT_DATE, '%Y-%m-01')\n" +
+			"      AND p.created_at <  DATE_ADD(DATE_FORMAT(CURRENT_DATE, '%Y-%m-01'), INTERVAL 1 MONTH)\n" +
+			"  ), 0) AS month_income_total,\n" +
+			"\n" +
+			"  (\n" +
+			"    SELECT\n" +
+			"      CASE\n" +
+			"        WHEN COUNT(*) = 0 THEN NULL\n" +
+			"        ELSE SUM(fmv.amount)\n" +
+			"      END\n" +
+			"    FROM financial_metric fm\n" +
+			"    JOIN financial_metric_value fmv ON fmv.metric_id = fm.metric_id\n" +
+			"    WHERE fm.metric_key = 'monthly_goal'\n" +
+			"      AND fmv.school_id IN (\n" +
+			"        SELECT school_id FROM (\n" +
+			"          SELECT u.school_id AS school_id\n" +
+			"          FROM users u\n" +
+			"          WHERE u.user_id = ?\n" +
+			"          UNION ALL\n" +
+			"          SELECT s.school_id AS school_id\n" +
+			"          FROM users u\n" +
+			"          JOIN schools s ON s.related_school_id = u.school_id\n" +
+			"          WHERE u.user_id = ?\n" +
+			"        ) y\n" +
+			"        WHERE school_id IS NOT NULL\n" +
+			"      )\n" +
+			"      AND fmv.period_start = DATE_FORMAT(CURRENT_DATE, '%Y-%m-01')\n" +
+			"  ) AS month_goal_total,\n" +
+			"\n" +
+			"  (\n" +
+			"    SELECT\n" +
+			"      CASE\n" +
+			"        WHEN COUNT(*) = 0 THEN NULL\n" +
+			"        WHEN SUM(fmv.amount) IS NULL OR SUM(fmv.amount) = 0 THEN NULL\n" +
+			"        ELSE ROUND(\n" +
+			"          (\n" +
+			"            IFNULL((\n" +
+			"              SELECT SUM(p.amount)\n" +
+			"              FROM payments p\n" +
+			"              JOIN students st ON p.student_id = st.student_id\n" +
+			"              JOIN users u_st  ON st.user_id   = u_st.user_id\n" +
+			"              JOIN schools sc  ON u_st.school_id = sc.school_id\n" +
+			"              WHERE p.payment_status_id <> 4\n" +
+			"                AND sc.school_id IN (\n" +
+			"                  SELECT school_id FROM (\n" +
+			"                    SELECT u.school_id AS school_id\n" +
+			"                    FROM users u\n" +
+			"                    WHERE u.user_id = ?\n" +
+			"                    UNION ALL\n" +
+			"                    SELECT s.school_id AS school_id\n" +
+			"                    FROM users u\n" +
+			"                    JOIN schools s ON s.related_school_id = u.school_id\n" +
+			"                    WHERE u.user_id = ?\n" +
+			"                  ) x2\n" +
+			"                  WHERE school_id IS NOT NULL\n" +
+			"                )\n" +
+			"                AND p.created_at >= DATE_FORMAT(CURRENT_DATE, '%Y-%m-01')\n" +
+			"                AND p.created_at <  DATE_ADD(DATE_FORMAT(CURRENT_DATE, '%Y-%m-01'), INTERVAL 1 MONTH)\n" +
+			"            ), 0) / SUM(fmv.amount)\n" +
+			"          ) * 100\n" +
+			"        , 2)\n" +
+			"      END\n" +
+			"    FROM financial_metric fm\n" +
+			"    JOIN financial_metric_value fmv ON fmv.metric_id = fm.metric_id\n" +
+			"    WHERE fm.metric_key = 'monthly_goal'\n" +
+			"      AND fmv.school_id IN (\n" +
+			"        SELECT school_id FROM (\n" +
+			"          SELECT u.school_id AS school_id\n" +
+			"          FROM users u\n" +
+			"          WHERE u.user_id = ?\n" +
+			"          UNION ALL\n" +
+			"          SELECT s.school_id AS school_id\n" +
+			"          FROM users u\n" +
+			"          JOIN schools s ON s.related_school_id = u.school_id\n" +
+			"          WHERE u.user_id = ?\n" +
+			"        ) y2\n" +
+			"        WHERE school_id IS NOT NULL\n" +
+			"      )\n" +
+			"      AND fmv.period_start = DATE_FORMAT(CURRENT_DATE, '%Y-%m-01')\n" +
+			"  ) AS month_progress_pct";
+
+		try (Connection conn = dataSource.getConnection();
+				 PreparedStatement stmt = conn.prepareStatement(sql)) {
+			for (int i = 1; i <= 8; i++) {
+				stmt.setLong(i, tokenUserId);
+			}
+
+			try (ResultSet rs = stmt.executeQuery()) {
+				if (rs.next()) {
+					MonthlyIncomeProgressResponse response = new MonthlyIncomeProgressResponse();
+					response.setMonthIncomeTotal(rs.getBigDecimal("month_income_total"));
+					response.setMonthGoalTotal(rs.getBigDecimal("month_goal_total"));
+					response.setMonthProgressPct(rs.getBigDecimal("month_progress_pct"));
+					return response;
+				}
+			}
+		}
+
+		throw new IllegalStateException("No data returned for monthly income progress");
 	}
 
 

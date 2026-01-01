@@ -2,6 +2,7 @@ package com.monarchsolutions.sms.controller;
 
 import com.monarchsolutions.sms.dto.common.PageResult;
 import com.monarchsolutions.sms.dto.paymentRequests.UpdatePaymentRequest;
+import com.monarchsolutions.sms.dto.reports.MonthlyIncomeProgressResponse;
 import com.monarchsolutions.sms.dto.student.GetStudentDetails;
 import com.monarchsolutions.sms.service.ReportsService;
 import com.monarchsolutions.sms.service.StudentService;
@@ -97,6 +98,22 @@ public class ReportsController {
 			);
 
 			return ResponseEntity.ok(page);
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
+
+	@RequirePermission(module = "tuitions", action = "r")
+	@GetMapping("/monthly-income-progress")
+	public ResponseEntity<?> getMonthlyIncomeProgress(
+		@RequestHeader("Authorization") String authHeader
+	) {
+		try {
+			String token = authHeader.replaceFirst("^Bearer\\s+", "");
+			Long tokenUserId = jwtUtil.extractUserId(token);
+
+			MonthlyIncomeProgressResponse response = reportsService.getMonthlyIncomeProgress(tokenUserId);
+			return ResponseEntity.ok(response);
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
