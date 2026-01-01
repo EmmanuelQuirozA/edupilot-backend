@@ -11,6 +11,7 @@ import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRequestDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRecurrenceDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRequestScheduleDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.PendingPaymentSummaryDTO;
+import com.monarchsolutions.sms.dto.paymentRequests.PendingPaymentTotalsDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.StudentPaymentRequestDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.ValidatePaymentRequestExistence;
 import com.monarchsolutions.sms.repository.PaymentRequestRepository;
@@ -81,5 +82,9 @@ public class PaymentRequestService {
 
   public List<StudentPaymentRequestDTO> getStudentPaymentRequests(Long studentId, String lang) {
     return paymentRequestRepository.getStudentPaymentRequests(studentId,lang);
+  }
+
+  public PendingPaymentTotalsDTO getPendingTotals(Long tokenUserId) {
+    return paymentRequestRepository.getPendingTotals(tokenUserId);
   }
 }

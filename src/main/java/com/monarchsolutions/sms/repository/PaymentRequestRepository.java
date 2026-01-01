@@ -17,6 +17,7 @@ import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRequestDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRecurrenceDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.CreatePaymentRequestScheduleDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.PendingPaymentSummaryDTO;
+import com.monarchsolutions.sms.dto.paymentRequests.PendingPaymentTotalsDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.StudentPaymentRequestDTO;
 import com.monarchsolutions.sms.dto.paymentRequests.ValidatePaymentRequestExistence;
 
@@ -362,6 +363,49 @@ public class PaymentRequestRepository {
     }
 
     throw new IllegalStateException("Unexpected result for pending payments: " + single.getClass());
+  }
+
+  public PendingPaymentTotalsDTO getPendingTotals(Long tokenUserId) {
+    var sql = """
+      SELECT
+        IFNULL(SUM(pr.amount), 0)          AS pending_total_amount,
+        COUNT(DISTINCT pr.student_id)      AS students_with_pending_count
+      FROM payment_requests pr
+      JOIN students st     ON pr.student_id = st.student_id
+      JOIN users u_st      ON st.user_id = u_st.user_id
+      JOIN schools sc_st   ON u_st.school_id = sc_st.school_id
+      JOIN users u_call    ON u_call.user_id = :token_user_id
+      LEFT JOIN schools sc_rel
+        ON sc_rel.related_school_id = u_call.school_id
+       AND sc_rel.school_id         = u_st.school_id
+      WHERE pr.payment_status_id NOT IN (3, 4, 7, 8)
+        AND (
+            (u_call.role_id = 4 AND u_call.user_id = u_st.user_id)
+            OR
+            (u_call.role_id <> 4 AND (
+                 u_call.school_id IS NULL
+              OR u_call.school_id = u_st.school_id
+              OR sc_rel.school_id IS NOT NULL
+            ))
+        );
+      """;
+
+    Object single = entityManager
+        .createNativeQuery(sql)
+        .setParameter("token_user_id", tokenUserId)
+        .getSingleResult();
+
+    if (single == null) {
+      return new PendingPaymentTotalsDTO(BigDecimal.ZERO, 0L);
+    }
+
+    if (single instanceof Object[] data && data.length >= 2) {
+      BigDecimal pendingTotalAmount = extractBigDecimal(data[0]);
+      Long studentsWithPendingCount = data[1] != null ? ((Number) data[1]).longValue() : 0L;
+      return new PendingPaymentTotalsDTO(pendingTotalAmount, studentsWithPendingCount);
+    }
+
+    throw new IllegalStateException("Unexpected result for pending totals: " + single.getClass());
   }
 
   private BigDecimal extractBigDecimal(Object value) {
