@@ -166,7 +166,7 @@ public class StudentController {
         }
     }
 	
-        @RequirePermission(module = "students", action = "r")
+    @RequirePermission(module = "students", action = "r")
     @GetMapping("/validate-exist")
     public ResponseEntity<List<ValidateStudentExist>> validateStudentExists(
         @RequestHeader("Authorization") String authHeader,
@@ -180,6 +180,21 @@ public class StudentController {
 
         List<ValidateStudentExist> students = studentService.validateStudentExists(token_user_id, register_id, payment_reference, username);
         return ResponseEntity.ok(students);
+    }
+
+    @RequirePermission(module = "students", action = "r")
+    @GetMapping("/counts/by-scholar-level")
+    public ResponseEntity<?> getStudentsCountByScholarLevel(
+        @RequestHeader("Authorization") String authHeader,
+        @RequestParam(defaultValue = "es") String lang
+    ) {
+        try {
+            String token = authHeader.replaceFirst("^Bearer\\s+", "");
+            Long tokenUserId = jwtUtil.extractUserId(token);
+            return ResponseEntity.ok(studentService.getStudentsCountByScholarLevel(tokenUserId, lang));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     

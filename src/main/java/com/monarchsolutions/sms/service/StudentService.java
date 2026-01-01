@@ -10,6 +10,7 @@ import com.monarchsolutions.sms.dto.student.CreateStudentRequest;
 import com.monarchsolutions.sms.dto.student.GetStudent;
 import com.monarchsolutions.sms.dto.student.GetStudentDetails;
 import com.monarchsolutions.sms.dto.student.UpdateStudentRequest;
+import com.monarchsolutions.sms.dto.student.StudentCountsResponse;
 import com.monarchsolutions.sms.dto.student.ValidateStudentExist;
 import com.monarchsolutions.sms.repository.StudentRepository;
 
@@ -89,5 +90,9 @@ public class StudentService {
     public List<ValidateStudentExist> validateStudentExists(Long token_user_id,String register_id,String payment_reference,String username) {
         // If tokenSchoolId is not null, the SP will filter users by school.
         return studentRepository.validateStudentExists(token_user_id, register_id, payment_reference, username);
+    }
+
+    public StudentCountsResponse getStudentsCountByScholarLevel(Long tokenUserId, String lang) throws Exception {
+        return studentRepository.getStudentsCountByScholarLevel(tokenUserId, lang);
     }
 }

@@ -7,6 +7,7 @@ import com.monarchsolutions.sms.dto.common.PageResult;
 import com.monarchsolutions.sms.dto.student.CreateStudentRequest;
 import com.monarchsolutions.sms.dto.student.GetStudent;
 import com.monarchsolutions.sms.dto.student.GetStudentDetails;
+import com.monarchsolutions.sms.dto.student.StudentCountsResponse;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -327,6 +328,79 @@ public class StudentRepository {
 		};
 
 		return MapperUtil.mapRow(data, config, GetStudentDetails.class);
+	}
+
+	public StudentCountsResponse getStudentsCountByScholarLevel(Long tokenUserId, String lang) throws Exception {
+		String sql = """
+			/* =========================================================
+			   COUNT de alumnos accesibles:
+			   1) total_students
+			   2) by_scholar_level (array)
+			========================================================= */
+			SELECT JSON_OBJECT(
+			  'total_students', totals.total_students,
+			  'by_scholar_level', IFNULL(levels.by_scholar_level, JSON_ARRAY())
+			) AS result
+			FROM
+			(
+			  /* ===== TOTAL ===== */
+			  SELECT COUNT(*) AS total_students
+			  FROM students st
+			  JOIN users u_st   ON st.user_id = u_st.user_id
+			  JOIN `groups` g   ON st.group_id = g.group_id
+			  JOIN schools sc   ON u_st.school_id = sc.school_id
+			  JOIN users u_call ON u_call.user_id = :token_user_id
+			  WHERE u_st.enabled = 1
+			    AND (
+			      u_call.school_id IS NULL
+			      OR sc.school_id = u_call.school_id
+			      OR sc.related_school_id = u_call.school_id
+			    )
+			) totals
+			CROSS JOIN
+			(
+			  /* ===== POR NIVEL ESCOLAR ===== */
+			  SELECT JSON_ARRAYAGG(
+			           JSON_OBJECT(
+			             'scholar_level_id', x.scholar_level_id,
+			             'scholar_level_name',
+			                CASE WHEN :lang = 'en' THEN x.name_en ELSE x.name_es END,
+			             'student_count', x.student_count
+			           )
+			         ) AS by_scholar_level
+			  FROM (
+			    SELECT
+			      sl.scholar_level_id,
+			      sl.name_en,
+			      sl.name_es,
+			      COUNT(*) AS student_count
+			    FROM students st
+			    JOIN users u_st   ON st.user_id = u_st.user_id
+			    JOIN `groups` g   ON st.group_id = g.group_id
+			    JOIN scholar_levels sl ON g.scholar_level_id = sl.scholar_level_id
+			    JOIN schools sc   ON u_st.school_id = sc.school_id
+			    JOIN users u_call ON u_call.user_id = :token_user_id
+			    WHERE u_st.enabled = 1
+			      AND (
+			        u_call.school_id IS NULL
+			        OR sc.school_id = u_call.school_id
+			        OR sc.related_school_id = u_call.school_id
+			      )
+			    GROUP BY sl.scholar_level_id, sl.name_en, sl.name_es
+			    ORDER BY sl.scholar_level_id ASC
+			  ) x
+			) levels;
+		""";
+
+		Query q = entityManager.createNativeQuery(sql);
+		q.setParameter("token_user_id", tokenUserId);
+		q.setParameter("lang", lang);
+
+		Object result = q.getSingleResult();
+		if (result == null) {
+			return null;
+		}
+		return objectMapper.readValue(result.toString(), StudentCountsResponse.class);
 	}
 
 	public List<ValidateStudentExist>  validateStudentExists(Long token_user_id,String register_id,String payment_reference,String username) {
