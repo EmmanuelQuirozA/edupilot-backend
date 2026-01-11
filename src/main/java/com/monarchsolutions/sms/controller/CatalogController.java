@@ -1,5 +1,6 @@
 package com.monarchsolutions.sms.controller;
 
+import com.monarchsolutions.sms.annotation.RequirePermission;
 import com.monarchsolutions.sms.dto.catalogs.PaymentConceptsDto;
 import com.monarchsolutions.sms.dto.catalogs.PaymentStatusesDto;
 import com.monarchsolutions.sms.dto.catalogs.PaymentThroughDto;
@@ -8,6 +9,7 @@ import com.monarchsolutions.sms.dto.catalogs.PlanModuleDto;
 import com.monarchsolutions.sms.dto.catalogs.ScholarLevelsDto;
 import com.monarchsolutions.sms.service.CatalogsService;
 import com.monarchsolutions.sms.util.JwtUtil;
+import java.util.Map;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +34,32 @@ public class CatalogController {
       return ResponseEntity.ok(CatalogsService.getPaymentConcepts(lang, tokenUserId, schoolId));
   }
 
+  @RequirePermission(module = "payments", action = "c")
+  @PostMapping("/payment-concepts")
+  public ResponseEntity<Map<String, Object>> createPaymentConcept(
+          @RequestHeader("Authorization") String authHeader,
+          @RequestBody Map<String, Object> payload,
+          @RequestParam(defaultValue = "es") String lang) throws Exception {
+      String token = authHeader.replaceFirst("^Bearer\\s+", "");
+      Long tokenUserId = jwtUtil.extractUserId(token);
+      Map<String, Object> response = CatalogsService.createPaymentConcept(tokenUserId, payload, lang);
+      return ResponseEntity.ok(response);
+  }
+
+  @RequirePermission(module = "payments", action = "u")
+  @PutMapping("/payment-concepts")
+  public ResponseEntity<Map<String, Object>> updatePaymentConcept(
+          @RequestHeader("Authorization") String authHeader,
+          @RequestParam("payment_concept_id") Long paymentConceptId,
+          @RequestBody Map<String, Object> payload,
+          @RequestParam(defaultValue = "es") String lang) throws Exception {
+      String token = authHeader.replaceFirst("^Bearer\\s+", "");
+      Long tokenUserId = jwtUtil.extractUserId(token);
+      Map<String, Object> response =
+              CatalogsService.updatePaymentConcept(tokenUserId, paymentConceptId, payload, lang);
+      return ResponseEntity.ok(response);
+  }
+
   @GetMapping("/payment-statuses")
   public ResponseEntity<List<PaymentStatusesDto>> paymentStatuses(
           @RequestParam(defaultValue = "es") String lang) {
@@ -46,6 +74,32 @@ public class CatalogController {
       String token = authHeader.replaceFirst("^Bearer\\s+", "");
       Long tokenUserId = jwtUtil.extractUserId(token);
       return ResponseEntity.ok(CatalogsService.getPaymentThrough(lang, tokenUserId, schoolId));
+  }
+
+  @RequirePermission(module = "payments", action = "c")
+  @PostMapping("/payment-through")
+  public ResponseEntity<Map<String, Object>> createPaymentThrough(
+          @RequestHeader("Authorization") String authHeader,
+          @RequestBody Map<String, Object> payload,
+          @RequestParam(defaultValue = "es") String lang) throws Exception {
+      String token = authHeader.replaceFirst("^Bearer\\s+", "");
+      Long tokenUserId = jwtUtil.extractUserId(token);
+      Map<String, Object> response = CatalogsService.createPaymentThrough(tokenUserId, payload, lang);
+      return ResponseEntity.ok(response);
+  }
+
+  @RequirePermission(module = "payments", action = "u")
+  @PutMapping("/payment-through")
+  public ResponseEntity<Map<String, Object>> updatePaymentThrough(
+          @RequestHeader("Authorization") String authHeader,
+          @RequestParam("payment_through_id") Long paymentThroughId,
+          @RequestBody Map<String, Object> payload,
+          @RequestParam(defaultValue = "es") String lang) throws Exception {
+      String token = authHeader.replaceFirst("^Bearer\\s+", "");
+      Long tokenUserId = jwtUtil.extractUserId(token);
+      Map<String, Object> response =
+              CatalogsService.updatePaymentThrough(tokenUserId, paymentThroughId, payload, lang);
+      return ResponseEntity.ok(response);
   }
 
   @GetMapping("/scholar-levels")
