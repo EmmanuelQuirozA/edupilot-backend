@@ -24,8 +24,12 @@ public class CatalogController {
 
   @GetMapping("/payment-concepts")
   public ResponseEntity<List<PaymentConceptsDto>> paymentConcepts(
+          @RequestHeader("Authorization") String authHeader,
+          @RequestParam(name = "school_id", required = false) Long schoolId,
           @RequestParam(defaultValue = "es") String lang) {
-      return ResponseEntity.ok(CatalogsService.getPaymentConcepts(lang));
+      String token = authHeader.replaceFirst("^Bearer\\s+", "");
+      Long tokenUserId = jwtUtil.extractUserId(token);
+      return ResponseEntity.ok(CatalogsService.getPaymentConcepts(lang, tokenUserId, schoolId));
   }
 
   @GetMapping("/payment-statuses")

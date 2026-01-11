@@ -35,8 +35,8 @@ public class CatalogsService {
   @Autowired
   private PlanModulesRepository planModulesRepository;
 
-  public List<PaymentConceptsDto> getPaymentConcepts(String lang) {
-      return paymentConceptsRepository.findAllByLang(lang);
+  public List<PaymentConceptsDto> getPaymentConcepts(String lang, Long tokenUserId, Long schoolId) {
+      return paymentConceptsRepository.findAllByLang(lang, tokenUserId, schoolId);
   }
 
   public List<PaymentStatusesDto> getPaymentStatuses(String lang) {
