@@ -10,7 +10,6 @@ public class CreateCoffeeMenuDTO {
     private String      descriptionEs;
     private String      descriptionEn;
     private BigDecimal  price;
-    private Boolean     enabled;
     private String      image;
     
     public Integer getSchoolId() {
@@ -54,12 +53,6 @@ public class CreateCoffeeMenuDTO {
     }
     public void setPrice(BigDecimal price) {
       this.price = price;
-    }
-    public Boolean getEnabled() {
-      return enabled;
-    }
-    public void setEnabled(Boolean enabled) {
-      this.enabled = enabled;
     }
     public String getImage() {
       return image;

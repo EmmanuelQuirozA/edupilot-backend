@@ -44,7 +44,7 @@ public class CoffeeController {
     this.jwtUtil = jwtUtil;
   }
 
-  // @RequirePermission(module = "coffee", action = "r")
+  // @RequirePermission(module = "point-of-sale", action = "r")
   @GetMapping("/my-purchases")
   public ResponseEntity<List<SaleGroupDTO>> getMyPurchases(
       @RequestHeader("Authorization") String authHeader,
@@ -58,7 +58,7 @@ public class CoffeeController {
   }
 
   // Endpoint for retrieving the list of paymentDetails.
-  @RequirePermission(module = "coffee", action = "r")
+  @RequirePermission(module = "point-of-sale", action = "r")
   @GetMapping("/menu")
   public ResponseEntity<?> getCoffeeMenu(
     @RequestHeader("Authorization") String authHeader,
@@ -97,7 +97,7 @@ public class CoffeeController {
   }
 
   // Endpoint for retrieving the list of paymentDetails.
-  @RequirePermission(module = "coffee", action = "r")
+  @RequirePermission(module = "point-of-sale", action = "r")
   @GetMapping("/sales")
   public ResponseEntity<?> getCoffeeSales(
     @RequestHeader("Authorization") String authHeader,
@@ -147,7 +147,7 @@ public class CoffeeController {
   }
 
   // Endpoint to update an existing group.
-  @RequirePermission(module = "coffee", action = "u")
+  @RequirePermission(module = "point-of-sale", action = "u")
   @PutMapping(
     path     = "/update/{menu_id}",
     produces = MediaType.APPLICATION_JSON_VALUE
@@ -206,7 +206,7 @@ public class CoffeeController {
   }
 
   // Endpoint to toggle or change the group's status.
-  @RequirePermission(module = "coffee", action = "u")
+  @RequirePermission(module = "point-of-sale", action = "u")
   @PostMapping("/update/{menu_id}/status")
   public ResponseEntity<String> changeMenuStatus( @RequestHeader("Authorization") String authHeader,
                                                   @PathVariable("menu_id") Long menu_id,
@@ -221,7 +221,7 @@ public class CoffeeController {
     }
   }
 
-  @RequirePermission(module = "coffee", action = "r")
+  @RequirePermission(module = "point-of-sale", action = "r")
   @GetMapping("/{menuId}")
   public ResponseEntity<CoffeeMenuDTO> getMenu(
       @RequestHeader("Authorization") String authHeader,
@@ -241,7 +241,7 @@ public class CoffeeController {
    * POST /api/coffee-sales/process?lang=es
    * Body = { userId:123, items:[{menuId:1,quantity:2},…] }
    */
-  @RequirePermission(module = "coffee", action = "c")
+  @RequirePermission(module = "point-of-sale", action = "c")
   @PostMapping(
     path = "/process",
     consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -273,7 +273,7 @@ public class CoffeeController {
     }
   }
 
-  @RequirePermission(module = "coffee", action = "c")
+  @RequirePermission(module = "point-of-sale", action = "c")
   @PostMapping(
     path     = "/create",
     consumes = MediaType.MULTIPART_FORM_DATA_VALUE,

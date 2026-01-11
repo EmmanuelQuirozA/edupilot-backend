@@ -90,9 +90,9 @@ public class SchoolController {
                 try {
                         String token = authHeader.substring(7);
                         // Long token_user_id = jwtUtil.extractUserId(token);
-                        Long token_school_id = jwtUtil.extractSchoolId(token);
-                        List<SchoolsList> schools = schoolService.getSchoolsList(token_school_id, school_id, lang, status_filter);
-                        // System.out.println(token_school_id);
+                        Long token_user_id = jwtUtil.extractUserId(token);
+                        List<SchoolsList> schools = schoolService.getSchoolsList(token_user_id, school_id, lang, status_filter);
+                        // System.out.println(token_user_id);
                         return ResponseEntity.ok(schools);
                 } catch (Exception e) {
                         return ResponseEntity.badRequest().body(e.getMessage());

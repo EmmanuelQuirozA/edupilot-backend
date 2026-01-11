@@ -431,7 +431,8 @@ public class UserRepository {
 			AND (
 					sc.school_id         = uc.school_id
 				OR sc.related_school_id = uc.school_id
-			);
+			)
+		LIMIT 10;
 		""";
 
 		Query q = entityManager.createNativeQuery(sql);
