@@ -43,8 +43,8 @@ public class CatalogsService {
       return paymentStatusesRepository.findAllByLang(lang);
   }
 
-  public List<PaymentThroughDto> getPaymentThrough(String lang) {
-      return paymentThroughRepository.findAllByLang(lang);
+  public List<PaymentThroughDto> getPaymentThrough(String lang, Long tokenUserId, Long schoolId) {
+      return paymentThroughRepository.findAllByLang(lang, tokenUserId, schoolId);
   }
 
   public List<ScholarLevelsDto> getScholarLevels(String lang) {
