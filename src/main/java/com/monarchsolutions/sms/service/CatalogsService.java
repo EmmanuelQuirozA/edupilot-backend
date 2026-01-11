@@ -8,8 +8,10 @@ import com.monarchsolutions.sms.dto.catalogs.PeriodOfTimeDto;
 import com.monarchsolutions.sms.dto.catalogs.PlanModuleDto;
 
 import com.monarchsolutions.sms.repository.catalogs.PaymentConceptsRepository;
+import com.monarchsolutions.sms.repository.catalogs.PaymentConceptsProcedureRepository;
 import com.monarchsolutions.sms.repository.catalogs.PaymentStatusesRepository;
 import com.monarchsolutions.sms.repository.catalogs.PaymentThroughRepository;
+import com.monarchsolutions.sms.repository.catalogs.PaymentThroughProcedureRepository;
 import com.monarchsolutions.sms.repository.catalogs.ScholarLevelsRepository;
 import com.monarchsolutions.sms.repository.catalogs.PeriodsOfTimeRepository;
 import com.monarchsolutions.sms.repository.catalogs.PlanModulesRepository;
@@ -18,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class CatalogsService {
@@ -25,9 +28,13 @@ public class CatalogsService {
   @Autowired
   private PaymentConceptsRepository paymentConceptsRepository;
   @Autowired
+  private PaymentConceptsProcedureRepository paymentConceptsProcedureRepository;
+  @Autowired
   private PaymentStatusesRepository paymentStatusesRepository;
   @Autowired
   private PaymentThroughRepository paymentThroughRepository;
+  @Autowired
+  private PaymentThroughProcedureRepository paymentThroughProcedureRepository;
   @Autowired
   private ScholarLevelsRepository scholarLevelsRepository;
   @Autowired
@@ -39,12 +46,30 @@ public class CatalogsService {
       return paymentConceptsRepository.findAllByLang(lang, tokenUserId, schoolId);
   }
 
+  public Map<String, Object> createPaymentConcept(Long tokenUserId, Object payload, String lang) throws Exception {
+      return paymentConceptsProcedureRepository.createPaymentConcept(tokenUserId, payload, lang);
+  }
+
+  public Map<String, Object> updatePaymentConcept(Long tokenUserId, Long paymentConceptId, Object payload, String lang)
+          throws Exception {
+      return paymentConceptsProcedureRepository.updatePaymentConcept(tokenUserId, paymentConceptId, payload, lang);
+  }
+
   public List<PaymentStatusesDto> getPaymentStatuses(String lang) {
       return paymentStatusesRepository.findAllByLang(lang);
   }
 
   public List<PaymentThroughDto> getPaymentThrough(String lang, Long tokenUserId, Long schoolId) {
       return paymentThroughRepository.findAllByLang(lang, tokenUserId, schoolId);
+  }
+
+  public Map<String, Object> createPaymentThrough(Long tokenUserId, Object payload, String lang) throws Exception {
+      return paymentThroughProcedureRepository.createPaymentThrough(tokenUserId, payload, lang);
+  }
+
+  public Map<String, Object> updatePaymentThrough(Long tokenUserId, Long paymentThroughId, Object payload, String lang)
+          throws Exception {
+      return paymentThroughProcedureRepository.updatePaymentThrough(tokenUserId, paymentThroughId, payload, lang);
   }
 
   public List<ScholarLevelsDto> getScholarLevels(String lang) {
