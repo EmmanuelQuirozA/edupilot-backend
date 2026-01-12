@@ -1,87 +1,92 @@
 package com.monarchsolutions.sms.repository.catalogs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Types;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import javax.sql.DataSource;
+import java.util.List;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.ParameterMode;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.StoredProcedureQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class PaymentThroughProcedureRepository {
 
-    @Autowired
-    private DataSource dataSource;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Autowired
     private ObjectMapper objectMapper;
 
     public Map<String, Object> createPaymentThrough(Long tokenUserId, Object payload, String lang) throws Exception {
-        String call = "{CALL createPaymentThrough(?,?,?)}";
-        Map<String, Object> response = new LinkedHashMap<>();
         String payloadJson = objectMapper.writeValueAsString(payload);
 
-        try (Connection conn = dataSource.getConnection(); CallableStatement stmt = conn.prepareCall(call)) {
-            if (tokenUserId != null) {
-                stmt.setInt(1, tokenUserId.intValue());
-            } else {
-                stmt.setNull(1, Types.INTEGER);
-            }
+        StoredProcedureQuery query = entityManager.createStoredProcedureQuery("createPaymentThrough");
+        query.registerStoredProcedureParameter(1, Integer.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter(2, String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter(3, String.class, ParameterMode.IN);
 
-            stmt.setString(2, payloadJson);
-            stmt.setString(3, lang);
+        query.setParameter(1, tokenUserId != null ? tokenUserId.intValue() : null);
+        query.setParameter(2, payloadJson);
+        query.setParameter(3, lang);
 
-            boolean hasResultSet = stmt.execute();
-            if (hasResultSet) {
-                try (ResultSet rs = stmt.getResultSet()) {
-                    if (rs.next()) {
-                        String jsonResponse = rs.getString(1);
-                        response = objectMapper.readValue(jsonResponse, Map.class);
-                    }
-                }
-            }
-        }
-
-        return response;
+        query.execute();
+        return readResponse(query.getResultList());
     }
 
     public Map<String, Object> updatePaymentThrough(Long tokenUserId, Long paymentThroughId, Object payload, String lang)
             throws Exception {
-        String call = "{CALL updatePaymentThrough(?,?,?,?)}";
-        Map<String, Object> response = new LinkedHashMap<>();
         String payloadJson = objectMapper.writeValueAsString(payload);
 
-        try (Connection conn = dataSource.getConnection(); CallableStatement stmt = conn.prepareCall(call)) {
-            if (tokenUserId != null) {
-                stmt.setInt(1, tokenUserId.intValue());
-            } else {
-                stmt.setNull(1, Types.INTEGER);
-            }
+        StoredProcedureQuery query = entityManager.createStoredProcedureQuery("updatePaymentThrough");
+        query.registerStoredProcedureParameter(1, Integer.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter(2, Integer.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter(3, String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter(4, String.class, ParameterMode.IN);
 
-            if (paymentThroughId != null) {
-                stmt.setInt(2, paymentThroughId.intValue());
-            } else {
-                stmt.setNull(2, Types.INTEGER);
-            }
+        query.setParameter(1, tokenUserId != null ? tokenUserId.intValue() : null);
+        query.setParameter(2, paymentThroughId != null ? paymentThroughId.intValue() : null);
+        query.setParameter(3, payloadJson);
+        query.setParameter(4, lang);
 
-            stmt.setString(3, payloadJson);
-            stmt.setString(4, lang);
+        query.execute();
+        return readResponse(query.getResultList());
+    }
 
-            boolean hasResultSet = stmt.execute();
-            if (hasResultSet) {
-                try (ResultSet rs = stmt.getResultSet()) {
-                    if (rs.next()) {
-                        String jsonResponse = rs.getString(1);
-                        response = objectMapper.readValue(jsonResponse, Map.class);
-                    }
-                }
-            }
+    private Map<String, Object> readResponse(List<?> results) throws Exception {
+        Map<String, Object> response = new LinkedHashMap<>();
+        if (results == null || results.isEmpty()) {
+            return response;
         }
 
-        return response;
+        Object last = results.get(results.size() - 1);
+        Object payload = unwrapPayload(last);
+        if (payload == null) {
+            return response;
+        }
+
+        if (payload instanceof Map<?, ?> mapPayload) {
+            response.putAll((Map<String, Object>) mapPayload);
+            return response;
+        }
+
+        String jsonResponse = payload.toString();
+        if (jsonResponse == null || jsonResponse.isBlank()) {
+            return response;
+        }
+
+        return objectMapper.readValue(jsonResponse, Map.class);
+    }
+
+    private Object unwrapPayload(Object payload) {
+        if (payload instanceof Object[] arrayPayload) {
+            if (arrayPayload.length == 0) {
+                return null;
+            }
+            return arrayPayload[0];
+        }
+        return payload;
     }
 }
