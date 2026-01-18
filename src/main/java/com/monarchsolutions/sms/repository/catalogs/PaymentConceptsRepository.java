@@ -14,9 +14,14 @@ public interface PaymentConceptsRepository extends JpaRepository<PaymentConcepts
   
   @Query(value = """
     SELECT
+      pt.school_id,
       pt.payment_concept_id AS id,
       CASE WHEN :lang = 'en' THEN pt.name_en ELSE pt.name_es END AS name,
-      CASE WHEN :lang = 'en' THEN pt.description_en ELSE pt.description_es END AS description
+      CASE WHEN :lang = 'en' THEN pt.description_en ELSE pt.description_es END AS description,
+      name_es,
+      name_en,
+      description_es,
+      description_en
     FROM payment_concepts pt
     JOIN users u_call
       ON u_call.user_id = :token_user_id
@@ -84,7 +89,7 @@ public interface PaymentConceptsRepository extends JpaRepository<PaymentConcepts
         OR pt.school_id IS NULL
       )
     )
-    ORDER BY pt.payment_concept_id DESC
+    ORDER BY pt.payment_concept_id ASC
     """,
     nativeQuery = true)
   List<PaymentConceptsDto> findAllByLang(@Param("lang") String lang,

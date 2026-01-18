@@ -57,6 +57,12 @@ public class RoleRepository {
         roles.setRole_description(data[2] != null ? (String) data[2] : null);
         roles.setRole_status(data[3] != null ? (String) data[3] : null);
         roles.setEnabled(data[4] != null ? (Boolean) data[4] : null);
+        roles.setSchool_id(data[5] != null ? ((Number) data[5]).longValue() : null);
+        roles.setIs_super_admin(data[6] != null ? (Boolean) data[6] : null);
+        roles.setName_en(data[7] != null ? (String) data[7] : null);
+        roles.setName_es(data[8] != null ? (String) data[8] : null);
+        roles.setDescription_en(data[9] != null ? (String) data[9] : null);
+        roles.setDescription_es(data[10] != null ? (String) data[10] : null);
 
         return roles;
     }

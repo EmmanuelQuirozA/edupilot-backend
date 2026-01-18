@@ -13,8 +13,11 @@ public interface PaymentThroughRepository extends JpaRepository<PaymentThroughEn
   
   @Query(value = """
     SELECT
+      pt.school_id,
       pt.payment_through_id AS id,
-      CASE WHEN :lang = 'en' THEN pt.name_en ELSE pt.name_es END AS name
+      CASE WHEN :lang = 'en' THEN pt.name_en ELSE pt.name_es END AS name,
+      name_en,
+      name_es
     FROM payment_through pt
     JOIN users u_call
       ON u_call.user_id = :token_user_id
@@ -68,7 +71,7 @@ public interface PaymentThroughRepository extends JpaRepository<PaymentThroughEn
         OR pt.school_id IS NULL
       )
     )
-    ORDER BY pt.payment_through_id DESC
+    ORDER BY pt.payment_through_id ASC
     """,
     nativeQuery = true)
   List<PaymentThroughDto> findAllByLang(

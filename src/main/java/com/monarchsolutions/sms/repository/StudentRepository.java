@@ -45,6 +45,7 @@ public class StudentRepository {
 	public PageResult<Map<String,Object>> getStudentsList(
 		Long tokenSchoolId,  
 		Long student_id,
+		Long school_id,
 		String register_id,
 		String full_name,
 		String payment_reference,
@@ -58,7 +59,7 @@ public class StudentRepository {
 		String order_by,
 		String order_dir
 	) throws SQLException {
-		String call = "{CALL getStudentsList(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}";
+		String call = "{CALL getStudentsList(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}";
 		List<Map<String,Object>> content = new ArrayList<>();
 		long totalCount = 0;
 
@@ -69,6 +70,7 @@ public class StudentRepository {
 			// 1) the IDs
 			if (tokenSchoolId != null) { stmt.setInt(idx++, tokenSchoolId.intValue()); } else { stmt.setNull(idx++, Types.INTEGER); }				
 			if (student_id != null) { stmt.setInt(idx++, student_id.intValue()); } else { stmt.setNull(idx++, Types.INTEGER); }
+			if (school_id != null) { stmt.setInt(idx++, school_id.intValue()); } else { stmt.setNull(idx++, Types.INTEGER); }
 
 			// 2) the filters
 			stmt.setString(idx++, register_id);

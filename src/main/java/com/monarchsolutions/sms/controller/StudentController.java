@@ -74,6 +74,7 @@ public class StudentController {
     public ResponseEntity<?> getStudentsList(
         @RequestHeader("Authorization") String authHeader,
         @RequestParam(required = false) Long student_id,
+        @RequestParam(required = false) Long school_id,
         @RequestParam(required = false) String register_id,
         @RequestParam(required = false) String full_name,
         @RequestParam(required = false) String payment_reference,
@@ -94,6 +95,7 @@ public class StudentController {
             PageResult<Map<String,Object>> page = studentService.getStudentsList(
                 token_user_id,  
                 student_id,
+                school_id,
                 register_id,
                 full_name,
                 payment_reference,

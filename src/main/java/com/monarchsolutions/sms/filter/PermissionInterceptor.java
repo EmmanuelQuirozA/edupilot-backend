@@ -67,13 +67,14 @@ public class PermissionInterceptor implements HandlerInterceptor {
             return true;
         }
 
+        Long schoolId = jwtUtil.extractSchoolId(token);
         Long roleId = jwtUtil.extractRoleId(token);
         if (roleId == null) {
             writeError(response, HttpStatus.UNAUTHORIZED, "Token does not contain role_id");
             return false;
         }
 
-        boolean allowed = permissionService.hasPermission(roleId, requirePermission.module(), requirePermission.action());
+        boolean allowed = permissionService.hasPermission(schoolId, roleId, requirePermission.module(), requirePermission.action());
         if (!allowed) {
             String message = String.format("Role %d lacks '%s' permission on module '%s'", roleId, requirePermission.action(), requirePermission.module());
             writeError(response, HttpStatus.FORBIDDEN, message);

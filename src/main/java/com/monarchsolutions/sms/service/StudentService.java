@@ -30,6 +30,7 @@ public class StudentService {
     public PageResult<Map<String,Object>> getStudentsList(
         Long tokenSchoolId,  
         Long student_id,
+        Long school_id,
         String register_id,
         String full_name,
         String payment_reference,
@@ -47,6 +48,7 @@ public class StudentService {
         return studentRepository.getStudentsList(
             tokenSchoolId,  
             student_id,
+            school_id,
             register_id,
             full_name,
             payment_reference,
