@@ -368,6 +368,29 @@ public class SchoolRepository {
 		throw new IllegalStateException("Unexpected type for image: " + single.getClass());
 	}
 
+	public String getSchoolCommercialName(Long tokenSchoolId) {
+		var sql = """
+			SELECT s.commercial_name
+			FROM edupilot.schools s
+			WHERE s.school_id = :token_school_id;
+		""";
+
+		Object single = entityManager
+			.createNativeQuery(sql)
+			.setParameter("token_school_id", tokenSchoolId)
+			.getSingleResult();
+
+		if (single == null) {
+			return null;
+		}
+
+		if (single instanceof String name) {
+			return name;
+		}
+
+		throw new IllegalStateException("Unexpected type for commercial_name: " + single.getClass());
+	}
+
 	public Map<String, Object> getSchoolDetails(Long tokenUserId, Long schoolId, String lang) throws SQLException {
 		Map<String, Object> response = new LinkedHashMap<>();
 

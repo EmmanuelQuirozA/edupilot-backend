@@ -145,4 +145,8 @@ public class SchoolService {
 		return schoolRepository.getUserSchool(token_user_id);
 	}
 
+	public String getSchoolCommercialName(Long tokenSchoolId) {
+		return schoolRepository.getSchoolCommercialName(tokenSchoolId);
+	}
+
 }
