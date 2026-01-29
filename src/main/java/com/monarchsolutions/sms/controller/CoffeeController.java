@@ -97,7 +97,7 @@ public class CoffeeController {
   }
 
   // Endpoint for retrieving the list of paymentDetails.
-  @RequirePermission(module = "point-of-sale", action = "r")
+  @RequirePermission(module = "payments", action = "r")
   @GetMapping("/sales")
   public ResponseEntity<?> getCoffeeSales(
     @RequestHeader("Authorization") String authHeader,
@@ -128,6 +128,47 @@ public class CoffeeController {
       PageResult<Map<String,Object>> page = service.getCoffeeSales(
         token_user_id,
         effectiveuserId,
+        school_id,
+        full_name,
+        item_name,
+        created_at,
+        lang,
+        offset,
+        limit,
+        exportAll,
+        order_by,
+        order_dir
+      );
+
+      return ResponseEntity.ok(page);
+    } catch (Exception e) {
+      return ResponseEntity.badRequest().body(e.getMessage());
+    }
+  }
+
+  // Endpoint for retrieving the list of paymentDetails.
+  @GetMapping("/my-consumption")
+  public ResponseEntity<?> getMyConsumption(
+    @RequestHeader("Authorization") String authHeader,
+    @RequestParam(required = false) Long school_id,
+    @RequestParam(required = false) String full_name,
+    @RequestParam(required = false) String item_name,
+    @RequestParam(required = false) LocalDate created_at,
+    @RequestParam(defaultValue = "es")          String lang,
+    @RequestParam(defaultValue = "0")           Integer offset,
+    @RequestParam(defaultValue = "10")          Integer limit,
+    @RequestParam(name = "export_all", defaultValue = "false") Boolean exportAll,
+    @RequestParam(required = false) String order_by,
+    @RequestParam(required = false) String order_dir
+  ) throws Exception {
+    try {
+      // strip off "Bearer "
+      String token    = authHeader.replaceFirst("^Bearer\\s+", "");
+      Long   token_user_id = jwtUtil.extractUserId(token);
+
+      PageResult<Map<String,Object>> page = service.getCoffeeSales(
+        token_user_id,
+        token_user_id,
         school_id,
         full_name,
         item_name,

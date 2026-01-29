@@ -1,5 +1,6 @@
 package com.monarchsolutions.sms.controller;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -11,13 +12,22 @@ import com.monarchsolutions.sms.dto.school.SchoolsList;
 import com.monarchsolutions.sms.service.SchoolService;
 import com.monarchsolutions.sms.util.JwtUtil;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.monarchsolutions.sms.annotation.RequirePermission;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +39,9 @@ public class SchoolController {
 
 	@Autowired
 	private JwtUtil jwtUtil;
+
+	@Value("${app.schools_logos-dir}")
+	private String schools_logosDir;
 
 	@RequirePermission(module = "schools", action = "r")
 	@GetMapping("/paged")
@@ -81,7 +94,6 @@ public class SchoolController {
 	}
 
 	// Endpoint for retrieving the list of schools.
-	@RequirePermission(module = "schools", action = "r")
         @GetMapping("/list")
         public ResponseEntity<?> getSchoolsList(@RequestHeader("Authorization") String authHeader,
                                                                                 @RequestParam(required = false) Long school_id,
@@ -208,18 +220,52 @@ public class SchoolController {
 
 	@RequirePermission(module = "schools", action = "r")
 	@GetMapping("/school-image")
-	public ResponseEntity<String> getSchoolImage(
+	public ResponseEntity<Resource> getSchoolImage(
 		@RequestHeader("Authorization") String authHeader,
-		@RequestParam(required = false) Long school_id
+      	HttpServletRequest request
 	) {
+    	try {
 		// 2) Extract the token and get userId
 		String token = authHeader.substring(7);
 		Long token_user_id = jwtUtil.extractUserId(token);
+		Long school_id = jwtUtil.extractSchoolId(token);
 		String school_image = schoolService.getSchoolImage(token_user_id, school_id);
-		return ResponseEntity.ok(school_image);
+
+		// if there's no image configured, just return 204 No Content
+		if (school_image == null || school_image.trim().isEmpty()) {
+			return ResponseEntity.noContent().build();
+		}// 1) Resolve path safely
+		Path filePath = Paths.get(schools_logosDir).resolve(school_image).normalize();
+
+		// 2) Load as Resource
+		Resource resource = new UrlResource(filePath.toUri());
+		if (!resource.exists() || !resource.isReadable()) {
+			return ResponseEntity.notFound().build();
+		}
+
+		// 3) Determine content type
+		String contentType = request.getServletContext()
+			.getMimeType(resource.getFile().getAbsolutePath());
+		if (contentType == null) {
+			contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+		}
+
+		// 4) Return as attachment
+		return ResponseEntity.ok()
+			.contentType(MediaType.parseMediaType(contentType))
+			.header(HttpHeaders.CONTENT_DISPOSITION,
+					"attachment; filename=\"" + resource.getFilename() + "\"")
+			.body(resource);
+
+		} catch (MalformedURLException ex) {
+		ex.printStackTrace();
+		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		} catch (IOException ex) {
+		ex.printStackTrace();
+		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
 	}
 
-	@RequirePermission(module = "schools", action = "r")
 	@GetMapping("/commercial-name")
 	public ResponseEntity<String> getCommercialName(
 		@RequestHeader("Authorization") String authHeader

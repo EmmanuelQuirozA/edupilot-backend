@@ -20,7 +20,6 @@ public class ClassController {
   private JwtUtil jwtUtil;
 
   // Endpoint for retrieving the list of paymentDetails.
-  @RequirePermission(module = "classes", action = "r")
   @GetMapping("")
   public ResponseEntity<?> getClasses(
     @RequestHeader("Authorization") String authHeader,

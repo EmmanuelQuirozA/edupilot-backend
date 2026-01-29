@@ -97,7 +97,6 @@ public class GroupController {
         }
     }
 	
-        @RequirePermission(module = "classes", action = "r")
     @GetMapping("/catalog")
     public ResponseEntity<List<GetClassesCatalog>> getClassesCatalog(
         @RequestHeader("Authorization") String authHeader,
